@@ -232,6 +232,22 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
     setState(() => _selectedTable = tableId);
   }
 
+  /// The engine paints its own hover/selection outline in the theme's selection
+  /// color. We suppress it (transparent) and draw our own chrome in the overlay.
+  DiagramTheme _diagramTheme(Brightness brightness) {
+    final base = brightness == Brightness.dark
+        ? DiagramTheme.dark
+        : DiagramTheme.light;
+    return base.copyWith(
+      selection: base.selection.copyWith(
+        color: const Color(0x00000000),
+        handleFill: const Color(0x00000000),
+        handleHover: const Color(0x00000000),
+        marquee: const Color(0x553B5BFF),
+      ),
+    );
+  }
+
   Future<void> _openSettings() async {
     await showDialog<void>(
       context: context,
@@ -325,9 +341,7 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
                     Expanded(
                       child: DiagramCanvas(
                         controller: controller,
-                        theme: theme.brightness == Brightness.dark
-                            ? DiagramTheme.dark
-                            : DiagramTheme.light,
+                        theme: _diagramTheme(theme.brightness),
                       ),
                     ),
                   ],
@@ -554,6 +568,24 @@ class _SettingsDialog extends StatelessWidget {
                     value: settings.showMinimap,
                     onChanged: (v) =>
                         onChanged(settings.copyWith(showMinimap: v)),
+                  ),
+                  const SizedBox(height: 8),
+                  const _SectionLabel('Selection'),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Focus mode'),
+                    subtitle: const Text('Dim everything but the selection'),
+                    value: settings.focusMode,
+                    onChanged: (v) =>
+                        onChanged(settings.copyWith(focusMode: v)),
+                  ),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Cardinality markers'),
+                    subtitle: const Text('Show 1 / N on selected edges'),
+                    value: settings.showCardinality,
+                    onChanged: (v) =>
+                        onChanged(settings.copyWith(showCardinality: v)),
                   ),
                 ],
               ),

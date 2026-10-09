@@ -4,17 +4,19 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:vyuh_diagram_core/vyuh_diagram_core.dart'
-    show BoundEndpoint, DiagramPoint, ElementSelection;
+    show BoundEndpoint, DiagramPoint, DiagramRect, ElementSelection;
 import 'package:vyuh_diagram_flutter/extension_api.dart';
 
 import 'lens_state.dart';
 
-/// Draws a "marching ants" signal along connectors: the selected table's edges,
-/// or every edge when the *Animate all edges* setting is on.
+/// Draws all pod_lens selection chrome, because the engine's built-in
+/// hover/selection outline is disabled via a transparent selection theme.
 ///
-/// Performance: the animation clock only runs while there is something to
-/// animate. A cheap timer polls the selection a few times a second and starts
-/// or stops the ticker, so an idle canvas does no per-frame work.
+/// Responsibilities:
+/// - a marching-ants signal on the selected node's edges (optionally all),
+/// - a selection outline around selected table nodes,
+/// - focus dimming of everything except the selected node and its neighbours,
+/// - `1`/`N` cardinality markers on the selected node's edges.
 final class PodLensSignalsExtension extends DiagramFlutterExtension {
   PodLensSignalsExtension({required this.lens}) : super(id: 'podlens.signals');
 
@@ -43,16 +45,20 @@ class _SignalOverlayState extends State<_SignalOverlay>
   );
   Timer? _gate;
   bool _running = false;
+  Set<String> _selected = const {};
 
   @override
   void initState() {
     super.initState();
-    widget.lens.addListener(_onSettings);
+    widget.lens.addListener(_onChange);
+    widget.host.camera.changes.addListener(_onChange);
     _gate = Timer.periodic(const Duration(milliseconds: 150), (_) => _sync());
     _sync();
   }
 
-  void _onSettings() => _sync();
+  void _onChange() {
+    if (mounted) setState(() {});
+  }
 
   bool get _hasSelection {
     final selection = widget.host.controller.selection;
@@ -65,23 +71,29 @@ class _SignalOverlayState extends State<_SignalOverlay>
     final should =
         settings.connectionAnimations &&
         (settings.animateAllEdges || _hasSelection);
-    if (should == _running) return;
-    _running = should;
-    if (should) {
-      _clock.repeat();
-    } else {
-      _clock.stop();
+    if (should != _running) {
+      _running = should;
+      if (should) {
+        _clock.repeat();
+      } else {
+        _clock.stop();
+      }
     }
     if (mounted) setState(() {});
   }
 
-  /// Only table nodes are selectable. Connectors can be clicked or marquee-
-  /// selected by the canvas, so drop anything that is not a shape from the
-  /// selection (edges then never show a selection box).
+  /// Only table nodes are selectable; drop connectors from the selection.
   void _normalizeSelection() {
     final controller = widget.host.controller;
     final selection = controller.selection;
-    if (selection is! ElementSelection || selection.elementIds.isEmpty) return;
+    if (selection is! ElementSelection) {
+      if (_selected.isNotEmpty) _selected = const {};
+      return;
+    }
+    if (selection.elementIds.isEmpty) {
+      if (_selected.isNotEmpty) _selected = const {};
+      return;
+    }
     final scene = controller.scene;
     final kept = <String>{};
     var changed = false;
@@ -92,13 +104,17 @@ class _SignalOverlayState extends State<_SignalOverlay>
         changed = true;
       }
     }
-    if (!changed) return;
-    controller.select(kept);
+    if (changed) {
+      controller.select(kept);
+      return;
+    }
+    _selected = kept;
   }
 
   @override
   void dispose() {
-    widget.lens.removeListener(_onSettings);
+    widget.lens.removeListener(_onChange);
+    widget.host.camera.changes.removeListener(_onChange);
     _gate?.cancel();
     _clock.dispose();
     super.dispose();
@@ -108,29 +124,27 @@ class _SignalOverlayState extends State<_SignalOverlay>
   Widget build(BuildContext context) {
     final controller = widget.host.controller;
     final camera = widget.host.camera;
-    final animateAll = widget.lens.value.animateAllEdges;
+    final settings = widget.lens.value;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+
     return IgnorePointer(
       child: SizedBox.expand(
         child: RepaintBoundary(
           child: AnimatedBuilder(
             animation: _clock,
-            builder: (context, _) {
-              Set<String> ids = const {};
-              if (!animateAll) {
-                final selection = controller.selection;
-                if (selection is ElementSelection) ids = selection.elementIds;
-              }
-              return CustomPaint(
-                painter: _SignalPainter(
-                  selected: ids,
-                  animateAll: animateAll,
-                  active: _running,
-                  scene: controller.scene,
-                  camera: camera,
-                  phase: _clock.value,
-                ),
-              );
-            },
+            builder: (context, _) => CustomPaint(
+              painter: _OverlayPainter(
+                selected: _selected,
+                scene: controller.scene,
+                camera: camera,
+                phase: _clock.value,
+                active: _running,
+                animateAll: settings.animateAllEdges,
+                focus: settings.focusMode,
+                cardinality: settings.showCardinality,
+                dark: dark,
+              ),
+            ),
           ),
         ),
       ),
@@ -138,78 +152,207 @@ class _SignalOverlayState extends State<_SignalOverlay>
   }
 }
 
-class _SignalPainter extends CustomPainter {
-  _SignalPainter({
+class _OverlayPainter extends CustomPainter {
+  _OverlayPainter({
     required this.selected,
-    required this.animateAll,
-    required this.active,
     required this.scene,
     required this.camera,
     required this.phase,
+    required this.active,
+    required this.animateAll,
+    required this.focus,
+    required this.cardinality,
+    required this.dark,
   });
 
   final Set<String> selected;
-  final bool animateAll;
-  final bool active;
   final ResolvedScene scene;
   final dynamic camera;
   final double phase;
+  final bool active;
+  final bool animateAll;
+  final bool focus;
+  final bool cardinality;
+  final bool dark;
 
-  static const _signal = Color(0xFF22D3EE);
+  static const _accent = Color(0xFF22D3EE);
+  static const _good = Color(0xFF34D399);
+  static const _many = Color(0xFFF59E0B);
   static const _dash = 7.0;
   static const _gap = 5.0;
 
+  Offset _screen(DiagramPoint p) {
+    final s = camera.worldToScreen(p) as DiagramPoint;
+    return Offset(s.x, s.y);
+  }
+
+  DiagramRect? _shapeBounds(String id) {
+    final element = scene.elementById(id);
+    return element is ResolvedShape ? element.bounds : null;
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
-    if (!active) return;
-    if (!animateAll && selected.isEmpty) return;
+    if (selected.isEmpty && !animateAll) return;
 
+    final related = <String>{...selected};
+    final edges = <ResolvedConnector>[];
+    for (final element in scene.elements) {
+      if (element is! ResolvedConnector) continue;
+      final start = element.source.start;
+      final end = element.source.end;
+      final startId = start is BoundEndpoint ? start.elementId : null;
+      final endId = end is BoundEndpoint ? end.elementId : null;
+      final touches =
+          (startId != null && selected.contains(startId)) ||
+          (endId != null && selected.contains(endId));
+      if (touches) {
+        edges.add(element);
+        if (startId != null) related.add(startId);
+        if (endId != null) related.add(endId);
+      } else if (animateAll) {
+        edges.add(element);
+      }
+    }
+
+    // Focus: dim everything, then punch holes for selected + neighbours.
+    if (focus && selected.isNotEmpty) {
+      canvas.saveLayer(Offset.zero & size, Paint());
+      canvas.drawRect(
+        Offset.zero & size,
+        Paint()..color = (dark ? Colors.black : Colors.white).withValues(
+          alpha: dark ? 0.62 : 0.66,
+        ),
+      );
+      final clear = Paint()..blendMode = BlendMode.clear;
+      for (final id in related) {
+        final bounds = _shapeBounds(id);
+        if (bounds == null) continue;
+        final tl = _screen(DiagramPoint(bounds.left, bounds.top));
+        final br = _screen(
+          DiagramPoint(bounds.left + bounds.width, bounds.top + bounds.height),
+        );
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromPoints(tl, br).inflate(6),
+            const Radius.circular(12),
+          ),
+          clear,
+        );
+      }
+      canvas.restore();
+    }
+
+    // Selection outline.
+    final outline = Paint()
+      ..color = _accent
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2
+      ..strokeJoin = StrokeJoin.round;
+    for (final id in selected) {
+      final bounds = _shapeBounds(id);
+      if (bounds == null) continue;
+      final tl = _screen(DiagramPoint(bounds.left, bounds.top));
+      final br = _screen(
+        DiagramPoint(bounds.left + bounds.width, bounds.top + bounds.height),
+      );
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromPoints(tl, br).inflate(2),
+          const Radius.circular(11),
+        ),
+        outline,
+      );
+    }
+
+    // Edges: ants + cardinality.
     final ants = Paint()
-      ..color = _signal
+      ..color = _accent
       ..strokeWidth = 2.4
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
     final glow = Paint()
-      ..color = _signal.withValues(alpha: 0.3)
+      ..color = _accent.withValues(alpha: 0.3)
       ..strokeWidth = 6
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 6);
 
-    for (final element in scene.elements) {
-      if (element is! ResolvedConnector) continue;
-      if (!animateAll) {
-        final start = element.source.start;
-        final end = element.source.end;
-        final startId = start is BoundEndpoint ? start.elementId : null;
-        final endId = end is BoundEndpoint ? end.elementId : null;
-        if ((startId == null || !selected.contains(startId)) &&
-            (endId == null || !selected.contains(endId))) {
-          continue;
-        }
-      }
-
-      final points = element.points;
+    for (final edge in edges) {
+      final points = edge.points;
       if (points.length < 2) continue;
-
       final path = Path();
       var first = true;
       for (final p in points) {
-        final s = camera.worldToScreen(p) as DiagramPoint;
+        final o = _screen(p);
         if (first) {
-          path.moveTo(s.x, s.y);
+          path.moveTo(o.dx, o.dy);
           first = false;
         } else {
-          path.lineTo(s.x, s.y);
+          path.lineTo(o.dx, o.dy);
         }
       }
-
-      _drawAnts(canvas, path, glow, phase);
-      _drawAnts(canvas, path, ants, phase);
+      if (active) {
+        _drawAnts(canvas, path, glow, phase);
+        _drawAnts(canvas, path, ants, phase);
+      }
+      if (cardinality && selected.isNotEmpty) {
+        _drawCardinality(canvas, edge);
+      }
     }
   }
 
-  /// Draws dashes marching forward by [phase] of one dash period.
+  void _drawCardinality(Canvas canvas, ResolvedConnector edge) {
+    final start = edge.source.start;
+    final end = edge.source.end;
+    final startId = start is BoundEndpoint ? start.elementId : null;
+    final endId = end is BoundEndpoint ? end.elementId : null;
+    final points = edge.points;
+    if (points.length < 2) return;
+
+    // The FK side ("many") is the source; the referenced side ("one") the end.
+    if (startId != null && selected.contains(startId)) {
+      _label(canvas, '1', _screen(points.last), _good, above: true);
+    } else {
+      _label(canvas, 'N', _screen(points.last), _many, above: true);
+    }
+    if (endId != null && selected.contains(endId)) {
+      _label(canvas, '1', _screen(points.first), _good);
+    } else {
+      _label(canvas, 'N', _screen(points.first), _many);
+    }
+  }
+
+  void _label(
+    Canvas canvas,
+    String text,
+    Offset at,
+    Color color, {
+    bool above = false,
+  }) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(
+          color: color,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    final dx = at.dx - painter.width / 2;
+    final dy = above ? at.dy - painter.height - 3 : at.dy + 3;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(dx - 3, dy - 1, painter.width + 6, painter.height + 2),
+        const Radius.circular(3),
+      ),
+      Paint()..color = (dark ? Colors.black : Colors.white).withValues(alpha: 0.72),
+    );
+    painter.paint(canvas, Offset(dx, dy));
+  }
+
   static void _drawAnts(Canvas canvas, Path path, Paint paint, double phase) {
     const period = _dash + _gap;
     final offset = period * phase;
@@ -227,5 +370,5 @@ class _SignalPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_SignalPainter old) => true;
+  bool shouldRepaint(_OverlayPainter old) => true;
 }

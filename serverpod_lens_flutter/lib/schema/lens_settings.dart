@@ -16,6 +16,8 @@ class LensSettings {
     this.showColumnTypes = true,
     this.showGrid = false,
     this.showMinimap = true,
+    this.showCardinality = true,
+    this.focusMode = true,
     this.layout = LensLayout.layered,
   });
 
@@ -34,6 +36,12 @@ class LensSettings {
   /// Show the minimap in the corner.
   final bool showMinimap;
 
+  /// Show 1/N cardinality markers on the selected node's edges.
+  final bool showCardinality;
+
+  /// Dim everything except the selected node and its neighbours.
+  final bool focusMode;
+
   /// Layout used to arrange the tables.
   final LensLayout layout;
 
@@ -43,6 +51,8 @@ class LensSettings {
     bool? showColumnTypes,
     bool? showGrid,
     bool? showMinimap,
+    bool? showCardinality,
+    bool? focusMode,
     LensLayout? layout,
   }) => LensSettings(
     connectionAnimations: connectionAnimations ?? this.connectionAnimations,
@@ -50,6 +60,8 @@ class LensSettings {
     showColumnTypes: showColumnTypes ?? this.showColumnTypes,
     showGrid: showGrid ?? this.showGrid,
     showMinimap: showMinimap ?? this.showMinimap,
+    showCardinality: showCardinality ?? this.showCardinality,
+    focusMode: focusMode ?? this.focusMode,
     layout: layout ?? this.layout,
   );
 }
