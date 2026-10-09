@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:material_ui/material_ui.dart' as diagram_material;
 
 import 'client.dart';
 import 'screens/schema_map_screen.dart';
@@ -26,6 +28,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Serverpod Lens',
+      localizationsDelegates: const [
+        ...GlobalMaterialLocalizations.delegates,
+        diagram_material.GlobalMaterialLocalizations.delegate,
+      ],
       debugShowCheckedModeBanner: false,
       theme: _buildTheme(Brightness.light),
       darkTheme: _buildTheme(Brightness.dark),

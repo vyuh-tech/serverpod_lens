@@ -4,6 +4,7 @@ import 'package:serverpod_lens_flutter/schema/schema_diagram.dart';
 import 'package:vyuh_diagram_codec_svg/vyuh_diagram_codec_svg.dart';
 import 'package:vyuh_diagram_core/vyuh_diagram_core.dart';
 import 'package:vyuh_diagram_core/vyuh_diagram_pango.dart';
+import 'package:vyuh_diagram_extension_layout/vyuh_diagram_extension_layout.dart';
 
 /// Headlessly renders the serverpod_lens schema map to an SVG file.
 ///
@@ -16,6 +17,8 @@ Future<void> main(List<String> args) async {
   final controller = DiagramController(
     configuration: DiagramConfiguration(
       extensions: [
+        SchemaTableExtension(),
+        const LayoutExtension(),
         PangoTextLayoutExtension(
           fontFiles: const [
             '/usr/share/fonts/liberation/LiberationSans-Regular.ttf',
@@ -28,7 +31,7 @@ Future<void> main(List<String> args) async {
   );
 
   try {
-    SchemaDiagram.build(graph, controller: controller);
+    await SchemaDiagram.build(graph, controller: controller);
     final svg = await controller.exportSvg(
       SvgOptions(bounds: controller.scene.bounds),
     );

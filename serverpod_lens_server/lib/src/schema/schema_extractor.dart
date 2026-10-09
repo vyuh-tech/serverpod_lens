@@ -23,6 +23,12 @@ abstract final class SchemaExtractor {
     'vector',
     'halfvec',
     'sparsevec',
+    'bit',
+    'jsonb',
+    'geography',
+    'geographyLineString',
+    'geographyPolygon',
+    'geographyGeometryCollection',
   ];
 
   static const _foreignKeyActions = [
@@ -71,7 +77,7 @@ abstract final class SchemaExtractor {
         final isUnique = (rawIndex['isUnique'] as bool?) ?? false;
         final isPrimary = (rawIndex['isPrimary'] as bool?) ?? false;
         if (isPrimary) primaryKeys.addAll(elements);
-        if (isUnique) uniqueColumns.addAll(elements);
+        if (isUnique && elements.length == 1) uniqueColumns.addAll(elements);
         indexes.add(
           SchemaIndex(
             name: (rawIndex['indexName'] as String?) ?? '',
@@ -120,7 +126,7 @@ abstract final class SchemaExtractor {
       }
 
       final name = (raw['name'] as String?) ?? '';
-      final domain = _domainOf(name);
+      final domain = module;
       moduleCounts[domain] = (moduleCounts[domain] ?? 0) + 1;
 
       tables.add(
@@ -174,16 +180,9 @@ abstract final class SchemaExtractor {
     'postgres',
   };
 
-  static String _domainOf(String tableName) {
-    for (final prefix in const ['public', 'sso', 'elog']) {
-      if (tableName.startsWith('${prefix}_')) return prefix;
-    }
-    return 'other';
-  }
-
   static String _enumName(Object? value, List<String> names) {
     if (value is int && value >= 0 && value < names.length) return names[value];
-    if (value is String && names.contains(value)) return value;
+    if (value is String && value.isNotEmpty) return value;
     return 'unknown';
   }
 }

@@ -25,8 +25,8 @@ server migrations/<v>/definition_project.json
 - Dogfood: `serverpod_lens_server/lib/src/elog_schema/**` holds **122 Serverpod models**
   recreated from the flutter_elog Postgres schema (read-only source). Do not treat
   those as hand-authored; they mirror elog's tables/columns/FKs.
-- Vyuh's automatic graph layout lives in a commercial extension, so
-  `SchemaDiagram` implements its own layered layout.
+- Vyuh Diagram extensions provide the native table renderer, minimap and
+  automatic layout. `SchemaDiagram` only maps Serverpod schema semantics.
 
 This project is a Flutter app (frontend) backed by a Serverpod server (backend). Always build the app's backend with Serverpod.
 Build for multiple users, use Serverpod's built-in authentication, which is already set up in `lib/server.dart`.

@@ -1,38 +1,97 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:serverpod_lens_flutter/schema/lens_state.dart';
-import 'package:serverpod_lens_flutter/schema/podlens_table_extension.dart';
 import 'package:serverpod_lens_flutter/schema/schema_diagram.dart';
-import 'package:serverpod_lens_flutter/schema/schema_workspace.dart';
-import 'package:vyuh_diagram_core/vyuh_diagram_core.dart';
+import 'package:vyuh_diagram_extension_layout/vyuh_diagram_extension_layout.dart';
+import 'package:vyuh_diagram_extension_table/extension_api.dart';
 import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
 
 void main() {
-  test('builds a node per table and an edge per foreign key', () {
-    final json = File('assets/schema_graph.json').readAsStringSync();
-    final graph = SchemaDiagram.graphFromJson(json);
+  final graph = SchemaDiagram.graphFromJson(
+    File('assets/schema_graph.json').readAsStringSync(),
+  );
 
-    expect(graph.tables.length, greaterThan(100));
+  test(
+    'maps every table, column and resolved foreign key to native diagram content',
+    () async {
+      final controller = await SchemaDiagram.build(graph);
+      addTearDown(controller.dispose);
+      final shapes = controller.document.elements
+          .whereType<ShapeElement>()
+          .toList();
+      final edges = controller.document.elements
+          .whereType<ConnectorElement>()
+          .toList();
+      final names = graph.tables.map((table) => table.name).toSet();
+      final foreignKeys = graph.tables
+          .expand((table) => table.foreignKeys)
+          .where((key) => names.contains(key.refTable));
+      expect(shapes.length, graph.tables.length);
+      expect(edges.length, foreignKeys.length);
+      expect(controller.selection, isA<EmptySelection>());
+      for (final table in graph.tables) {
+        final shape = shapes.firstWhere((shape) => shape.id == table.name);
+        final content = shape.textStory!.contents.whereType<TextTable>().single;
+        expect(
+          content.rows.length,
+          table.columns.isEmpty ? 1 : table.columns.length,
+        );
+        expect(shape.ports.length, table.columns.length * 2);
+        for (var index = 0; index < table.columns.length; index++) {
+          expect(
+            content.rows[index].cells[1].blocks.single.plainText,
+            table.columns[index].name,
+          );
+        }
+      }
+      for (final edge in edges) {
+        expect(edge.labels.map((label) => label.story.plainText).last, '1');
+        for (final end in [edge.start, edge.end]) {
+          if (end is BoundEndpoint && end.portId != null) {
+            final shape = shapes.firstWhere(
+              (shape) => shape.id == end.elementId,
+            );
+            expect(shape.ports.any((port) => port.id == end.portId), isTrue);
+          }
+        }
+      }
+    },
+  );
 
-    final controller = DiagramController(
-      configuration: DiagramConfiguration(
-        extensions: [
-          PodLensTableExtension(
-            workspace: SchemaWorkspace(graph.tables),
-            lens: LensState(),
-          ),
-        ],
-      ),
-    );
-    addTearDown(controller.dispose);
-    SchemaDiagram.build(graph, controller: controller);
-
-    final doc = controller.document;
-    final shapes = doc.elements.whereType<ShapeElement>().length;
-    final connectors = doc.elements.whereType<ConnectorElement>().length;
-
-    expect(shapes, graph.tables.length);
-    expect(connectors, greaterThan(150));
-  });
+  test(
+    'native grid layout is undoable and native codecs retain table content and ports',
+    () async {
+      final controller = await SchemaDiagram.build(graph);
+      addTearDown(controller.dispose);
+      final before = {
+        for (final shape
+            in controller.document.elements.whereType<ShapeElement>())
+          shape.id: shape.frame,
+      };
+      await controller.layout(Layout.grid(columns: 8, gap: 56));
+      final after = controller.document.elements
+          .whereType<ShapeElement>()
+          .toList();
+      expect(after.any((shape) => shape.frame != before[shape.id]), isTrue);
+      for (var i = 0; i < after.length; i++) {
+        for (var j = i + 1; j < after.length; j++) {
+          expect(after[i].frame.intersects(after[j].frame), isFalse);
+        }
+      }
+      controller.undo();
+      for (final shape
+          in controller.document.elements.whereType<ShapeElement>()) {
+        expect(shape.frame, before[shape.id]);
+      }
+      final reopened = DiagramController.open(
+        controller.save(DiagramJsonCodec.new),
+        format: DiagramJsonCodec.new,
+        configuration: DiagramConfiguration(
+          extensions: [SchemaTableExtension(), const LayoutExtension()],
+        ),
+      );
+      addTearDown(reopened.dispose);
+      expect(reopened.document.elements, controller.document.elements);
+    },
+  );
 }

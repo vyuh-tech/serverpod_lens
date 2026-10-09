@@ -3,14 +3,24 @@ import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:serverpod_lens_client/serverpod_lens_client.dart'
-    show SchemaColumn, SchemaEnum, SchemaForeignKey, SchemaGraph, SchemaModule, SchemaTable;
+    show
+        SchemaColumn,
+        SchemaEnum,
+        SchemaForeignKey,
+        SchemaGraph,
+        SchemaModule,
+        SchemaTable;
 import 'package:yaml/yaml.dart';
 
 import 'schema_extractor.dart';
 
 /// Result of analyzing an uploaded Serverpod project.
 class ProjectAnalysis {
-  const ProjectAnalysis(this.graph, {this.warnings = const [], this.projectName});
+  const ProjectAnalysis(
+    this.graph, {
+    this.warnings = const [],
+    this.projectName,
+  });
 
   final SchemaGraph graph;
   final List<String> warnings;
@@ -23,8 +33,8 @@ class ProjectAnalysis {
 /// [SchemaGraph].
 ///
 /// Strategy, in order of preference:
-///  1. the newest `migrations/<v>/definition_project.json` (resolved truth),
-///  2. a `definition.json` (framework tables filtered out),
+///  1. the newest migration snapshot, preferring complete `definition.json`,
+///  2. `definition_project.json` when a complete snapshot is unavailable,
 ///  3. `.spy.yaml` models as a fallback (tables, columns, `relation(parent=…)`).
 abstract final class ProjectAnalyzer {
   static final _projectDef = RegExp(
@@ -43,18 +53,21 @@ abstract final class ProjectAnalyzer {
       );
     }
 
-    final projectDefs = <String>[];
-    final fullDefs = <String>[];
+    final projectDefs = <String, String>{};
+    final fullDefs = <String, String>{};
     final spyFiles = <String, String>{};
 
     for (final file in archive) {
       if (!file.isFile) continue;
       final path = file.name;
-      final content = utf8.decode(file.content as List<int>, allowMalformed: true);
+      final content = utf8.decode(
+        file.content as List<int>,
+        allowMalformed: true,
+      );
       if (_projectDef.hasMatch(path)) {
-        projectDefs.add(content);
+        projectDefs[path] = content;
       } else if (_fullDef.hasMatch(path)) {
-        fullDefs.add(content);
+        fullDefs[path] = content;
       } else if (path.endsWith('.spy.yaml') ||
           path.endsWith('.spy.yml') ||
           path.endsWith('.spy')) {
@@ -62,23 +75,25 @@ abstract final class ProjectAnalyzer {
       }
     }
 
-    // 1. definition_project.json files — pick the one with the most tables
-    //    (a zip can contain several server packages).
-    SchemaGraph? best;
-    for (final content in projectDefs) {
-      final graph = _tryDefinition(content, name, projectOnly: false);
-      if (graph != null && (best == null || graph.tables.length > best.tables.length)) {
-        best = graph;
-      }
-    }
-    if (best != null && best.tables.isNotEmpty) {
-      return ProjectAnalysis(_withModules(best, name));
-    }
-
-    // 2. full definition.json (drop framework tables)
-    for (final content in fullDefs) {
-      final graph = _tryDefinition(content, name, projectOnly: true);
-      if (graph != null && graph.tables.isNotEmpty) {
+    // Prefer the complete, newest snapshot so framework/module relations remain
+    // visible. Older migrations must not resurrect tables removed later.
+    final definitions = {...projectDefs, ...fullDefs};
+    final paths = definitions.keys.toList()
+      ..sort((a, b) {
+        String version(String path) => path.split('/').reversed.skip(1).first;
+        final byVersion = version(b).compareTo(version(a));
+        if (byVersion != 0) return byVersion;
+        return (fullDefs.containsKey(b) ? 1 : 0).compareTo(
+          fullDefs.containsKey(a) ? 1 : 0,
+        );
+      });
+    for (final path in paths) {
+      final graph = _tryDefinition(
+        definitions[path]!,
+        name,
+        projectOnly: false,
+      );
+      if (graph != null) {
         return ProjectAnalysis(_withModules(graph, name));
       }
     }
@@ -132,10 +147,11 @@ abstract final class ProjectAnalyzer {
     for (final table in graph.tables) {
       counts[table.module] = (counts[table.module] ?? 0) + 1;
     }
-    final modules = counts.entries
-        .map((e) => SchemaModule(name: e.key, tableCount: e.value))
-        .toList()
-      ..sort((a, b) => b.tableCount.compareTo(a.tableCount));
+    final modules =
+        counts.entries
+            .map((e) => SchemaModule(name: e.key, tableCount: e.value))
+            .toList()
+          ..sort((a, b) => b.tableCount.compareTo(a.tableCount));
     return SchemaGraph(
       source: source,
       generatedAt: graph.generatedAt,
@@ -193,38 +209,44 @@ abstract final class ProjectAnalyzer {
           r'parent\s*=\s*([A-Za-z0-9_]+)',
         ).firstMatch(modifiers)?.group(1);
         if (parent != null) {
-          foreignKeys.add(SchemaForeignKey(
-            name: '',
-            columns: [name],
-            refTable: parent,
-            refColumns: const ['id'],
-            onDelete: 'noAction',
-            onUpdate: 'noAction',
-          ));
+          foreignKeys.add(
+            SchemaForeignKey(
+              name: '',
+              columns: [name],
+              refTable: parent,
+              refColumns: const ['id'],
+              onDelete: 'noAction',
+              onUpdate: 'noAction',
+            ),
+          );
         }
 
-        columns.add(SchemaColumn(
-          name: name,
-          fieldName: name,
-          dartType: type,
-          dbType: _dbTypeFor(type),
-          isNullable: nullable,
-          isPrimaryKey: name == 'id',
-          isUnique: modifiers.contains('unique'),
-          defaultValue: null,
-        ));
+        columns.add(
+          SchemaColumn(
+            name: name,
+            fieldName: name,
+            dartType: type,
+            dbType: _dbTypeFor(type),
+            isNullable: nullable,
+            isPrimaryKey: name == 'id',
+            isUnique: modifiers.contains('unique'),
+            defaultValue: null,
+          ),
+        );
       }
 
-      tables.add(SchemaTable(
-        name: tableName,
-        className: '${doc['class']}',
-        schema: 'public',
-        module: _domainOf(tableName),
-        documentation: null,
-        columns: columns,
-        foreignKeys: foreignKeys,
-        indexes: const [],
-      ));
+      tables.add(
+        SchemaTable(
+          name: tableName,
+          className: '${doc['class']}',
+          schema: 'public',
+          module: _domainOf(tableName),
+          documentation: null,
+          columns: columns,
+          foreignKeys: foreignKeys,
+          indexes: const [],
+        ),
+      );
     }
 
     tables.sort((a, b) => a.name.compareTo(b.name));

@@ -7,7 +7,7 @@ authoring and model export remain later-phase work.
 
 Audit snapshot: 2026-10-09. These findings refer to the code reviewed during the
 initial audit. Concurrent changes require rechecking before treating a finding
-as current. No item has been marked fixed yet.
+as current. See the resolution history below for verified changes.
 
 ## Tracking rules
 
@@ -21,7 +21,7 @@ as current. No item has been marked fixed yet.
 
 ## Findings
 
-All items are open pending recheck against the current implementation.
+The table records the original findings. Resolved or removed paths are listed below.
 
 | ID | Priority | Evidence | Issue |
 | --- | --- | --- | --- |
@@ -60,4 +60,16 @@ All items are open pending recheck against the current implementation.
 
 ## Resolution history
 
-No fixes verified yet.
+2026-10-09 native Vyuh cleanup:
+
+- B01, B02: latest migration wins, including empty definitions. ZIP regression tests pass.
+- B08: exporter registers native table and layout extensions. `tool/export_svg.dart` succeeds.
+- B13, B14, B15: unique-index semantics, all 4.0.4 column-type identifiers and module identity are covered by server and Flutter regression tests.
+- B16: cardinality labels belong to imported connectors and do not change with selection.
+- B18: successful loading clears the previous error in `_setGraph`.
+- B03–B07 and B19: the custom schema-authoring paths and YAML exporter were removed. Native drawing edits are explicitly separate from source-schema editing.
+- B20: unrelated archive entries are no longer decoded as text. Synchronous ZIP parsing still needs profiling.
+- B09–B12 and B17 remain open. YAML fallback is partial; the README explains its limits.
+
+Current verification: workspace analysis and formatting pass; six Flutter tests
+and two server tests pass. The backend and companion web app start successfully.

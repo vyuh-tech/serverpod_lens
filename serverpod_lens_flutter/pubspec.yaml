@@ -18,8 +18,8 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '^3.12.2'
-  flutter: '^3.44.4'
+  sdk: '^3.13.0'
+  flutter: '>=3.47.0'
 
 resolution: workspace
 
@@ -29,6 +29,8 @@ dependencies:
   cupertino_icons: ^1.0.5
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   google_fonts: ^8.1.0
   serverpod_lens_client:
     path: ../serverpod_lens_client
@@ -37,14 +39,35 @@ dependencies:
   vyuh_diagram_flutter: ^3.5.1
   vyuh_diagram_core: ^3.5.1
   vyuh_diagram_codec_svg: ^3.5.1
+  vyuh_diagram_extension_minimap:
+    hosted: https://pub.vyuh.tech
+    version: ^3.5.1
+  vyuh_diagram_extension_layout:
+    hosted: https://pub.vyuh.tech
+    version: ^3.5.1
+  vyuh_diagram_extension_editor:
+    hosted: https://pub.vyuh.tech
+    version: ^3.5.1
+  vyuh_diagram_extension_table:
+    hosted: https://pub.vyuh.tech
+    version: ^3.5.1
+  vyuh_diagram_extension_table_flutter:
+    hosted: https://pub.vyuh.tech
+    version: ^3.5.1
+  vyuh_diagram_extension_snap_guides:
+    hosted: https://pub.vyuh.tech
+    version: ^3.5.1
+  flutter_mobx: ^2.4.0
+  mobx: ^2.7.0
+  material_ui: ^1.6.0
   archive: ^4.3.0
   file_selector: ^1.1.0
   yaml: ^3.1.4
 
-dev_dependencies:
-  # Used for agents to drive the app through the Dart MCP
   flutter_driver:
     sdk: flutter
+dev_dependencies:
+  # Used for agents to drive the app through the Dart MCP
   flutter_lints: '>=3.0.0 <7.0.0'
   flutter_test:
     sdk: flutter

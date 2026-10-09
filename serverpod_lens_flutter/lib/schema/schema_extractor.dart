@@ -1,7 +1,14 @@
 import 'dart:convert';
 
 import 'package:serverpod_lens_client/serverpod_lens_client.dart'
-    show SchemaColumn, SchemaEnum, SchemaForeignKey, SchemaGraph, SchemaIndex, SchemaModule, SchemaTable;
+    show
+        SchemaColumn,
+        SchemaEnum,
+        SchemaForeignKey,
+        SchemaGraph,
+        SchemaIndex,
+        SchemaModule,
+        SchemaTable;
 
 /// Reads a Serverpod database definition (`definition.json` /
 /// `definition_project.json`) and produces a normalized [SchemaGraph].
@@ -23,6 +30,12 @@ abstract final class SchemaExtractor {
     'vector',
     'halfvec',
     'sparsevec',
+    'bit',
+    'jsonb',
+    'geography',
+    'geographyLineString',
+    'geographyPolygon',
+    'geographyGeometryCollection',
   ];
 
   static const _foreignKeyActions = [
@@ -56,8 +69,9 @@ abstract final class SchemaExtractor {
       final uniqueColumns = <String>{};
 
       final indexes = <SchemaIndex>[];
-      for (final rawIndex in ((raw['indexes'] as List?) ?? const [])
-          .cast<Map<String, dynamic>>()) {
+      for (final rawIndex
+          in ((raw['indexes'] as List?) ?? const [])
+              .cast<Map<String, dynamic>>()) {
         final elements = ((rawIndex['elements'] as List?) ?? const [])
             .cast<Map<String, dynamic>>()
             .map((e) => (e['definition'] as String?) ?? '')
@@ -66,63 +80,73 @@ abstract final class SchemaExtractor {
         final isUnique = (rawIndex['isUnique'] as bool?) ?? false;
         final isPrimary = (rawIndex['isPrimary'] as bool?) ?? false;
         if (isPrimary) primaryKeys.addAll(elements);
-        if (isUnique) uniqueColumns.addAll(elements);
-        indexes.add(SchemaIndex(
-          name: (rawIndex['indexName'] as String?) ?? '',
-          columns: elements,
-          unique: isUnique,
-          type: (rawIndex['type'] as String?) ?? 'btree',
-        ));
+        if (isUnique && elements.length == 1) uniqueColumns.addAll(elements);
+        indexes.add(
+          SchemaIndex(
+            name: (rawIndex['indexName'] as String?) ?? '',
+            columns: elements,
+            unique: isUnique,
+            type: (rawIndex['type'] as String?) ?? 'btree',
+          ),
+        );
       }
 
       for (final rawColumn in rawColumns.cast<Map<String, dynamic>>()) {
         final name = (rawColumn['name'] as String?) ?? '';
-        columns.add(SchemaColumn(
-          name: name,
-          fieldName: (rawColumn['fieldName'] as String?) ?? name,
-          dartType: (rawColumn['dartType'] as String?) ?? 'String',
-          dbType: _enumName(rawColumn['columnType'], _columnTypes),
-          isNullable: (rawColumn['isNullable'] as bool?) ?? true,
-          isPrimaryKey: name == 'id' || primaryKeys.contains(name),
-          isUnique: uniqueColumns.contains(name),
-          defaultValue: rawColumn['columnDefault'] as String?,
-        ));
+        columns.add(
+          SchemaColumn(
+            name: name,
+            fieldName: (rawColumn['fieldName'] as String?) ?? name,
+            dartType: (rawColumn['dartType'] as String?) ?? 'String',
+            dbType: _enumName(rawColumn['columnType'], _columnTypes),
+            isNullable: (rawColumn['isNullable'] as bool?) ?? true,
+            isPrimaryKey: name == 'id' || primaryKeys.contains(name),
+            isUnique: uniqueColumns.contains(name),
+            defaultValue: rawColumn['columnDefault'] as String?,
+          ),
+        );
       }
 
       final foreignKeys = <SchemaForeignKey>[];
-      for (final rawFk in ((raw['foreignKeys'] as List?) ?? const [])
-          .cast<Map<String, dynamic>>()) {
-        foreignKeys.add(SchemaForeignKey(
-          name: (rawFk['constraintName'] as String?) ?? '',
-          columns: ((rawFk['columns'] as List?) ?? const []).cast<String>(),
-          refTable: (rawFk['referenceTable'] as String?) ?? '',
-          refColumns: ((rawFk['referenceColumns'] as List?) ?? const [])
-              .cast<String>(),
-          onDelete: _enumName(rawFk['onDelete'], _foreignKeyActions),
-          onUpdate: _enumName(rawFk['onUpdate'], _foreignKeyActions),
-        ));
+      for (final rawFk
+          in ((raw['foreignKeys'] as List?) ?? const [])
+              .cast<Map<String, dynamic>>()) {
+        foreignKeys.add(
+          SchemaForeignKey(
+            name: (rawFk['constraintName'] as String?) ?? '',
+            columns: ((rawFk['columns'] as List?) ?? const []).cast<String>(),
+            refTable: (rawFk['referenceTable'] as String?) ?? '',
+            refColumns: ((rawFk['referenceColumns'] as List?) ?? const [])
+                .cast<String>(),
+            onDelete: _enumName(rawFk['onDelete'], _foreignKeyActions),
+            onUpdate: _enumName(rawFk['onUpdate'], _foreignKeyActions),
+          ),
+        );
       }
 
       final name = (raw['name'] as String?) ?? '';
-      final domain = _domainOf(name);
+      final domain = module;
       moduleCounts[domain] = (moduleCounts[domain] ?? 0) + 1;
 
-      tables.add(SchemaTable(
-        name: name,
-        className: (raw['dartName'] as String?) ?? name,
-        schema: (raw['schema'] as String?) ?? 'public',
-        module: domain,
-        documentation: null,
-        columns: columns,
-        foreignKeys: foreignKeys,
-        indexes: indexes,
-      ));
+      tables.add(
+        SchemaTable(
+          name: name,
+          className: (raw['dartName'] as String?) ?? name,
+          schema: (raw['schema'] as String?) ?? 'public',
+          module: domain,
+          documentation: null,
+          columns: columns,
+          foreignKeys: foreignKeys,
+          indexes: indexes,
+        ),
+      );
     }
 
-    final modules = moduleCounts.entries
-        .map((e) => SchemaModule(name: e.key, tableCount: e.value))
-        .toList()
-      ..sort((a, b) => b.tableCount.compareTo(a.tableCount));
+    final modules =
+        moduleCounts.entries
+            .map((e) => SchemaModule(name: e.key, tableCount: e.value))
+            .toList()
+          ..sort((a, b) => b.tableCount.compareTo(a.tableCount));
 
     return SchemaGraph(
       source: source,
@@ -131,22 +155,14 @@ abstract final class SchemaExtractor {
       tables: tables,
       enums: rawEnums
           .cast<Map<String, dynamic>>()
-          .map((e) => SchemaEnum(
-                name: (e['name'] as String?) ?? '',
-                values: ((e['values'] as List?) ?? const []).cast<String>(),
-              ))
+          .map(
+            (e) => SchemaEnum(
+              name: (e['name'] as String?) ?? '',
+              values: ((e['values'] as List?) ?? const []).cast<String>(),
+            ),
+          )
           .toList(),
     );
-  }
-
-  /// Domain prefix used for grouping, derived from the table name.
-  static String _domainOf(String tableName) {
-    for (final prefix in const ['public', 'sso', 'elog']) {
-      if (tableName.startsWith('${prefix}_')) return prefix;
-    }
-    // Fall back to the first word before an underscore for unknown projects.
-    final underscore = tableName.indexOf('_');
-    return underscore > 0 ? tableName.substring(0, underscore) : 'main';
   }
 
   static const _frameworkModules = {
@@ -164,7 +180,7 @@ abstract final class SchemaExtractor {
 
   static String _enumName(Object? value, List<String> names) {
     if (value is int && value >= 0 && value < names.length) return names[value];
-    if (value is String && names.contains(value)) return value;
+    if (value is String && value.isNotEmpty) return value;
     return 'unknown';
   }
 }

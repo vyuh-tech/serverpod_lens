@@ -1,37 +1,27 @@
-import 'dart:typed_data';
+import 'dart:async';
 
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show Clipboard, ClipboardData, rootBundle;
+import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:serverpod_lens_client/serverpod_lens_client.dart'
-    show SchemaColumn, SchemaGraph, SchemaModule, SchemaTable;
-import 'package:vyuh_diagram_flutter/adapter.dart'
-    show DiagramRenderPolicy, RenderingExtension;
+    show SchemaGraph, SchemaTable;
+import 'package:vyuh_diagram_codec_svg/vyuh_diagram_codec_svg.dart';
+import 'package:vyuh_diagram_extension_editor/vyuh_diagram_extension_editor.dart';
+import 'package:vyuh_diagram_extension_layout/vyuh_diagram_extension_layout.dart';
+import 'package:vyuh_diagram_extension_minimap/vyuh_diagram_extension_minimap.dart';
+import 'package:vyuh_diagram_extension_snap_guides/vyuh_diagram_extension_snap_guides.dart';
+import 'package:vyuh_diagram_extension_table_flutter/vyuh_diagram_extension_table_flutter.dart';
 import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
 
-import '../schema/lens_settings.dart';
-import '../schema/lens_state.dart';
-import '../schema/podlens_minimap_extension.dart';
-import '../schema/podlens_signals_extension.dart';
-import '../schema/podlens_table_extension.dart';
-import '../schema/podlens_view_extension.dart';
 import '../schema/project_analyzer.dart';
 import '../schema/schema_diagram.dart';
-import '../schema/schema_workspace.dart';
+import '../schema/schema_relations_extension.dart';
 
-const _kAll = 'All';
-
-/// Renders the analyzed Serverpod schema as an interactive diagram.
-///
-/// Architecture: a single long-lived [DiagramController] owns the diagram
-/// (elements, visibility, selection, camera and view options). This widget
-/// only *feeds* it data and reflects the module/search UI — it never rebuilds
-/// the controller.
+/// Project loading, search and schema filtering around Vyuh's native editor.
 class SchemaMapScreen extends StatefulWidget {
   const SchemaMapScreen({super.key, this.asset = 'assets/schema_graph.json'});
-
   final String asset;
-
   @override
   State<SchemaMapScreen> createState() => _SchemaMapScreenState();
 }
@@ -39,66 +29,79 @@ class SchemaMapScreen extends StatefulWidget {
 class _SchemaMapScreenState extends State<SchemaMapScreen> {
   SchemaGraph? _graph;
   DiagramController? _controller;
-  SchemaWorkspace? _workspace;
-  final LensState _lens = LensState();
-  Object? _error;
-
-  String _selectedModule = _kAll;
-  String? _selectedTable;
+  String? _module;
   String _query = '';
-  String? _sourceLabel;
-  bool _busy = false;
+  String _source = 'Sample schema';
+  Object? _error;
+  bool _loading = true;
+  int _loadGeneration = 0;
 
   @override
   void initState() {
     super.initState();
-    _loadSample();
+    unawaited(_loadSample());
   }
 
   Future<void> _loadSample() async {
     try {
-      final json = await rootBundle.loadString(widget.asset);
-      final graph = SchemaDiagram.graphFromJson(json);
-      _setGraph(graph, label: graph.source);
+      final graph = SchemaDiagram.graphFromJson(
+        await rootBundle.loadString(widget.asset),
+      );
+      await _setGraph(graph, 'Sample · ${graph.source}');
     } catch (error) {
-      if (mounted) setState(() => _error = error);
+      if (mounted) {
+        setState(() {
+          _error = error;
+          _loading = false;
+        });
+      }
     }
   }
 
-  /// Builds a controller for [graph] and swaps it in. Loading a *new dataset*
-  /// is the one case where the controller is recreated.
-  void _setGraph(SchemaGraph graph, {String? label}) {
-    final colors = {for (final t in graph.tables) t.name: moduleColor(t.module)};
-    final columnsByTable = {
-      for (final t in graph.tables) t.name: [for (final c in t.columns) c.name],
-    };
-    final workspace = SchemaWorkspace(graph.tables);
+  Future<void> _setGraph(SchemaGraph graph, String source) async {
+    final generation = ++_loadGeneration;
     final controller = DiagramController(
       configuration: DiagramConfiguration(
         extensions: [
-          PodLensTableExtension(workspace: workspace, lens: _lens),
-          PodLensSignalsExtension(lens: _lens, columnsByTable: columnsByTable),
-          PodLensMinimapExtension(lens: _lens, colors: colors),
-          const PodLensViewExtension(),
-          GridExtension(visible: false),
-          RenderingExtension(
-            render: const DiagramRenderPolicy(retainContent: true),
+          SchemaTableExtension(),
+          const LayoutExtension(),
+          EditorExtension(
+            palette: true,
+            inspector: InspectorPlacement.docked,
           ),
+          TableFlutterExtension(),
+          MinimapExtension(
+            initiallyExpanded: true,
+            alignment: Alignment.bottomRight,
+            policy: const DiagramMinimapPolicy(showConnections: true),
+          ),
+          SnapGuidesExtension(),
+          NavigationExtension(fitOnAttach: true),
+          GridExtension(),
+          const SchemaRelationsExtension(),
+          SvgExtension(),
         ],
       ),
     );
-    _lens.attach(controller);
-    SchemaDiagram.build(graph, controller: controller, layout: _lens.value.layout);
-
+    try {
+      await SchemaDiagram.build(graph, controller: controller);
+    } catch (_) {
+      controller.dispose();
+      rethrow;
+    }
+    if (!mounted || generation != _loadGeneration) {
+      controller.dispose();
+      return;
+    }
     final previous = _controller;
     setState(() {
-      _graph = graph;
       _controller = controller;
-      _workspace = workspace;
-      _sourceLabel = label ?? graph.source;
-      _selectedModule = _kAll;
-      _selectedTable = null;
+      _graph = graph;
+      _source = source;
+      _module = null;
       _query = '';
+      _error = null;
+      _loading = false;
     });
     if (previous != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => previous.dispose());
@@ -106,929 +109,386 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
   }
 
   Future<void> _openProject() async {
-    if (_busy) return;
+    if (_loading) return;
     const zip = XTypeGroup(label: 'Serverpod project', extensions: ['zip']);
     final file = await openFile(acceptedTypeGroups: [zip]);
-    if (file == null) return;
-
-    setState(() => _busy = true);
+    if (file == null || !mounted) return;
+    setState(() => _loading = true);
     try {
-      final Uint8List bytes = await file.readAsBytes();
       final analysis = ProjectAnalyzer.analyzeZip(
-        bytes,
+        await file.readAsBytes(),
         name: file.name,
       );
-      if (!mounted) return;
       if (analysis.isEmpty) {
-        _showMessage(
-          analysis.warnings.isEmpty
-              ? 'No Serverpod schema found in ${file.name}.'
-              : analysis.warnings.first,
-        );
-        return;
+        throw FormatException(analysis.warnings.join('\n'));
       }
-      _setGraph(analysis.graph, label: file.name);
-      if (analysis.warnings.isNotEmpty) _showMessage(analysis.warnings.first);
+      await _setGraph(analysis.graph, file.name);
+      if (mounted && analysis.warnings.isNotEmpty) {
+        _message(analysis.warnings.join('\n'));
+      }
     } catch (error) {
-      if (mounted) _showMessage('Failed to read project: $error');
-    } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() => _loading = false);
+        _message('Could not open project: $error');
+      }
     }
   }
 
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
-    );
-  }
+  void _message(String message) => ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(message)),
+  );
 
-  @override
-  void dispose() {
-    _controller?.dispose();
-    _lens.dispose();
-    super.dispose();
-  }
-
-  List<SchemaTable> get _visibleTables {
-    final graph = _graph;
-    if (graph == null) return const [];
+  List<SchemaTable> get _tables {
     final query = _query.trim().toLowerCase();
-    final tables = graph.tables.where((t) {
-      if (_selectedModule != _kAll && t.module != _selectedModule) return false;
-      if (query.isEmpty) return true;
-      return t.name.toLowerCase().contains(query) ||
-          t.columns.any((c) => c.name.toLowerCase().contains(query));
-    }).toList();
-    return tables..sort((a, b) => a.name.compareTo(b.name));
+    return (_graph?.tables ?? <SchemaTable>[])
+        .where(
+          (table) =>
+              (_module == null || table.module == _module) &&
+              (query.isEmpty ||
+                  table.name.toLowerCase().contains(query) ||
+                  table.columns.any(
+                    (column) => column.name.toLowerCase().contains(query),
+                  )),
+        )
+        .toList()
+      ..sort((a, b) => a.name.compareTo(b.name));
   }
 
-  /// Shows only the selected schema's tables by toggling element visibility in
-  /// the diagram — no controller rebuild.
-  void _applyModule(String module) {
+  void _filter(String? module) {
     final controller = _controller;
     final graph = _graph;
     if (controller == null || graph == null) return;
-
-    final visible = module == _kAll
-        ? null
-        : {for (final t in graph.tables.where((t) => t.module == module)) t.name};
-    bool shown(String? id) => visible == null || id == null || visible.contains(id);
-
-    final connectors = controller.document.elements
-        .whereType<ConnectorElement>()
-        .toList();
+    final visible = {
+      for (final table in graph.tables)
+        if (module == null || table.module == module) table.name,
+    };
     controller.edits.batch('Filter schema', () {
       for (final table in graph.tables) {
-        controller.edits.setVisible(shown(table.name), ids: [table.name]);
-      }
-      for (final connector in connectors) {
-        final start = connector.start;
-        final end = connector.end;
-        final startId = start is BoundEndpoint ? start.elementId : null;
-        final endId = end is BoundEndpoint ? end.elementId : null;
         controller.edits.setVisible(
-          shown(startId) && shown(endId),
-          ids: [connector.id],
+          visible.contains(table.name),
+          ids: [table.name],
         );
       }
-    });
+      for (final edge
+          in controller.document.elements.whereType<ConnectorElement>()) {
+        final source = edge.start is BoundEndpoint
+            ? (edge.start as BoundEndpoint).elementId
+            : null;
+        final target = edge.end is BoundEndpoint
+            ? (edge.end as BoundEndpoint).elementId
+            : null;
+        controller.edits.setVisible(
+          visible.contains(source) && visible.contains(target),
+          ids: [edge.id],
+        );
+      }
+    }).requireAllowed();
     controller.clearSelection();
-
-    setState(() {
-      _selectedModule = module;
-      _selectedTable = null;
-    });
-  }
-
-  void _updateSettings(LensSettings settings) {
-    final previous = _lens.value;
-    _lens.update(settings);
-    final controller = _controller;
-    if (controller == null) return;
-    if (previous.showGrid != settings.showGrid) {
-      controller.setOptions(GridOptions(visible: settings.showGrid));
-    }
-    if (previous.layout != settings.layout) {
-      _applyLayout(settings.layout);
-    }
-  }
-
-  void _applyLayout(LensLayout layout) {
-    final controller = _controller;
-    final graph = _graph;
-    if (controller == null || graph == null) return;
-    SchemaDiagram.applyLayout(controller, SchemaDiagram.positionsFor(graph, layout));
-  }
-
-  Future<void> _addTable() async {
-    final spec = await showDialog<_NewTable>(
-      context: context,
-      builder: (context) => const _AddTableDialog(),
-    );
-    final workspace = _workspace;
-    final controller = _controller;
-    if (spec == null || workspace == null || controller == null) return;
-
-    final columns = <SchemaColumn>[
-      if (!spec.columns.any((c) => c.name == 'id'))
-        SchemaColumn(
-          name: 'id',
-          fieldName: 'id',
-          dartType: 'UuidValue?',
-          dbType: 'uuid',
-          isNullable: true,
-          isPrimaryKey: true,
-          isUnique: false,
-          defaultValue: 'random',
-        ),
-      ...spec.columns,
-    ];
-    final table = SchemaTable(
-      name: spec.name,
-      className: _pascal(spec.name),
-      schema: 'public',
-      module: spec.module,
-      documentation: null,
-      columns: columns,
-      foreignKeys: const [],
-      indexes: const [],
-    );
-    if (!workspace.addTable(table)) {
-      _showMessage('Table "${spec.name}" already exists.');
-      return;
-    }
-    final center = controller.camera.center;
-    controller.edits.createShape(
-      SchemaDiagram.tableShapeType,
-      id: table.name,
-      at: DiagramPoint(
-        center.x - SchemaDiagram.nodeWidth / 2,
-        center.y - SchemaDiagram.heightOf(table) / 2,
-      ),
-      size: DiagramSize(SchemaDiagram.nodeWidth, SchemaDiagram.heightOf(table)),
-      text: table.name,
-      ports: SchemaDiagram.portsFor(table),
-    );
-    _showMessage('Added table ${table.name}');
-  }
-
-  Future<void> _addColumn() async {
-    final tableId = _selectedTable;
-    if (tableId == null) {
-      _showMessage('Select a table first.');
-      return;
-    }
-    final column = await showDialog<SchemaColumn>(
-      context: context,
-      builder: (context) => const _AddColumnDialog(),
-    );
-    final workspace = _workspace;
-    final controller = _controller;
-    if (column == null || workspace == null || controller == null) return;
-
-    workspace.addColumn(tableId, column);
-    final table = workspace.table(tableId);
-    if (table == null) return;
-    DiagramRect? frame;
-    for (final element in controller.document.elements) {
-      if (element is ShapeElement && element.id == tableId) {
-        frame = element.frame;
-        break;
-      }
-    }
-    if (frame != null) {
-      controller.edits.setElementBounds(
-        tableId,
-        DiagramRect.fromLTWH(
-          frame.left,
-          frame.top,
-          SchemaDiagram.nodeWidth,
-          SchemaDiagram.heightOf(table),
-        ),
-      );
-    }
-    controller.edits.setPorts(SchemaDiagram.portsFor(table), ids: [tableId]);
-  }
-
-  Future<void> _exportModels() async {
-    final workspace = _workspace;
-    if (workspace == null) return;
-    final buffer = StringBuffer();
-    for (final table in workspace.tables) {
-      buffer
-        ..writeln(_modelYaml(table))
-        ..writeln();
-    }
-    final text = buffer.toString();
-    await showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Export .spy.yaml'),
-        content: SizedBox(
-          width: 640,
-          height: 480,
-          child: SingleChildScrollView(
-            child: SelectableText(
-              text,
-              style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: text));
-              Navigator.of(context).pop();
-              _showMessage('Copied .spy.yaml to clipboard');
-            },
-            child: const Text('Copy'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
+    setState(() => _module = module);
+    unawaited(
+      controller.view.show(const ViewTarget.all(), motion: Motion.smooth),
     );
   }
 
-  String _modelYaml(SchemaTable table) {
-    final buffer = StringBuffer()
-      ..writeln('class: ${table.className}')
-      ..writeln('table: ${table.name}')
-      ..writeln('fields:');
-    for (final column in table.columns) {
-      final field = StringBuffer('  ${column.fieldName}: ${column.dartType}');
-      for (final fk in table.foreignKeys) {
-        if (fk.columns.length == 1 && fk.columns.first == column.name) {
-          field.write(', relation(parent=${fk.refTable})');
-          break;
-        }
-      }
-      buffer.writeln(field);
-    }
-    return buffer.toString();
-  }
-
-  static String _pascal(String name) {
-    final parts = name.split(RegExp('[^0-9a-zA-Z]+')).where((p) => p.isNotEmpty);
-    return parts.map((p) => p[0].toUpperCase() + p.substring(1)).join();
-  }
-
-  void _selectTable(String tableId) {
+  Future<void> _layout(Layout layout) async {
     final controller = _controller;
-    if (controller == null) return;
-    controller.select([tableId]);
-    for (final element in controller.document.elements) {
-      if (element is ShapeElement && element.id == tableId) {
-        controller.setCamera(
-          DiagramCameraState(
-            center: element.frame.center,
-            zoom: controller.camera.zoom,
-            viewportSize: controller.camera.viewportSize,
-          ),
+    if (controller == null || _loading) return;
+    setState(() => _loading = true);
+    try {
+      final ids = controller.document.elements
+          .whereType<ShapeElement>()
+          .where((shape) => shape.isVisible)
+          .map((shape) => shape.id)
+          .toList();
+      await controller.layout(layout, nodeIds: ids, motion: Motion.smooth);
+      if (mounted && identical(controller, _controller)) {
+        await controller.view.show(
+          const ViewTarget.all(),
+          motion: Motion.smooth,
         );
-        break;
       }
+    } catch (error) {
+      if (mounted) _message('Could not arrange schema: $error');
+    } finally {
+      if (mounted) setState(() => _loading = false);
     }
-    setState(() => _selectedTable = tableId);
   }
 
-  /// The engine paints its own hover/selection outline in the theme's selection
-  /// color. We suppress it (transparent) and draw our own chrome in the overlay.
-  DiagramTheme _diagramTheme(Brightness brightness) {
-    final base = brightness == Brightness.dark
-        ? DiagramTheme.dark
-        : DiagramTheme.light;
-    return base.copyWith(
-      selection: base.selection.copyWith(
-        color: const Color(0x00000000),
-        handleFill: const Color(0x00000000),
-        handleHover: const Color(0x00000000),
-        marquee: const Color(0x553B5BFF),
-      ),
+  Future<void> _copyDiagram() async {
+    final controller = _controller;
+    if (controller == null) return;
+    await Clipboard.setData(
+      ClipboardData(text: controller.save(DiagramJsonCodec.new)),
     );
+    if (mounted) _message('Diagram JSON copied');
   }
 
-  Future<void> _openSettings() async {
+  Future<void> _settings() async {
+    final controller = _controller;
+    if (controller == null) return;
     await showDialog<void>(
       context: context,
-      builder: (context) =>
-          _SettingsDialog(lens: _lens, onChanged: _updateSettings),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final muted = theme.colorScheme.onSurfaceVariant;
-    final divider = theme.dividerColor;
-
-    return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(22, 16, 12, 14),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Serverpod Lens',
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.2,
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        _sourceLabel == null
-                            ? 'Visualize your Serverpod schema as a connected map'
-                            : 'Source: $_sourceLabel',
-                        style: theme.textTheme.bodySmall?.copyWith(color: muted),
-                      ),
-                    ],
+      builder: (_) => AlertDialog(
+        title: const Text('Schema view'),
+        content: SizedBox(
+          width: 380,
+          child: Observer(
+            builder: (_) {
+              final grid = controller.options<GridOptions>();
+              final minimap = controller.options<MinimapOptions>();
+              final relations = controller.options<SchemaRelationsOptions>();
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SwitchListTile(
+                    title: const Text('Grid'),
+                    value: grid.visible,
+                    onChanged: (value) =>
+                        controller.setOptions(grid.copyWith(visible: value)),
                   ),
-                ),
-                TextButton.icon(
-                  onPressed: _busy ? null : _openProject,
-                  icon: _busy
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.folder_open, size: 18),
-                  label: const Text('Open project'),
-                ),
-                IconButton(
-                  tooltip: 'Settings',
-                  icon: const Icon(Icons.settings_outlined),
-                  onPressed: _openSettings,
-                ),
-                PopupMenuButton<String>(
-                  tooltip: 'More',
-                  icon: const Icon(Icons.more_vert),
-                  onSelected: (value) {
-                    switch (value) {
-                      case 'add_table':
-                        _addTable();
-                      case 'add_column':
-                        _addColumn();
-                      case 'export':
-                        _exportModels();
-                    }
-                  },
-                  itemBuilder: (context) => const [
-                    PopupMenuItem(value: 'add_table', child: Text('Add table')),
-                    PopupMenuItem(
-                      value: 'add_column',
-                      child: Text('Add column to selected table'),
-                    ),
-                    PopupMenuItem(
-                      value: 'export',
-                      child: Text('Export .spy.yaml'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Divider(height: 1, color: divider),
-          Expanded(
-            child: switch ((_error, _graph, _controller)) {
-              (final Object error, _, _) => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Text('Failed to load schema: $error'),
-                ),
-              ),
-              (_, final SchemaGraph graph, final DiagramController controller) =>
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox(
-                      width: 300,
-                      child: _Sidebar(
-                        modules: graph.modules,
-                        totalTables: graph.tables.length,
-                        selectedModule: _selectedModule,
-                        tables: _visibleTables,
-                        selectedTable: _selectedTable,
-                        onModuleChanged: _applyModule,
-                        onQueryChanged: (value) =>
-                            setState(() => _query = value),
-                        onTableTap: _selectTable,
-                      ),
-                    ),
-                    VerticalDivider(width: 1, color: divider),
-                    Expanded(
-                      child: DiagramCanvas(
-                        controller: controller,
-                        theme: _diagramTheme(theme.brightness),
-                      ),
-                    ),
-                  ],
-                ),
-              _ => const Center(child: CircularProgressIndicator()),
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Sidebar extends StatelessWidget {
-  const _Sidebar({
-    required this.modules,
-    required this.totalTables,
-    required this.selectedModule,
-    required this.tables,
-    required this.selectedTable,
-    required this.onModuleChanged,
-    required this.onQueryChanged,
-    required this.onTableTap,
-  });
-
-  final List<SchemaModule> modules;
-  final int totalTables;
-  final String selectedModule;
-  final List<SchemaTable> tables;
-  final String? selectedTable;
-  final ValueChanged<String> onModuleChanged;
-  final ValueChanged<String> onQueryChanged;
-  final ValueChanged<String> onTableTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final muted = theme.colorScheme.onSurfaceVariant;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Schema', style: theme.textTheme.titleSmall),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: theme.dividerColor),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: selectedModule,
-                    isExpanded: true,
-                    items: [
-                      DropdownMenuItem(
-                        value: _kAll,
-                        child: _option('All schemas', totalTables, muted),
-                      ),
-                      for (final module in modules)
-                        DropdownMenuItem(
-                          value: module.name,
-                          child: _option(
-                            module.name,
-                            module.tableCount,
-                            muted,
-                          ),
-                        ),
-                    ],
-                    onChanged: (value) {
-                      if (value != null) onModuleChanged(value);
-                    },
+                  SwitchListTile(
+                    title: const Text('Snap to grid'),
+                    value: grid.snap,
+                    onChanged: (value) =>
+                        controller.setOptions(grid.copyWith(snap: value)),
                   ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                onChanged: onQueryChanged,
-                decoration: InputDecoration(
-                  isDense: true,
-                  hintText: 'Search tables…',
-                  prefixIcon: const Icon(Icons.search, size: 18),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
+                  SwitchListTile(
+                    title: const Text('Minimap'),
+                    value: minimap.visible,
+                    onChanged: (value) =>
+                        controller.setOptions(minimap.copyWith(visible: value)),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
-          child: Row(
-            children: [
-              Text('Tables', style: theme.textTheme.titleSmall),
-              const Spacer(),
-              Text(
-                '${tables.length}',
-                style: TextStyle(fontSize: 12, color: muted),
-              ),
-            ],
-          ),
-        ),
-        Divider(height: 1, color: theme.dividerColor),
-        Expanded(
-          child: ListView.builder(
-            itemCount: tables.length,
-            itemBuilder: (context, index) {
-              final table = tables[index];
-              return ListTile(
-                dense: true,
-                selected: table.name == selectedTable,
-                leading: const Icon(Icons.table_chart_outlined, size: 18),
-                title: Text(
-                  table.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 13),
-                ),
-                subtitle: Text(
-                  '${table.columns.length} columns · '
-                  '${table.foreignKeys.length} FKs',
-                  style: const TextStyle(fontSize: 11),
-                ),
-                onTap: () => onTableTap(table.name),
+                  SwitchListTile(
+                    title: const Text('Animate relations'),
+                    value: relations.animate,
+                    onChanged: (value) => controller.setOptions(
+                      relations.copyWith(animate: value),
+                    ),
+                  ),
+                  SwitchListTile(
+                    title: const Text('Animate all relations'),
+                    value: relations.animateAll,
+                    onChanged: relations.animate
+                        ? (value) => controller.setOptions(
+                            relations.copyWith(animateAll: value),
+                          )
+                        : null,
+                  ),
+                  SwitchListTile(
+                    title: const Text('Focus selected table and neighbours'),
+                    value: relations.focus,
+                    onChanged: (value) =>
+                        controller.setOptions(relations.copyWith(focus: value)),
+                  ),
+                ],
               );
             },
           ),
         ),
-      ],
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Done'),
+          ),
+        ],
+      ),
     );
   }
-
-  Widget _option(String label, int count, Color muted) => Row(
-    children: [
-      Expanded(child: Text(label)),
-      Text('$count', style: TextStyle(fontSize: 12, color: muted)),
-    ],
-  );
-}
-
-class _SettingsDialog extends StatelessWidget {
-  const _SettingsDialog({required this.lens, required this.onChanged});
-
-  final LensState lens;
-  final ValueChanged<LensSettings> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Settings'),
-      content: SizedBox(
-        width: 400,
-        child: ListenableBuilder(
-          listenable: lens,
-          builder: (context, _) {
-            final settings = lens.value;
-            return SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const _SectionLabel('Layout'),
-                  SegmentedButton<LensLayout>(
-                    segments: const [
-                      ButtonSegment(
-                        value: LensLayout.layered,
-                        label: Text('Layered'),
-                        icon: Icon(Icons.account_tree_outlined),
-                      ),
-                      ButtonSegment(
-                        value: LensLayout.grid,
-                        label: Text('Grid'),
-                        icon: Icon(Icons.grid_view),
-                      ),
-                    ],
-                    selected: {settings.layout},
-                    onSelectionChanged: (s) =>
-                        onChanged(settings.copyWith(layout: s.first)),
-                  ),
-                  const SizedBox(height: 8),
-                  const _SectionLabel('Connections'),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Connection animations'),
-                    subtitle: const Text('Marching-ants signal on edges'),
-                    value: settings.connectionAnimations,
-                    onChanged: (v) =>
-                        onChanged(settings.copyWith(connectionAnimations: v)),
-                  ),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Animate all edges'),
-                    subtitle: const Text('Ignore selection; animate every edge'),
-                    value: settings.animateAllEdges,
-                    onChanged: settings.connectionAnimations
-                        ? (v) => onChanged(settings.copyWith(animateAllEdges: v))
-                        : null,
-                  ),
-                  const SizedBox(height: 8),
-                  const _SectionLabel('Canvas'),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Show column types'),
-                    value: settings.showColumnTypes,
-                    onChanged: (v) =>
-                        onChanged(settings.copyWith(showColumnTypes: v)),
-                  ),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Show grid'),
-                    value: settings.showGrid,
-                    onChanged: (v) => onChanged(settings.copyWith(showGrid: v)),
-                  ),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Show minimap'),
-                    value: settings.showMinimap,
-                    onChanged: (v) =>
-                        onChanged(settings.copyWith(showMinimap: v)),
-                  ),
-                  const SizedBox(height: 8),
-                  const _SectionLabel('Selection'),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Focus mode'),
-                    subtitle: const Text('Dim everything but the selection'),
-                    value: settings.focusMode,
-                    onChanged: (v) =>
-                        onChanged(settings.copyWith(focusMode: v)),
-                  ),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Cardinality markers'),
-                    subtitle: const Text('Show 1 / N on selected edges'),
-                    value: settings.showCardinality,
-                    onChanged: (v) =>
-                        onChanged(settings.copyWith(showCardinality: v)),
-                  ),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Hover highlight'),
-                    subtitle: const Text('Highlight tables and columns on hover'),
-                    value: settings.hoverHighlight,
-                    onChanged: (v) =>
-                        onChanged(settings.copyWith(hoverHighlight: v)),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Done'),
-        ),
-      ],
-    );
-  }
-}
-
-class _SectionLabel extends StatelessWidget {
-  const _SectionLabel(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 4, bottom: 4),
-    child: Text(
-      text.toUpperCase(),
-      style: TextStyle(
-        fontSize: 11,
-        letterSpacing: 0.6,
-        fontWeight: FontWeight.w700,
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-      ),
-    ),
-  );
-}
-
-/// Spec returned by the Add-table dialog.
-class _NewTable {
-  const _NewTable(this.name, this.module, this.columns);
-
-  final String name;
-  final String module;
-  final List<SchemaColumn> columns;
-}
-
-String _dbTypeFor(String dartType) {
-  final t = dartType.replaceAll('?', '').trim();
-  if (t.startsWith('List<')) return 'array';
-  return switch (t) {
-    'UuidValue' => 'uuid',
-    'String' => 'text',
-    'int' => 'int',
-    'BigInt' => 'bigint',
-    'double' => 'double',
-    'bool' => 'boolean',
-    'DateTime' => 'timestamp',
-    'ByteData' => 'bytea',
-    _ => 'text',
-  };
-}
-
-class _AddTableDialog extends StatefulWidget {
-  const _AddTableDialog();
-
-  @override
-  State<_AddTableDialog> createState() => _AddTableDialogState();
-}
-
-class _AddTableDialogState extends State<_AddTableDialog> {
-  final _name = TextEditingController();
-  final _columns = TextEditingController(text: 'name: String');
-  String _module = 'public';
 
   @override
   void dispose() {
-    _name.dispose();
-    _columns.dispose();
-    super.dispose();
-  }
-
-  List<SchemaColumn> _parseColumns() {
-    final columns = <SchemaColumn>[];
-    for (final raw in _columns.text.split('\n')) {
-      final line = raw.trim();
-      if (line.isEmpty || !line.contains(':')) continue;
-      final i = line.indexOf(':');
-      final field = line.substring(0, i).trim();
-      final type = line.substring(i + 1).trim();
-      if (field.isEmpty || type.isEmpty) continue;
-      columns.add(SchemaColumn(
-        name: field,
-        fieldName: field,
-        dartType: type,
-        dbType: _dbTypeFor(type),
-        isNullable: type.endsWith('?'),
-        isPrimaryKey: field == 'id',
-        isUnique: false,
-        defaultValue: null,
-      ));
+    ++_loadGeneration;
+    final controller = _controller;
+    // The child canvas must unmount before its controller is disposed.
+    if (controller != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => controller.dispose());
     }
-    return columns;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Add table'),
-      content: SizedBox(
-        width: 420,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: _name,
-              decoration: const InputDecoration(
-                labelText: 'Table name (snake_case)',
-              ),
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: _module,
-              decoration: const InputDecoration(labelText: 'Module'),
-              items: const [
-                DropdownMenuItem(value: 'public', child: Text('public')),
-                DropdownMenuItem(value: 'sso', child: Text('sso')),
-                DropdownMenuItem(value: 'elog', child: Text('elog')),
-                DropdownMenuItem(value: 'main', child: Text('main')),
-              ],
-              onChanged: (v) => setState(() => _module = v ?? 'public'),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _columns,
-              maxLines: 6,
-              style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
-              decoration: const InputDecoration(
-                labelText: 'Columns (one per line: field: Type)',
-                alignLabelWithHint: true,
-              ),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: () {
-            final name = _name.text.trim();
-            if (name.isEmpty) return;
-            Navigator.of(context).pop(
-              _NewTable(name, _module, _parseColumns()),
-            );
-          },
-          child: const Text('Add'),
-        ),
-      ],
-    );
-  }
-}
-
-class _AddColumnDialog extends StatefulWidget {
-  const _AddColumnDialog();
-
-  @override
-  State<_AddColumnDialog> createState() => _AddColumnDialogState();
-}
-
-class _AddColumnDialogState extends State<_AddColumnDialog> {
-  final _name = TextEditingController();
-  String _type = 'String';
-
-  static const _types = [
-    'String',
-    'String?',
-    'int',
-    'int?',
-    'bool',
-    'bool?',
-    'double',
-    'double?',
-    'DateTime',
-    'DateTime?',
-    'UuidValue',
-    'UuidValue?',
-  ];
-
-  @override
-  void dispose() {
-    _name.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Add column'),
-      content: SizedBox(
-        width: 360,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _name,
-              decoration: const InputDecoration(
-                labelText: 'Field name (camelCase)',
+    final controller = _controller;
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Serverpod Lens'),
+        actions: [
+          TextButton.icon(
+            onPressed: _loading ? null : _openProject,
+            icon: const Icon(Icons.folder_open),
+            label: const Text('Open project'),
+          ),
+          PopupMenuButton<String>(
+            tooltip: 'Auto layout',
+            enabled: controller != null && !_loading,
+            icon: const Icon(Icons.account_tree_outlined),
+            onSelected: (value) => _layout(switch (value) {
+              'grid' => Layout.grid(columns: 8, gap: 56),
+              'tree' => Layout.tree(direction: TreeDirection.right),
+              'force' => Layout.force(),
+              'circular' => Layout.circular(),
+              _ => Layout.layered(
+                direction: LayoutDirection.left,
+                gap: 56,
+                layerGap: 160,
               ),
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: _type,
-              decoration: const InputDecoration(labelText: 'Type'),
-              items: [
-                for (final t in _types)
-                  DropdownMenuItem(value: t, child: Text(t)),
-              ],
-              onChanged: (v) => setState(() => _type = v ?? 'String'),
-            ),
-          ],
-        ),
+            }),
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'layered', child: Text('Layered')),
+              PopupMenuItem(value: 'grid', child: Text('Grid')),
+              PopupMenuItem(value: 'tree', child: Text('Tree')),
+              PopupMenuItem(value: 'force', child: Text('Force directed')),
+              PopupMenuItem(value: 'circular', child: Text('Circular')),
+            ],
+          ),
+          IconButton(
+            tooltip: 'Schema view settings',
+            onPressed: controller == null ? null : _settings,
+            icon: const Icon(Icons.settings_outlined),
+          ),
+          IconButton(
+            tooltip: 'Copy diagram JSON',
+            onPressed: controller == null ? null : _copyDiagram,
+            icon: const Icon(Icons.copy_outlined),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: () {
-            final name = _name.text.trim();
-            if (name.isEmpty) return;
-            Navigator.of(context).pop(
-              SchemaColumn(
-                name: name,
-                fieldName: name,
-                dartType: _type,
-                dbType: _dbTypeFor(_type),
-                isNullable: _type.endsWith('?'),
-                isPrimaryKey: name == 'id',
-                isUnique: false,
-                defaultValue: null,
+      body: Column(
+        children: [
+          if (_loading) const LinearProgressIndicator(),
+          Expanded(
+            child: controller == null
+                ? Center(
+                    child: _error == null
+                        ? const CircularProgressIndicator()
+                        : Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('Could not load schema: $_error'),
+                              TextButton(
+                                onPressed: _loadSample,
+                                child: const Text('Retry'),
+                              ),
+                            ],
+                          ),
+                  )
+                : LayoutBuilder(
+                    builder: (context, constraints) {
+                      final sidebar = _sidebar(controller);
+                      final canvas = DiagramCanvas(
+                        key: ValueKey(controller),
+                        controller: controller,
+                        theme: Theme.of(context).brightness == Brightness.dark
+                            ? DiagramTheme.dark
+                            : DiagramTheme.light,
+                      );
+                      if (constraints.maxWidth < 700) {
+                        return Column(
+                          children: [
+                            SizedBox(height: 260, child: sidebar),
+                            Expanded(child: canvas),
+                          ],
+                        );
+                      }
+                      return Row(
+                        children: [
+                          SizedBox(width: 280, child: sidebar),
+                          const VerticalDivider(width: 1),
+                          Expanded(child: canvas),
+                        ],
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _sidebar(DiagramController controller) {
+    final tables = _tables;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            children: [
+              Text(_source, maxLines: 1, overflow: TextOverflow.ellipsis),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                key: ValueKey((_source, _module)),
+                initialValue: _module ?? '',
+                decoration: const InputDecoration(
+                  labelText: 'Module',
+                  border: OutlineInputBorder(),
+                ),
+                items: [
+                  const DropdownMenuItem(value: '', child: Text('All modules')),
+                  for (final module in _graph!.modules)
+                    DropdownMenuItem(
+                      value: module.name,
+                      child: Text('${module.name} (${module.tableCount})'),
+                    ),
+                ],
+                onChanged: (value) => _filter(value == '' ? null : value),
               ),
-            );
-          },
-          child: const Text('Add'),
+              const SizedBox(height: 12),
+              TextField(
+                key: ValueKey(_source),
+                decoration: const InputDecoration(
+                  hintText: 'Find a table or column',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) => setState(() => _query = value),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Observer(
+            builder: (_) {
+              final selection = controller.selection;
+              final selected = selection is ElementSelection
+                  ? selection.elementIds
+                  : <String>{};
+              if (tables.isEmpty) {
+                return const Center(child: Text('No matching tables'));
+              }
+              return ListView.builder(
+                itemCount: tables.length,
+                itemBuilder: (_, index) {
+                  final table = tables[index];
+                  return ListTile(
+                    dense: true,
+                    selected: selected.contains(table.name),
+                    leading: Icon(
+                      Icons.table_chart_outlined,
+                      size: 18,
+                      color: SchemaDiagram.moduleColor(table.module).toColor(),
+                    ),
+                    title: Text(
+                      table.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Text('${table.columns.length} columns'),
+                    onTap: () {
+                      controller.select([table.name]);
+                      unawaited(
+                        controller.view.show(
+                          ViewTarget.element(table.name),
+                          motion: Motion.smooth,
+                        ),
+                      );
+                    },
+                  );
+                },
+              );
+            },
+          ),
         ),
       ],
     );
