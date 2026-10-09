@@ -30,6 +30,9 @@ class SchemaMapScreen extends StatefulWidget {
 
 class _SchemaMapScreenState extends State<SchemaMapScreen> {
   final _preferences = SchemaViewPreferences();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _browserVisible = true;
+  final _searchController = TextEditingController();
   ReactionDisposer? _selectionWatcher;
   SchemaGraph? _graph;
   DiagramController? _controller;
@@ -118,6 +121,7 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
       preferences: _preferences,
     );
     final previous = _controller;
+    _searchController.clear();
     setState(() {
       _controller = controller;
       _graph = graph;
@@ -239,6 +243,7 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
   @override
   void dispose() {
     ++_loadGeneration;
+    _searchController.dispose();
     _selectionWatcher?.call();
     final controller = _controller;
     // The child canvas must unmount before its controller is disposed.
@@ -251,15 +256,62 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = _controller;
+    final compact = MediaQuery.sizeOf(context).width < 700;
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: compact && controller != null
+          ? Drawer(
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    ListTile(
+                      title: const Text('Schemas and tables'),
+                      trailing: IconButton(
+                        tooltip: 'Close schema browser',
+                        icon: const Icon(Icons.close),
+                        onPressed: () =>
+                            _scaffoldKey.currentState?.closeDrawer(),
+                      ),
+                    ),
+                    Expanded(child: _sidebar(controller, closeOnSelect: true)),
+                  ],
+                ),
+              ),
+            )
+          : null,
       appBar: AppBar(
-        title: const Text('Serverpod Lens'),
+        title: Text(
+          'Serverpod Lens',
+          style: TextStyle(fontSize: compact ? 18 : 20),
+        ),
+        leading: IconButton(
+          tooltip: compact || !_browserVisible
+              ? 'Browse schemas'
+              : 'Collapse schema browser',
+          onPressed: controller == null
+              ? null
+              : () {
+                  if (compact) {
+                    _scaffoldKey.currentState?.openDrawer();
+                  } else {
+                    setState(() => _browserVisible = !_browserVisible);
+                  }
+                },
+          icon: Icon(compact ? Icons.menu : Icons.view_sidebar_outlined),
+        ),
         actions: [
-          TextButton.icon(
-            onPressed: _loading ? null : _openProject,
-            icon: const Icon(Icons.folder_open),
-            label: const Text('Open project'),
-          ),
+          if (compact)
+            IconButton(
+              tooltip: 'Open project',
+              onPressed: _loading ? null : _openProject,
+              icon: const Icon(Icons.folder_open),
+            )
+          else
+            TextButton.icon(
+              onPressed: _loading ? null : _openProject,
+              icon: const Icon(Icons.folder_open),
+              label: const Text('Open project'),
+            ),
           PopupMenuButton<String>(
             tooltip: 'Auto layout',
             enabled: controller != null && !_loading,
@@ -313,27 +365,38 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
                 : LayoutBuilder(
                     builder: (context, constraints) {
                       final sidebar = _sidebar(controller);
+                      final material = Theme.of(context);
+                      final diagramTheme =
+                          material.brightness == Brightness.dark
+                          ? DiagramTheme.dark
+                          : DiagramTheme.light;
                       final canvas = ClipRect(
                         child: DiagramCanvas(
                           key: ValueKey(controller),
                           controller: controller,
-                          theme: Theme.of(context).brightness == Brightness.dark
-                              ? DiagramTheme.dark
-                              : DiagramTheme.light,
+                          theme: diagramTheme.copyWith(
+                            canvas: diagramTheme.canvas.copyWith(
+                              background: material.colorScheme.surface,
+                            ),
+                            selection: diagramTheme.selection.copyWith(
+                              color: material.colorScheme.primary,
+                              marquee: material.colorScheme.primary,
+                              handleFill: material.colorScheme.surface,
+                              handleHover:
+                                  material.colorScheme.surfaceContainerHighest,
+                            ),
+                          ),
                         ),
                       );
                       if (constraints.maxWidth < 700) {
-                        return Column(
-                          children: [
-                            SizedBox(height: 260, child: sidebar),
-                            Expanded(child: canvas),
-                          ],
-                        );
+                        return canvas;
                       }
                       return Row(
                         children: [
-                          SizedBox(width: 280, child: sidebar),
-                          const VerticalDivider(width: 1),
+                          if (_browserVisible) ...[
+                            SizedBox(width: 280, child: sidebar),
+                            const VerticalDivider(width: 1),
+                          ],
                           Expanded(child: canvas),
                         ],
                       );
@@ -345,7 +408,7 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
     );
   }
 
-  Widget _sidebar(DiagramController controller) {
+  Widget _sidebar(DiagramController controller, {bool closeOnSelect = false}) {
     final tables = _tables;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -355,6 +418,7 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
           child: Column(
             children: [
               DropdownButtonFormField<String>(
+                isExpanded: true,
                 key: ValueKey((_source, _schema)),
                 initialValue: _schema ?? '',
                 decoration: const InputDecoration(
@@ -368,7 +432,11 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
                   ).schemaCounts.entries)
                     DropdownMenuItem(
                       value: schema.key,
-                      child: Text('${schema.key} (${schema.value})'),
+                      child: Text(
+                        '${schema.key} (${schema.value})',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                 ],
                 onChanged: _loading
@@ -378,6 +446,7 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
               const SizedBox(height: 12),
               TextField(
                 key: ValueKey(_source),
+                controller: _searchController,
                 decoration: const InputDecoration(
                   hintText: 'Find a table or column',
                   prefixIcon: Icon(Icons.search),
@@ -414,7 +483,7 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
                     leading: Icon(
                       Icons.table_chart_outlined,
                       size: 18,
-                      color: SchemaDiagram.moduleColor(table.schema).toColor(),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     title: Text(
                       table.name,
@@ -423,6 +492,10 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
                     ),
                     subtitle: Text('${table.columns.length} columns'),
                     onTap: () {
+                      if (closeOnSelect) {
+                        _scaffoldKey.currentState?.closeDrawer();
+                      }
+                      FocusManager.instance.primaryFocus?.unfocus();
                       controller.select([table.name]);
                       unawaited(
                         controller.view.show(
