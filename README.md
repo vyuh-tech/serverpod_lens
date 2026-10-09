@@ -40,7 +40,8 @@ The viewer provides:
   grid layout to avoid expensive startup arrangement of the full schema.
 - View settings for animation speed (0.25–3×), particles, dashes, arrows, pulse,
   blinking and an Off option, with trail density and reverse flow controls.
-- Straight, Bézier, quadratic and sharp or rounded orthogonal connections,
+- Orthogonal connections by default, with straight, Bézier, quadratic and
+  rounded orthogonal options,
   with line width, dashed strokes, corner radius and port lead controls.
 - Native alignment guides and tolerance, grid snapping and spacing, minimap
   connections, edge panning and Fit schema. Preferences last for the session,

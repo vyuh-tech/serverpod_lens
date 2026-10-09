@@ -92,7 +92,7 @@ final class SchemaViewPreferences {
   set density(int value) => runInAction(() => _density.value = value);
   bool get reverse => _reverse.value;
   set reverse(bool value) => runInAction(() => _reverse.value = value);
-  SchemaConnectionStyle connectionStyle = SchemaConnectionStyle.straight;
+  SchemaConnectionStyle connectionStyle = SchemaConnectionStyle.orthogonal;
   double strokeWidth = 2;
   double cornerRadius = 8;
   double portExtension = 24;
