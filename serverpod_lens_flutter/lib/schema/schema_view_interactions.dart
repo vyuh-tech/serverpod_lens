@@ -110,7 +110,7 @@ final class SchemaViewPreferences {
     final kind = animation;
     if (kind == SchemaAnimation.off) return null;
     final period = Duration(milliseconds: (1600 / speed).round());
-    const color = DiagramColor(0xff2563eb);
+    const color = DiagramColor(0xff525252);
     if (kind == SchemaAnimation.pulse || kind == SchemaAnimation.blink) {
       return Effect.pulse(
         period: period,
@@ -125,7 +125,7 @@ final class SchemaViewPreferences {
       period: period,
       reverse: reverse,
       color: kind == SchemaAnimation.dashes
-          ? const DiagramColor(0xff64748b)
+          ? const DiagramColor(0xff737373)
           : color,
       count: density,
       size: kind == SchemaAnimation.dashes

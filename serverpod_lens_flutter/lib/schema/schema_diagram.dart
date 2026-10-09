@@ -44,7 +44,7 @@ abstract final class SchemaDiagram {
           size: DiagramSize(nodeWidth, heightOf(table)),
           style: ShapeStyle(
             fill: const DiagramColor(0xffffffff),
-            stroke: const DiagramColor(0xffcbd5e1),
+            stroke: const DiagramColor(0xffd4d4d4),
             strokeWidth: 1,
             cornerRadius: 6,
           ),
@@ -156,7 +156,7 @@ abstract final class SchemaDiagram {
                     top,
                 width: 4,
                 height: 4,
-                stroke: const DiagramColor(0xff64748b),
+                stroke: const DiagramColor(0xff737373),
                 strokeWidth: 1,
               ),
       ];
@@ -202,8 +202,8 @@ abstract final class SchemaDiagram {
                 text,
                 fontSize: column == 'name' ? 11 : 10,
                 color: column == 'name'
-                    ? const DiagramColor(0xff1f2937)
-                    : const DiagramColor(0xff64748b),
+                    ? const DiagramColor(0xff262626)
+                    : const DiagramColor(0xff737373),
               ),
             ],
           ),
@@ -224,7 +224,7 @@ abstract final class SchemaDiagram {
                   ? table.name.substring(table.schema.length + 1)
                   : table.name,
               fontSize: 13,
-              color: const DiagramColor(0xff1f2937),
+              color: const DiagramColor(0xff262626),
             ),
           ],
         ),
@@ -236,7 +236,7 @@ abstract final class SchemaDiagram {
           cellPadding: 6,
           outerBorder: const DiagramBorder(width: 0),
           rowBorder: const DiagramBorder(
-            color: DiagramColor(0xffe2e8f0),
+            color: DiagramColor(0xffe5e5e5),
             width: .6,
           ),
           columnBorder: const DiagramBorder(width: 0),
@@ -303,14 +303,6 @@ abstract final class SchemaDiagram {
           height: 8,
         ),
   ];
-
-  static DiagramColor moduleColor(String module) =>
-      DiagramColor(switch (module) {
-        'public' => 0xff64748b,
-        'sso' => 0xff2563eb,
-        'elog' => 0xff059669,
-        _ => 0xff7c3aed,
-      });
 }
 
 /// A schema-specific composition of native title and table parts.
@@ -333,7 +325,7 @@ final class SchemaTableExtension extends DiagramExtension {
                 child: const ShapeSurface(
                   outline: ShapeOutline.rect(cornerRadius: false),
                   style: ShapeStyle(
-                    fill: DiagramColor(0xfff1f5f9),
+                    fill: DiagramColor(0xfff2f2f2),
                     strokeWidth: 0,
                     cornerRadius: 0,
                   ),
