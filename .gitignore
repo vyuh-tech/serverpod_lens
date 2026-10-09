@@ -19,3 +19,7 @@ opencode.json
 
 # Serverpod Cloud CLI
 .scloud/
+
+# Offline schema-import tools and generated local exports
+__pycache__/
+/docs/serverpod-schema.json

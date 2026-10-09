@@ -5,28 +5,29 @@
 serverpod_lens is a **schema visualizer for Serverpod**. It reads a Serverpod
 project's schema and renders it as an interactive map (tables as nodes, columns
 as rows, foreign keys as edges) using [Vyuh Diagram](https://diagram.vyuh.tech).
-The goal is a tool good enough for the Serverpod team to adopt. See `docs/PLAN.md`
-for the vision, architecture, and roadmap, and `docs/dogfood-elog.md` for the
-dogfood dataset.
+The goal is a read-only feature for Serverpod's development tools. See `docs/PLAN.md`
+for architecture and `docs/elog-schema.md` for the initial SQL dataset.
 
 Current pipeline:
 
 ```
-server migrations/<v>/definition_project.json
-  └─ SchemaExtractor (serverpod_lens_server/lib/src/schema/schema_extractor.dart)
-       └─ SchemaGraph  (serverpod_lens_server/lib/src/models/schema/*.spy.yaml)
-            └─ SchemaDiagram (serverpod_lens_flutter/lib/schema/schema_diagram.dart)
-                 └─ DiagramCanvas (serverpod_lens_flutter/lib/screens/schema_map_screen.dart)
+Serverpod migration definition
+  └─ SchemaDefinitionReader (serverpod_lens_schema)
+       └─ generated SchemaGraph (server/client codec bridges)
+            └─ SchemaDiagram (native Vyuh tables, ports and connectors)
+                 └─ DiagramCanvas (native read-only surface)
 ```
 
-- `serverpod_lens_server/bin/dump_schema.dart` writes the graph to
-  `serverpod_lens_flutter/assets/schema_graph.json`.
-- `serverpod_lens_flutter/tool/export_svg.dart` renders a headless SVG to `docs/`.
-- Dogfood: `serverpod_lens_server/lib/src/elog_schema/**` holds **122 Serverpod models**
-  recreated from the flutter_elog Postgres schema (read-only source). Do not treat
-  those as hand-authored; they mirror elog's tables/columns/FKs.
-- Vyuh Diagram extensions provide the native table renderer, minimap and
-  automatic layout. `SchemaDiagram` only maps Serverpod schema semantics.
+- `serverpod_lens_flutter/tool/import_elog_schema.py` reads the external flutter_elog
+  SQL directories and writes the viewer asset plus an import report. Do not modify
+  that source project. The asset contains database schema identities, not modules.
+- `serverpod_lens_server/bin/dump_schema.dart` writes a separate Serverpod graph to
+  `docs/serverpod-schema.json`; it must not overwrite the SQL graph.
+- The 122 recreated models under `serverpod_lens_server/lib/src/elog_schema/` remain
+  backend fixtures; they are not the default viewer dataset or hand-authored models.
+- Vyuh supplies native table rendering, layout, minimap and read-only gestures.
+  Do not install editable extensions, editor toolbars, property panels or custom
+  diagram renderers. Keep source reading, semantic mapping and screen UI separate.
 
 This project is a Flutter app (frontend) backed by a Serverpod server (backend). Always build the app's backend with Serverpod.
 Build for multiple users, use Serverpod's built-in authentication, which is already set up in `lib/server.dart`.

@@ -73,3 +73,16 @@ The table records the original findings. Resolved or removed paths are listed be
 
 Current verification: workspace analysis and formatting pass; six Flutter tests
 and two server tests pass. The backend and companion web app start successfully.
+
+2026-10-09 read-only viewer audit:
+
+- B12: malformed enum values are filtered in the shared reader; regression passes.
+- B01/B02: malformed newest snapshots now reject rather than falling back to stale versions.
+- B16: composite primary keys and partial unique indexes no longer imply individual/global uniqueness.
+- Resolved schema names and reference schemas are qualified to avoid cross-schema identity collisions.
+- Shared extraction replaces the duplicate server/browser implementations.
+- Editor, property panel, drawing toolbar and custom relationship effects are removed.
+- SQL import now covers all numbered flutter_elog directories; unsupported statements and unresolved targets are reported.
+
+B09–B11, B17 and the remaining B20 profiling work stay open. See AUDIT.md for
+current verification and integration limits rather than the earlier baseline.

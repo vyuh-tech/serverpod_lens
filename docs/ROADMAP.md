@@ -1,35 +1,31 @@
 # Remaining work
 
-The current prototype visualizes migration snapshots and imports project ZIPs.
-The README describes its supported behavior and limitations.
+The read-only viewer imports Serverpod migration snapshots and project ZIPs. Its
+initial SQL graph comes from flutter_elog; the README describes both input paths.
 
-## Serverpod integration
+## Integrate with Serverpod tooling
 
-- Decide the development-tool surface with the Serverpod team.
-- Obtain the host project's resolved definition directly from Serverpod tooling.
-- Refresh the graph when migrations or model definitions change.
-- Keep access restricted to the development environment and authorized users.
-- Test complete definitions with installed modules across supported Serverpod versions.
+- Agree on the host development-tool surface with the Serverpod team.
+- Supply the host project's complete resolved definition directly.
+- Refresh when the host schema changes, preserving view preferences.
+- Restrict any schema-delivery endpoint to authorized development use.
+- Establish a tested compatibility range across Serverpod versions.
 
-## Schema fidelity
+## Improve schema fidelity
 
-- Report unresolved references and unsupported definition versions explicitly.
-- Distinguish database schema names when tables share a name across schemas.
-- Expose index expressions, composite constraints, enum values and vector dimensions.
-- Replace the partial YAML fallback with compiler-resolved definitions where available.
-- Consolidate server and browser extraction behind a shared parsing contract.
+- Report references to tables absent from the imported snapshot.
+- Expose enum values, partial-index predicates and vector dimensions where useful.
+- Replace the partial YAML fallback with compiler-resolved definitions.
+- Expand SQL fixture coverage for ALTER and procedural transformations, or obtain
+  an authoritative read-only database catalog export for that dataset.
 
-## Viewer verification
+## Verify the viewer at scale
 
-- Test large schemas on web and desktop, recording frame time and memory use.
-- Check narrow screens, keyboard navigation and accessibility with native extensions.
-- Preserve view preferences and support loading exported diagram documents.
+- Measure frame time, startup time and memory on large schemas.
+- Move ZIP parsing off the UI thread if measurements warrant it; impose appropriate
+  archive limits before making arbitrary public uploads a supported service.
+- Test keyboard navigation, accessibility, narrow screens and long table names.
+- Persist native view settings between imports and sessions.
 
-## Schema authoring
-
-Native diagram editing currently changes the diagram only. Writing Serverpod
-models requires a separate validated adapter, compiler checks and migration
-review. Do not treat drawing edits as database operations.
-
-Use Vyuh's native editor, table, layout, minimap, history and codecs for diagram
-features. Keep project-specific code focused on Serverpod semantics.
+Schema authoring is outside the current feature. There is no plan to reintroduce
+editor palettes or editable table cells into this read-only viewer.
