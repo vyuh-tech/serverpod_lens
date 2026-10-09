@@ -77,6 +77,18 @@ abstract final class ProjectAnalyzer {
 
     // Prefer the complete, newest snapshot so framework/module relations remain
     // visible. Older migrations must not resurrect tables removed later.
+    final serverRoots = {...projectDefs.keys, ...fullDefs.keys}.map((path) {
+      final marker = path.indexOf('migrations/');
+      return path.substring(0, marker);
+    }).toSet();
+    if (serverRoots.length > 1) {
+      return ProjectAnalysis(
+        _emptyGraph(name),
+        warnings: const [
+          'Multiple Serverpod server packages found. Upload a ZIP containing one server package.',
+        ],
+      );
+    }
     final definitions = {...projectDefs, ...fullDefs};
     final paths = definitions.keys.toList()
       ..sort((a, b) {
@@ -87,15 +99,20 @@ abstract final class ProjectAnalyzer {
           fullDefs.containsKey(a) ? 1 : 0,
         );
       });
-    for (final path in paths) {
+    if (paths.isNotEmpty) {
+      final path = paths.first;
       final graph = _tryDefinition(
         definitions[path]!,
         name,
         projectOnly: false,
       );
-      if (graph != null) {
-        return ProjectAnalysis(_withModules(graph, name));
-      }
+      if (graph != null) return ProjectAnalysis(_withModules(graph, name));
+      return ProjectAnalysis(
+        _emptyGraph(name),
+        warnings: [
+          'The newest migration definition is invalid: $path. Older snapshots were not loaded.',
+        ],
+      );
     }
 
     // 3. .spy.yaml fallback
@@ -156,7 +173,24 @@ abstract final class ProjectAnalyzer {
       source: source,
       generatedAt: graph.generatedAt,
       modules: modules,
-      tables: graph.tables,
+      tables: graph.tables
+          .map(
+            (table) => table.copyWith(
+              name: table.name.contains('.')
+                  ? table.name
+                  : '${table.schema}.${table.name}',
+              foreignKeys: table.foreignKeys
+                  .map(
+                    (key) => key.copyWith(
+                      refTable: key.refTable.contains('.')
+                          ? key.refTable
+                          : '${table.schema}.${key.refTable}',
+                    ),
+                  )
+                  .toList(),
+            ),
+          )
+          .toList(),
       enums: graph.enums,
     );
   }

@@ -11,10 +11,56 @@ void main() {
     File('assets/schema_graph.json').readAsStringSync(),
   );
 
+  test('an empty resolved schema creates an empty native document', () async {
+    final controller = await SchemaDiagram.build(
+      graph.copyWith(tables: []),
+      layout: Layout.grid(),
+    );
+    addTearDown(controller.dispose);
+    expect(controller.document.elements, isEmpty);
+  });
+
+  test(
+    'one component of a composite primary key is not individually unique',
+    () async {
+      final source = graph.tables.firstWhere(
+        (table) => table.columns.length >= 2 && table.foreignKeys.isNotEmpty,
+      );
+      final columns = source.columns
+          .take(2)
+          .map((column) => column.copyWith(isPrimaryKey: true, isUnique: false))
+          .toList();
+      final table = source.copyWith(
+        name: 'public.composite',
+        columns: columns,
+        indexes: [],
+        foreignKeys: [
+          source.foreignKeys.first.copyWith(
+            columns: [columns.first.name],
+            refTable: 'public.composite',
+            refColumns: [columns.first.name],
+          ),
+        ],
+      );
+      final controller = await SchemaDiagram.build(
+        graph.copyWith(tables: [table]),
+        layout: Layout.grid(),
+      );
+      addTearDown(controller.dispose);
+      final edge = controller.document.elements
+          .whereType<ConnectorElement>()
+          .single;
+      expect(edge.labels.first.story.plainText, 'N');
+    },
+  );
+
   test(
     'maps every table, column and resolved foreign key to native diagram content',
     () async {
-      final controller = await SchemaDiagram.build(graph);
+      final controller = await SchemaDiagram.build(
+        graph,
+        layout: Layout.grid(columns: 8),
+      );
       addTearDown(controller.dispose);
       final shapes = controller.document.elements
           .whereType<ShapeElement>()
@@ -61,7 +107,11 @@ void main() {
   test(
     'native grid layout is undoable and native codecs retain table content and ports',
     () async {
-      final controller = await SchemaDiagram.build(graph);
+      final controller = await SchemaDiagram.build(
+        graph.copyWith(
+          tables: graph.tables.where((table) => table.schema == 'sso').toList(),
+        ),
+      );
       addTearDown(controller.dispose);
       final before = {
         for (final shape

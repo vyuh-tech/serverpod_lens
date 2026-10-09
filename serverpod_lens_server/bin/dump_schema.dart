@@ -3,15 +3,15 @@ import 'dart:io';
 
 import 'package:serverpod_lens_server/src/schema/schema_extractor.dart';
 
-/// Dumps the serverpod_lens schema graph (the elog dogfood schema) to a JSON asset
-/// that the Flutter app can render without a running server.
+/// Exports this Serverpod project's resolved schema for adapter verification.
+/// This does not overwrite the separately imported flutter_elog SQL asset.
 ///
 /// Run from the `serverpod_lens_server` directory:
 ///   dart run bin/dump_schema.dart
 Future<void> main() async {
   final outPath =
       Platform.environment['POD_LENS_GRAPH_OUT'] ??
-      '../serverpod_lens_flutter/assets/schema_graph.json';
+      '../docs/serverpod-schema.json';
 
   final migrationsDir = Directory('migrations');
   final versions =
@@ -34,7 +34,7 @@ Future<void> main() async {
 
   final graph = SchemaExtractor.fromDefinitionJson(
     definition.readAsStringSync(),
-    source: 'serverpod_lens \u00b7 elog dogfood',
+    source: 'serverpod_lens',
     projectOnly: true,
   );
 

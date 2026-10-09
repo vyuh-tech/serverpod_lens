@@ -4,3 +4,4 @@ fields:
   columns: List<String>
   unique: bool
   type: String
+  predicate: String?

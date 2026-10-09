@@ -1,0 +1,9 @@
+name: serverpod_lens_schema
+description: Shared Serverpod database-definition reader for Serverpod Lens.
+publish_to: none
+resolution: workspace
+environment:
+  sdk: ^3.13.0
+dev_dependencies:
+  test: ^1.31.1
+  lints: ^6.0.0

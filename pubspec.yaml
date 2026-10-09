@@ -5,7 +5,12 @@ environment:
   sdk: '^3.13.0'
 
 workspace:
+  - serverpod_lens_schema
   - serverpod_lens_client
   - serverpod_lens_server
   - serverpod_lens_flutter
 
+# base_menu 0.1.5 publishes workspace paths absent from its package archive,
+# which prevents `dart test` in this workspace. 0.2.0 removes those paths.
+dependency_overrides:
+  base_menu: 0.2.0

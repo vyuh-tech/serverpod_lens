@@ -7,6 +7,53 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:serverpod_lens_flutter/schema/project_analyzer.dart';
 
 void main() {
+  test('rejects ambiguous archives containing multiple server packages', () {
+    final archive = Archive();
+    for (final server in ['first', 'second']) {
+      final bytes = utf8.encode('{"tables":[]}');
+      archive.addFile(
+        ArchiveFile(
+          '$server/migrations/20260101/definition.json',
+          bytes.length,
+          bytes,
+        ),
+      );
+    }
+    final analysis = ProjectAnalyzer.analyzeZip(
+      Uint8List.fromList(ZipEncoder().encode(archive)),
+      name: 'multiple.zip',
+    );
+    expect(analysis.graph.tables, isEmpty);
+    expect(
+      analysis.warnings.single,
+      contains('Multiple Serverpod server packages'),
+    );
+  });
+
+  test(
+    'rejects a malformed latest snapshot instead of displaying stale tables',
+    () {
+      final archive = Archive();
+      for (final entry in {
+        'server/migrations/20250101/definition.json':
+            '{"tables":[{"name":"dropped"}]}',
+        'server/migrations/20260101/definition.json': '{broken',
+      }.entries) {
+        final bytes = utf8.encode(entry.value);
+        archive.addFile(ArchiveFile(entry.key, bytes.length, bytes));
+      }
+      final analysis = ProjectAnalyzer.analyzeZip(
+        Uint8List.fromList(ZipEncoder().encode(archive)),
+        name: 'broken.zip',
+      );
+      expect(analysis.graph.tables, isEmpty);
+      expect(
+        analysis.warnings.single,
+        contains('newest migration definition is invalid'),
+      );
+    },
+  );
+
   test(
     'uses the latest complete snapshot and does not resurrect dropped tables',
     () {
@@ -35,8 +82,8 @@ void main() {
         name: 'fixture.zip',
       );
       expect(analysis.graph.tables.map((table) => table.name), [
-        'project',
-        'auth',
+        'public.project',
+        'public.auth',
       ]);
       final empty = ProjectAnalyzer.analyzeZip(
         zip({

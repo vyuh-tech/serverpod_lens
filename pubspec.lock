@@ -74,13 +74,13 @@ packages:
     source: hosted
     version: "2.13.1"
   base_menu:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: base_menu
-      sha256: c621736f94680263eb5a80e97214e8d7239041f2ebe5cd97d7fd0113daa83811
+      sha256: c83156d081337b54f7a943151248bc1081b3f4e365810f29f73a3baefeea730c
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.5"
+    version: "0.2.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -1852,14 +1852,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.5.1"
-  vyuh_diagram_extension_editor:
-    dependency: transitive
-    description:
-      name: vyuh_diagram_extension_editor
-      sha256: b52a4618c98b40a6b8d67acf02adc7c456701afb8b226319e8c5956baeb4e0cd
-      url: "https://pub.vyuh.tech"
-    source: hosted
-    version: "3.5.1"
   vyuh_diagram_extension_layout:
     dependency: transitive
     description:
@@ -1873,14 +1865,6 @@ packages:
     description:
       name: vyuh_diagram_extension_minimap
       sha256: e394f11766f91244180550d609a9e01392a655ae4259983194a43d33f16c381b
-      url: "https://pub.vyuh.tech"
-    source: hosted
-    version: "3.5.1"
-  vyuh_diagram_extension_snap_guides:
-    dependency: transitive
-    description:
-      name: vyuh_diagram_extension_snap_guides
-      sha256: "067162ee2a2473b3addaa01d637f542340b6c1139287ae97057ae79294e5ff92"
       url: "https://pub.vyuh.tech"
     source: hosted
     version: "3.5.1"

@@ -2,23 +2,20 @@ import 'dart:async';
 
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:serverpod_lens_client/serverpod_lens_client.dart'
     show SchemaGraph, SchemaTable;
-import 'package:vyuh_diagram_codec_svg/vyuh_diagram_codec_svg.dart';
-import 'package:vyuh_diagram_extension_editor/vyuh_diagram_extension_editor.dart';
 import 'package:vyuh_diagram_extension_layout/vyuh_diagram_extension_layout.dart';
 import 'package:vyuh_diagram_extension_minimap/vyuh_diagram_extension_minimap.dart';
-import 'package:vyuh_diagram_extension_snap_guides/vyuh_diagram_extension_snap_guides.dart';
 import 'package:vyuh_diagram_extension_table_flutter/vyuh_diagram_extension_table_flutter.dart';
 import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
 
 import '../schema/project_analyzer.dart';
+import '../schema/schema_catalog.dart';
 import '../schema/schema_diagram.dart';
-import '../schema/schema_relations_extension.dart';
 
-/// Project loading, search and schema filtering around Vyuh's native editor.
+/// Schema search and filtering around Vyuh's native read-only canvas.
 class SchemaMapScreen extends StatefulWidget {
   const SchemaMapScreen({super.key, this.asset = 'assets/schema_graph.json'});
   final String asset;
@@ -29,9 +26,9 @@ class SchemaMapScreen extends StatefulWidget {
 class _SchemaMapScreenState extends State<SchemaMapScreen> {
   SchemaGraph? _graph;
   DiagramController? _controller;
-  String? _module;
+  String? _schema;
   String _query = '';
-  String _source = 'Sample schema';
+  String _source = '';
   Object? _error;
   bool _loading = true;
   int _loadGeneration = 0;
@@ -39,15 +36,15 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
   @override
   void initState() {
     super.initState();
-    unawaited(_loadSample());
+    unawaited(_loadSchema());
   }
 
-  Future<void> _loadSample() async {
+  Future<void> _loadSchema() async {
     try {
       final graph = SchemaDiagram.graphFromJson(
         await rootBundle.loadString(widget.asset),
       );
-      await _setGraph(graph, 'Sample · ${graph.source}');
+      await _setGraph(graph, graph.source);
     } catch (error) {
       if (mounted) {
         setState(() {
@@ -65,26 +62,23 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
         extensions: [
           SchemaTableExtension(),
           const LayoutExtension(),
-          EditorExtension(
-            palette: true,
-            inspector: InspectorPlacement.docked,
-          ),
           TableFlutterExtension(),
           MinimapExtension(
             initiallyExpanded: true,
             alignment: Alignment.bottomRight,
             policy: const DiagramMinimapPolicy(showConnections: true),
           ),
-          SnapGuidesExtension(),
           NavigationExtension(fitOnAttach: true),
           GridExtension(),
-          const SchemaRelationsExtension(),
-          SvgExtension(),
         ],
       ),
     );
     try {
-      await SchemaDiagram.build(graph, controller: controller);
+      await SchemaDiagram.build(
+        graph,
+        controller: controller,
+        layout: Layout.grid(columns: 12, gap: 56),
+      );
     } catch (_) {
       controller.dispose();
       rethrow;
@@ -98,7 +92,7 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
       _controller = controller;
       _graph = graph;
       _source = source;
-      _module = null;
+      _schema = null;
       _query = '';
       _error = null;
       _loading = false;
@@ -119,7 +113,7 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
         await file.readAsBytes(),
         name: file.name,
       );
-      if (analysis.isEmpty) {
+      if (analysis.isEmpty && analysis.warnings.isNotEmpty) {
         throw FormatException(analysis.warnings.join('\n'));
       }
       await _setGraph(analysis.graph, file.name);
@@ -138,29 +132,17 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
     SnackBar(content: Text(message)),
   );
 
-  List<SchemaTable> get _tables {
-    final query = _query.trim().toLowerCase();
-    return (_graph?.tables ?? <SchemaTable>[])
-        .where(
-          (table) =>
-              (_module == null || table.module == _module) &&
-              (query.isEmpty ||
-                  table.name.toLowerCase().contains(query) ||
-                  table.columns.any(
-                    (column) => column.name.toLowerCase().contains(query),
-                  )),
-        )
-        .toList()
-      ..sort((a, b) => a.name.compareTo(b.name));
-  }
+  List<SchemaTable> get _tables => _graph == null
+      ? []
+      : SchemaCatalog(_graph!).tables(schema: _schema, query: _query);
 
-  void _filter(String? module) {
+  void _filter(String? schema) {
     final controller = _controller;
     final graph = _graph;
     if (controller == null || graph == null) return;
     final visible = {
       for (final table in graph.tables)
-        if (module == null || table.module == module) table.name,
+        if (schema == null || table.schema == schema) table.name,
     };
     controller.edits.batch('Filter schema', () {
       for (final table in graph.tables) {
@@ -184,7 +166,7 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
       }
     }).requireAllowed();
     controller.clearSelection();
-    setState(() => _module = module);
+    setState(() => _schema = schema);
     unawaited(
       controller.view.show(const ViewTarget.all(), motion: Motion.smooth),
     );
@@ -214,75 +196,54 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
     }
   }
 
-  Future<void> _copyDiagram() async {
-    final controller = _controller;
-    if (controller == null) return;
-    await Clipboard.setData(
-      ClipboardData(text: controller.save(DiagramJsonCodec.new)),
-    );
-    if (mounted) _message('Diagram JSON copied');
-  }
-
   Future<void> _settings() async {
     final controller = _controller;
     if (controller == null) return;
     await showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Schema view'),
+        title: const Text('View settings'),
         content: SizedBox(
           width: 380,
-          child: Observer(
-            builder: (_) {
-              final grid = controller.options<GridOptions>();
-              final minimap = controller.options<MinimapOptions>();
-              final relations = controller.options<SchemaRelationsOptions>();
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SwitchListTile(
-                    title: const Text('Grid'),
-                    value: grid.visible,
-                    onChanged: (value) =>
-                        controller.setOptions(grid.copyWith(visible: value)),
-                  ),
-                  SwitchListTile(
-                    title: const Text('Snap to grid'),
-                    value: grid.snap,
-                    onChanged: (value) =>
-                        controller.setOptions(grid.copyWith(snap: value)),
-                  ),
-                  SwitchListTile(
-                    title: const Text('Minimap'),
-                    value: minimap.visible,
-                    onChanged: (value) =>
-                        controller.setOptions(minimap.copyWith(visible: value)),
-                  ),
-                  SwitchListTile(
-                    title: const Text('Animate relations'),
-                    value: relations.animate,
-                    onChanged: (value) => controller.setOptions(
-                      relations.copyWith(animate: value),
+          child: SingleChildScrollView(
+            child: Observer(
+              builder: (_) {
+                final grid = controller.options<GridOptions>();
+                final minimap = controller.options<MinimapOptions>();
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Canvas',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
                     ),
-                  ),
-                  SwitchListTile(
-                    title: const Text('Animate all relations'),
-                    value: relations.animateAll,
-                    onChanged: relations.animate
-                        ? (value) => controller.setOptions(
-                            relations.copyWith(animateAll: value),
-                          )
-                        : null,
-                  ),
-                  SwitchListTile(
-                    title: const Text('Focus selected table and neighbours'),
-                    value: relations.focus,
-                    onChanged: (value) =>
-                        controller.setOptions(relations.copyWith(focus: value)),
-                  ),
-                ],
-              );
-            },
+                    const SizedBox(height: 8),
+                    SwitchListTile(
+                      title: const Text('Show grid'),
+                      subtitle: const Text(
+                        'Add a background guide to the canvas',
+                      ),
+                      value: grid.visible,
+                      onChanged: (value) =>
+                          controller.setOptions(grid.copyWith(visible: value)),
+                    ),
+                    SwitchListTile(
+                      title: const Text('Show minimap'),
+                      subtitle: const Text(
+                        'Navigate the whole schema at a glance',
+                      ),
+                      value: minimap.visible,
+                      onChanged: (value) => controller.setOptions(
+                        minimap.copyWith(visible: value),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
         actions: [
@@ -343,13 +304,8 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
           ),
           IconButton(
             tooltip: 'Schema view settings',
-            onPressed: controller == null ? null : _settings,
+            onPressed: controller == null || _loading ? null : _settings,
             icon: const Icon(Icons.settings_outlined),
-          ),
-          IconButton(
-            tooltip: 'Copy diagram JSON',
-            onPressed: controller == null ? null : _copyDiagram,
-            icon: const Icon(Icons.copy_outlined),
           ),
           const SizedBox(width: 8),
         ],
@@ -367,7 +323,7 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
                             children: [
                               Text('Could not load schema: $_error'),
                               TextButton(
-                                onPressed: _loadSample,
+                                onPressed: _loadSchema,
                                 child: const Text('Retry'),
                               ),
                             ],
@@ -376,12 +332,14 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
                 : LayoutBuilder(
                     builder: (context, constraints) {
                       final sidebar = _sidebar(controller);
-                      final canvas = DiagramCanvas(
-                        key: ValueKey(controller),
-                        controller: controller,
-                        theme: Theme.of(context).brightness == Brightness.dark
-                            ? DiagramTheme.dark
-                            : DiagramTheme.light,
+                      final canvas = ClipRect(
+                        child: DiagramCanvas(
+                          key: ValueKey(controller),
+                          controller: controller,
+                          theme: Theme.of(context).brightness == Brightness.dark
+                              ? DiagramTheme.dark
+                              : DiagramTheme.light,
+                        ),
                       );
                       if (constraints.maxWidth < 700) {
                         return Column(
@@ -415,24 +373,26 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
           padding: const EdgeInsets.all(12),
           child: Column(
             children: [
-              Text(_source, maxLines: 1, overflow: TextOverflow.ellipsis),
-              const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                key: ValueKey((_source, _module)),
-                initialValue: _module ?? '',
+                key: ValueKey((_source, _schema)),
+                initialValue: _schema ?? '',
                 decoration: const InputDecoration(
-                  labelText: 'Module',
+                  labelText: 'Schema',
                   border: OutlineInputBorder(),
                 ),
                 items: [
-                  const DropdownMenuItem(value: '', child: Text('All modules')),
-                  for (final module in _graph!.modules)
+                  const DropdownMenuItem(value: '', child: Text('All schemas')),
+                  for (final schema in SchemaCatalog(
+                    _graph!,
+                  ).schemaCounts.entries)
                     DropdownMenuItem(
-                      value: module.name,
-                      child: Text('${module.name} (${module.tableCount})'),
+                      value: schema.key,
+                      child: Text('${schema.key} (${schema.value})'),
                     ),
                 ],
-                onChanged: (value) => _filter(value == '' ? null : value),
+                onChanged: _loading
+                    ? null
+                    : (value) => _filter(value == '' ? null : value),
               ),
               const SizedBox(height: 12),
               TextField(
@@ -455,7 +415,13 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
                   ? selection.elementIds
                   : <String>{};
               if (tables.isEmpty) {
-                return const Center(child: Text('No matching tables'));
+                return Center(
+                  child: Text(
+                    _graph!.tables.isEmpty
+                        ? 'This schema has no tables'
+                        : 'No matching tables',
+                  ),
+                );
               }
               return ListView.builder(
                 itemCount: tables.length,
@@ -467,7 +433,7 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
                     leading: Icon(
                       Icons.table_chart_outlined,
                       size: 18,
-                      color: SchemaDiagram.moduleColor(table.module).toColor(),
+                      color: SchemaDiagram.moduleColor(table.schema).toColor(),
                     ),
                     title: Text(
                       table.name,

@@ -140,7 +140,6 @@ import 'elog_schema/sso/sso_user_product_site_mappings.dart' as _i7stpwby;
 import 'elog_schema/sso/sso_user_roles.dart' as _iew7uxuv;
 import 'elog_schema/sso/sso_user_sessions.dart' as _ir5ofehs;
 import 'elog_schema/sso/sso_users.dart' as _i4fj2l14;
-import 'greetings/greeting.dart' as _izw8z7ou;
 import 'schema/schema_column.dart' as _ip7yl2xa;
 import 'schema/schema_enum.dart' as _irxuw07j;
 import 'schema/schema_foreign_key.dart' as _iarzs90a;
@@ -270,7 +269,6 @@ export 'elog_schema/sso/sso_user_product_site_mappings.dart';
 export 'elog_schema/sso/sso_user_roles.dart';
 export 'elog_schema/sso/sso_user_sessions.dart';
 export 'elog_schema/sso/sso_users.dart';
-export 'greetings/greeting.dart';
 export 'schema/schema_column.dart';
 export 'schema/schema_enum.dart';
 export 'schema/schema_foreign_key.dart';
@@ -679,9 +677,6 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _i4fj2l14.SsoUsers) {
       return _i4fj2l14.SsoUsers.fromJson(data) as T;
-    }
-    if (t == _izw8z7ou.Greeting) {
-      return _izw8z7ou.Greeting.fromJson(data) as T;
     }
     if (t == _ip7yl2xa.SchemaColumn) {
       return _ip7yl2xa.SchemaColumn.fromJson(data) as T;
@@ -1287,9 +1282,6 @@ class Protocol extends _isc.SerializationManager {
     if (t == _isc.getType<_i4fj2l14.SsoUsers?>()) {
       return (data != null ? _i4fj2l14.SsoUsers.fromJson(data) : null) as T;
     }
-    if (t == _isc.getType<_izw8z7ou.Greeting?>()) {
-      return (data != null ? _izw8z7ou.Greeting.fromJson(data) : null) as T;
-    }
     if (t == _isc.getType<_ip7yl2xa.SchemaColumn?>()) {
       return (data != null ? _ip7yl2xa.SchemaColumn.fromJson(data) : null) as T;
     }
@@ -1518,7 +1510,6 @@ class Protocol extends _isc.SerializationManager {
       _iew7uxuv.SsoUserRoles => 'SsoUserRoles',
       _ir5ofehs.SsoUserSessions => 'SsoUserSessions',
       _i4fj2l14.SsoUsers => 'SsoUsers',
-      _izw8z7ou.Greeting => 'Greeting',
       _ip7yl2xa.SchemaColumn => 'SchemaColumn',
       _irxuw07j.SchemaEnum => 'SchemaEnum',
       _iarzs90a.SchemaForeignKey => 'SchemaForeignKey',
@@ -1787,8 +1778,6 @@ class Protocol extends _isc.SerializationManager {
         return 'SsoUserSessions';
       case _i4fj2l14.SsoUsers():
         return 'SsoUsers';
-      case _izw8z7ou.Greeting():
-        return 'Greeting';
       case _ip7yl2xa.SchemaColumn():
         return 'SchemaColumn';
       case _irxuw07j.SchemaEnum():
@@ -2200,9 +2189,6 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'SsoUsers') {
       return deserialize<_i4fj2l14.SsoUsers>(data['data']);
-    }
-    if (dataClassName == 'Greeting') {
-      return deserialize<_izw8z7ou.Greeting>(data['data']);
     }
     if (dataClassName == 'SchemaColumn') {
       return deserialize<_ip7yl2xa.SchemaColumn>(data['data']);

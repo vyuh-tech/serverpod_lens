@@ -44,7 +44,7 @@ abstract final class SchemaDiagram {
           size: DiagramSize(nodeWidth, heightOf(table)),
           style: ShapeStyle(
             fill: const DiagramColor(0xffffffff),
-            stroke: moduleColor(table.module),
+            stroke: moduleColor(table.schema),
             strokeWidth: 2,
             cornerRadius: 8,
           ),
@@ -84,11 +84,18 @@ abstract final class SchemaDiagram {
               fk.columns.length == 1 &&
                   table.columns.any(
                     (c) =>
-                        c.name == childColumn && (c.isUnique || c.isPrimaryKey),
+                        c.name == childColumn &&
+                        (c.isUnique ||
+                            (c.isPrimaryKey &&
+                                table.columns
+                                        .where((column) => column.isPrimaryKey)
+                                        .length ==
+                                    1)),
                   ) ||
               table.indexes.any(
                 (index) =>
                     index.unique &&
+                    (index.predicate == null || index.predicate!.isEmpty) &&
                     index.columns.length == fk.columns.length &&
                     index.columns.toSet().containsAll(fk.columns),
               );

@@ -20,6 +20,7 @@ abstract class SchemaIndex
     required this.columns,
     required this.unique,
     required this.type,
+    this.predicate,
   });
 
   factory SchemaIndex({
@@ -27,6 +28,7 @@ abstract class SchemaIndex
     required List<String> columns,
     required bool unique,
     required String type,
+    String? predicate,
   }) = _SchemaIndexImpl;
 
   factory SchemaIndex.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -37,6 +39,7 @@ abstract class SchemaIndex
       ),
       unique: _isc.BoolJsonExtension.fromJson(jsonSerialization['unique']),
       type: jsonSerialization['type'] as String,
+      predicate: jsonSerialization['predicate'] as String?,
     );
   }
 
@@ -48,6 +51,8 @@ abstract class SchemaIndex
 
   String type;
 
+  String? predicate;
+
   /// Returns a shallow copy of this [SchemaIndex]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -56,6 +61,7 @@ abstract class SchemaIndex
     List<String>? columns,
     bool? unique,
     String? type,
+    String? predicate,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -65,6 +71,7 @@ abstract class SchemaIndex
       'columns': columns.toJson(),
       'unique': unique,
       'type': type,
+      if (predicate != null) 'predicate': predicate,
     };
   }
 
@@ -76,6 +83,7 @@ abstract class SchemaIndex
       'columns': columns.toJson(),
       'unique': unique,
       'type': type,
+      if (predicate != null) 'predicate': predicate,
     };
   }
 
@@ -85,17 +93,21 @@ abstract class SchemaIndex
   }
 }
 
+class _Undefined {}
+
 class _SchemaIndexImpl extends SchemaIndex {
   _SchemaIndexImpl({
     required String name,
     required List<String> columns,
     required bool unique,
     required String type,
+    String? predicate,
   }) : super._(
          name: name,
          columns: columns,
          unique: unique,
          type: type,
+         predicate: predicate,
        );
 
   /// Returns a shallow copy of this [SchemaIndex]
@@ -107,12 +119,14 @@ class _SchemaIndexImpl extends SchemaIndex {
     List<String>? columns,
     bool? unique,
     String? type,
+    Object? predicate = _Undefined,
   }) {
     return SchemaIndex(
       name: name ?? this.name,
       columns: columns ?? this.columns.map((e0) => e0).toList(),
       unique: unique ?? this.unique,
       type: type ?? this.type,
+      predicate: predicate is String? ? predicate : this.predicate,
     );
   }
 }
