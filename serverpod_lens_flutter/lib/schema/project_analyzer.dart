@@ -60,6 +60,13 @@ abstract final class ProjectAnalyzer {
     for (final file in archive) {
       if (!file.isFile) continue;
       final path = file.name;
+      if (!_projectDef.hasMatch(path) &&
+          !_fullDef.hasMatch(path) &&
+          !path.endsWith('.spy.yaml') &&
+          !path.endsWith('.spy.yml') &&
+          !path.endsWith('.spy')) {
+        continue;
+      }
       final content = utf8.decode(
         file.content as List<int>,
         allowMalformed: true,

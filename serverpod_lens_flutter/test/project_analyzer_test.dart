@@ -98,6 +98,36 @@ void main() {
     },
   );
 
+  test(
+    'ignores unrelated binary entries and reads the newest project snapshot',
+    () {
+      final archive = Archive();
+      final entries = <String, List<int>>{
+        'server/migrations/20250101/definition.json': utf8.encode(
+          '{"tables":[{"name":"old"}]}',
+        ),
+        'server/migrations/20260101/definition_project.json': utf8.encode(
+          '{"tables":[{"name":"current"}]}',
+        ),
+        'assets/image.bin': [255, 254, 0, 128],
+        'build/cache.dat': List.filled(100000, 255),
+      };
+      for (final entry in entries.entries) {
+        archive.addFile(
+          ArchiveFile(entry.key, entry.value.length, entry.value),
+        );
+      }
+      final result = ProjectAnalyzer.analyzeZip(
+        Uint8List.fromList(ZipEncoder().encode(archive)),
+        name: 'binary.zip',
+      );
+      expect(result.graph.tables.map((table) => table.name), [
+        'public.current',
+      ]);
+      expect(result.warnings, isEmpty);
+    },
+  );
+
   test('analyzes an uploaded Serverpod project zip', () {
     // Reuse this repo's own server migration as a realistic fixture.
     final migrations = Directory('../serverpod_lens_server/migrations');
