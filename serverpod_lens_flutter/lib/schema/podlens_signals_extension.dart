@@ -8,30 +8,41 @@ import 'package:vyuh_diagram_core/vyuh_diagram_core.dart'
 import 'package:vyuh_diagram_flutter/extension_api.dart';
 
 import 'lens_state.dart';
+import 'schema_diagram.dart';
 
-/// Draws all pod_lens selection chrome, because the engine's built-in
+/// Draws all pod_lens interactive chrome, because the engine's built-in
 /// hover/selection outline is disabled via a transparent selection theme.
 ///
-/// Responsibilities:
-/// - a marching-ants signal on the selected node's edges (optionally all),
-/// - a selection outline around selected table nodes,
-/// - focus dimming of everything except the selected node and its neighbours,
-/// - `1`/`N` cardinality markers on the selected node's edges.
+/// - marching-ants signal on the selected node's edges (optionally all),
+/// - selection outline around selected table nodes,
+/// - focus dimming of everything but the selected node and its neighbours,
+/// - `1`/`N` cardinality markers on the selected node's edges,
+/// - hover highlight: hovering a table highlights it, its neighbours and its
+///   edges; hovering an edge highlights the exact FK columns at both ends.
 final class PodLensSignalsExtension extends DiagramFlutterExtension {
-  PodLensSignalsExtension({required this.lens}) : super(id: 'podlens.signals');
+  PodLensSignalsExtension({required this.lens, required this.columnsByTable})
+    : super(id: 'podlens.signals');
 
   final LensState lens;
+
+  /// Table name → ordered column names, for per-column hover highlighting.
+  final Map<String, List<String>> columnsByTable;
 
   @override
   Widget build(BuildContext context, DiagramCanvasExtensionHost host) =>
-      _SignalOverlay(host: host, lens: lens);
+      _SignalOverlay(host: host, lens: lens, columnsByTable: columnsByTable);
 }
 
 class _SignalOverlay extends StatefulWidget {
-  const _SignalOverlay({required this.host, required this.lens});
+  const _SignalOverlay({
+    required this.host,
+    required this.lens,
+    required this.columnsByTable,
+  });
 
   final DiagramCanvasExtensionHost host;
   final LensState lens;
+  final Map<String, List<String>> columnsByTable;
 
   @override
   State<_SignalOverlay> createState() => _SignalOverlayState();
@@ -43,6 +54,7 @@ class _SignalOverlayState extends State<_SignalOverlay>
     vsync: this,
     duration: const Duration(milliseconds: 900),
   );
+  final ValueNotifier<Offset?> _hover = ValueNotifier(null);
   Timer? _gate;
   bool _running = false;
   Set<String> _selected = const {};
@@ -86,12 +98,8 @@ class _SignalOverlayState extends State<_SignalOverlay>
   void _normalizeSelection() {
     final controller = widget.host.controller;
     final selection = controller.selection;
-    if (selection is! ElementSelection) {
-      if (_selected.isNotEmpty) _selected = const {};
-      return;
-    }
-    if (selection.elementIds.isEmpty) {
-      if (_selected.isNotEmpty) _selected = const {};
+    if (selection is! ElementSelection || selection.elementIds.isEmpty) {
+      _selected = const {};
       return;
     }
     final scene = controller.scene;
@@ -117,6 +125,7 @@ class _SignalOverlayState extends State<_SignalOverlay>
     widget.host.camera.changes.removeListener(_onChange);
     _gate?.cancel();
     _clock.dispose();
+    _hover.dispose();
     super.dispose();
   }
 
@@ -124,29 +133,37 @@ class _SignalOverlayState extends State<_SignalOverlay>
   Widget build(BuildContext context) {
     final controller = widget.host.controller;
     final camera = widget.host.camera;
-    final settings = widget.lens.value;
     final dark = Theme.of(context).brightness == Brightness.dark;
 
-    return IgnorePointer(
-      child: SizedBox.expand(
-        child: RepaintBoundary(
-          child: AnimatedBuilder(
-            animation: _clock,
-            builder: (context, _) => CustomPaint(
-              painter: _OverlayPainter(
-                selected: _selected,
-                scene: controller.scene,
-                camera: camera,
-                phase: _clock.value,
-                active: _running,
-                animateAll: settings.animateAllEdges,
-                focus: settings.focusMode,
-                cardinality: settings.showCardinality,
-                dark: dark,
+    return MouseRegion(
+      onHover: (event) => _hover.value = event.localPosition,
+      onExit: (_) => _hover.value = null,
+      child: ListenableBuilder(
+        listenable: Listenable.merge([_clock, _hover]),
+        builder: (context, _) {
+          final settings = widget.lens.value;
+          return IgnorePointer(
+            child: SizedBox.expand(
+              child: RepaintBoundary(
+                child: CustomPaint(
+                  painter: _OverlayPainter(
+                    selected: _selected,
+                    scene: controller.scene,
+                    camera: camera,
+                    phase: _clock.value,
+                    active: _running,
+                    animateAll: settings.animateAllEdges,
+                    focus: settings.focusMode,
+                    cardinality: settings.showCardinality,
+                    hover: settings.hoverHighlight ? _hover.value : null,
+                    columnsByTable: widget.columnsByTable,
+                    dark: dark,
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -162,6 +179,8 @@ class _OverlayPainter extends CustomPainter {
     required this.animateAll,
     required this.focus,
     required this.cardinality,
+    required this.hover,
+    required this.columnsByTable,
     required this.dark,
   });
 
@@ -173,9 +192,12 @@ class _OverlayPainter extends CustomPainter {
   final bool animateAll;
   final bool focus;
   final bool cardinality;
+  final Offset? hover;
+  final Map<String, List<String>> columnsByTable;
   final bool dark;
 
   static const _accent = Color(0xFF22D3EE);
+  static const _hoverColor = Color(0xFF60A5FA);
   static const _good = Color(0xFF34D399);
   static const _many = Color(0xFFF59E0B);
   static const _dash = 7.0;
@@ -191,10 +213,16 @@ class _OverlayPainter extends CustomPainter {
     return element is ResolvedShape ? element.bounds : null;
   }
 
+  Rect _shapeRect(DiagramRect bounds) => Rect.fromPoints(
+    _screen(DiagramPoint(bounds.left, bounds.top)),
+    _screen(DiagramPoint(bounds.left + bounds.width, bounds.top + bounds.height)),
+  );
+
   @override
   void paint(Canvas canvas, Size size) {
-    if (selected.isEmpty && !animateAll) return;
+    if (selected.isEmpty && !animateAll && hover == null) return;
 
+    final isSelectedActive = selected.isNotEmpty;
     final related = <String>{...selected};
     final edges = <ResolvedConnector>[];
     for (final element in scene.elements) {
@@ -216,7 +244,7 @@ class _OverlayPainter extends CustomPainter {
     }
 
     // Focus: dim everything, then punch holes for selected + neighbours.
-    if (focus && selected.isNotEmpty) {
+    if (focus && isSelectedActive) {
       canvas.saveLayer(Offset.zero & size, Paint());
       canvas.drawRect(
         Offset.zero & size,
@@ -228,13 +256,9 @@ class _OverlayPainter extends CustomPainter {
       for (final id in related) {
         final bounds = _shapeBounds(id);
         if (bounds == null) continue;
-        final tl = _screen(DiagramPoint(bounds.left, bounds.top));
-        final br = _screen(
-          DiagramPoint(bounds.left + bounds.width, bounds.top + bounds.height),
-        );
         canvas.drawRRect(
           RRect.fromRectAndRadius(
-            Rect.fromPoints(tl, br).inflate(6),
+            _shapeRect(bounds).inflate(6),
             const Radius.circular(12),
           ),
           clear,
@@ -252,13 +276,9 @@ class _OverlayPainter extends CustomPainter {
     for (final id in selected) {
       final bounds = _shapeBounds(id);
       if (bounds == null) continue;
-      final tl = _screen(DiagramPoint(bounds.left, bounds.top));
-      final br = _screen(
-        DiagramPoint(bounds.left + bounds.width, bounds.top + bounds.height),
-      );
       canvas.drawRRect(
         RRect.fromRectAndRadius(
-          Rect.fromPoints(tl, br).inflate(2),
+          _shapeRect(bounds).inflate(2),
           const Radius.circular(11),
         ),
         outline,
@@ -266,40 +286,156 @@ class _OverlayPainter extends CustomPainter {
     }
 
     // Edges: ants + cardinality.
-    final ants = Paint()
-      ..color = _accent
-      ..strokeWidth = 2.4
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-    final glow = Paint()
-      ..color = _accent.withValues(alpha: 0.3)
-      ..strokeWidth = 6
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 6);
+    if (active || (cardinality && isSelectedActive)) {
+      final ants = Paint()
+        ..color = _accent
+        ..strokeWidth = 2.4
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round;
+      final glow = Paint()
+        ..color = _accent.withValues(alpha: 0.3)
+        ..strokeWidth = 6
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 6);
 
-    for (final edge in edges) {
-      final points = edge.points;
-      if (points.length < 2) continue;
-      final path = Path();
-      var first = true;
-      for (final p in points) {
-        final o = _screen(p);
-        if (first) {
-          path.moveTo(o.dx, o.dy);
-          first = false;
-        } else {
-          path.lineTo(o.dx, o.dy);
+      for (final edge in edges) {
+        final path = _pathOf(edge);
+        if (path == null) continue;
+        if (active) {
+          _drawAnts(canvas, path, glow, phase);
+          _drawAnts(canvas, path, ants, phase);
         }
-      }
-      if (active) {
-        _drawAnts(canvas, path, glow, phase);
-        _drawAnts(canvas, path, ants, phase);
-      }
-      if (cardinality && selected.isNotEmpty) {
-        _drawCardinality(canvas, edge);
+        if (cardinality && isSelectedActive) _drawCardinality(canvas, edge);
       }
     }
+
+    if (hover != null) _drawHover(canvas);
+  }
+
+  Path? _pathOf(ResolvedConnector edge) {
+    final points = edge.points;
+    if (points.length < 2) return null;
+    final path = Path();
+    var first = true;
+    for (final p in points) {
+      final o = _screen(p);
+      if (first) {
+        path.moveTo(o.dx, o.dy);
+        first = false;
+      } else {
+        path.lineTo(o.dx, o.dy);
+      }
+    }
+    return path;
+  }
+
+  void _drawHover(Canvas canvas) {
+    final zoom = (camera.state.zoom as num).toDouble();
+    final world = camera.screenToWorld(
+      DiagramPoint(hover!.dx, hover!.dy),
+    ) as DiagramPoint;
+    final hit = scene.hitTest(world, tolerance: 6 / zoom);
+
+    if (hit is ResolvedShape) {
+      if (selected.contains(hit.id)) return;
+      final accent = Paint()
+        ..color = _hoverColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.6;
+      final bounds = _shapeBounds(hit.id);
+      if (bounds != null) {
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            _shapeRect(bounds).inflate(2),
+            const Radius.circular(11),
+          ),
+          accent,
+        );
+      }
+      final dash = Paint()
+        ..color = _hoverColor.withValues(alpha: 0.8)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.8
+        ..strokeCap = StrokeCap.round;
+      for (final element in scene.elements) {
+        if (element is! ResolvedConnector) continue;
+        final startId = element.source.start is BoundEndpoint
+            ? (element.source.start as BoundEndpoint).elementId
+            : null;
+        final endId = element.source.end is BoundEndpoint
+            ? (element.source.end as BoundEndpoint).elementId
+            : null;
+        if (startId == hit.id || endId == hit.id) {
+          final other = startId == hit.id ? endId : startId;
+          final otherBounds = other == null ? null : _shapeBounds(other);
+          if (otherBounds != null) {
+            canvas.drawRRect(
+              RRect.fromRectAndRadius(
+                _shapeRect(otherBounds).inflate(2),
+                const Radius.circular(11),
+              ),
+              accent,
+            );
+          }
+          final path = _pathOf(element);
+          if (path != null) _drawAnts(canvas, path, dash, 0);
+        }
+      }
+    } else if (hit is ResolvedConnector) {
+      _highlightConnectorColumns(canvas, hit);
+      final path = _pathOf(hit);
+      if (path != null) {
+        canvas.drawPath(
+          path,
+          Paint()
+            ..color = _hoverColor
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 2.2,
+        );
+      }
+    }
+  }
+
+  void _highlightConnectorColumns(Canvas canvas, ResolvedConnector edge) {
+    for (final endpoint in [edge.source.start, edge.source.end]) {
+      if (endpoint is! BoundEndpoint) continue;
+      final portId = endpoint.portId;
+      if (portId == null) continue;
+      final parts = portId.split('::');
+      if (parts.length < 2) continue;
+      _highlightRow(canvas, parts[0], parts[1]);
+    }
+  }
+
+  void _highlightRow(Canvas canvas, String tableId, String column) {
+    final bounds = _shapeBounds(tableId);
+    final columns = columnsByTable[tableId];
+    if (bounds == null || columns == null) return;
+    final index = columns.indexOf(column);
+    if (index < 0) return;
+    final top =
+        bounds.top + SchemaDiagram.headerHeight + index * SchemaDiagram.rowHeight;
+    final rect = Rect.fromPoints(
+      _screen(DiagramPoint(bounds.left, top)),
+      _screen(
+        DiagramPoint(
+          bounds.left + bounds.width,
+          top + SchemaDiagram.rowHeight,
+        ),
+      ),
+    );
+    canvas.drawRect(
+      rect,
+      Paint()..color = _hoverColor.withValues(alpha: 0.22),
+    );
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..color = _hoverColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2,
+    );
   }
 
   void _drawCardinality(Canvas canvas, ResolvedConnector edge) {
@@ -310,7 +446,6 @@ class _OverlayPainter extends CustomPainter {
     final points = edge.points;
     if (points.length < 2) return;
 
-    // The FK side ("many") is the source; the referenced side ("one") the end.
     if (startId != null && selected.contains(startId)) {
       _label(canvas, '1', _screen(points.last), _good, above: true);
     } else {
@@ -333,11 +468,7 @@ class _OverlayPainter extends CustomPainter {
     final painter = TextPainter(
       text: TextSpan(
         text: text,
-        style: TextStyle(
-          color: color,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-        ),
+        style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w700),
       ),
       textDirection: TextDirection.ltr,
     )..layout();

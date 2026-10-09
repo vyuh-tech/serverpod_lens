@@ -67,11 +67,14 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
   /// is the one case where the controller is recreated.
   void _setGraph(SchemaGraph graph, {String? label}) {
     final colors = {for (final t in graph.tables) t.name: moduleColor(t.module)};
+    final columnsByTable = {
+      for (final t in graph.tables) t.name: [for (final c in t.columns) c.name],
+    };
     final controller = DiagramController(
       configuration: DiagramConfiguration(
         extensions: [
           PodLensTableExtension(graph.tables, lens: _lens),
-          PodLensSignalsExtension(lens: _lens),
+          PodLensSignalsExtension(lens: _lens, columnsByTable: columnsByTable),
           PodLensMinimapExtension(lens: _lens, colors: colors),
           const PodLensViewExtension(),
           GridExtension(visible: false),
@@ -586,6 +589,14 @@ class _SettingsDialog extends StatelessWidget {
                     value: settings.showCardinality,
                     onChanged: (v) =>
                         onChanged(settings.copyWith(showCardinality: v)),
+                  ),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Hover highlight'),
+                    subtitle: const Text('Highlight tables and columns on hover'),
+                    value: settings.hoverHighlight,
+                    onChanged: (v) =>
+                        onChanged(settings.copyWith(hoverHighlight: v)),
                   ),
                 ],
               ),

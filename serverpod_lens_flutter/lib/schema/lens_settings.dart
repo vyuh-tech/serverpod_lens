@@ -18,6 +18,7 @@ class LensSettings {
     this.showMinimap = true,
     this.showCardinality = true,
     this.focusMode = true,
+    this.hoverHighlight = true,
     this.layout = LensLayout.layered,
   });
 
@@ -42,6 +43,9 @@ class LensSettings {
   /// Dim everything except the selected node and its neighbours.
   final bool focusMode;
 
+  /// Highlight a table (and its edges) on hover.
+  final bool hoverHighlight;
+
   /// Layout used to arrange the tables.
   final LensLayout layout;
 
@@ -53,6 +57,7 @@ class LensSettings {
     bool? showMinimap,
     bool? showCardinality,
     bool? focusMode,
+    bool? hoverHighlight,
     LensLayout? layout,
   }) => LensSettings(
     connectionAnimations: connectionAnimations ?? this.connectionAnimations,
@@ -62,6 +67,7 @@ class LensSettings {
     showMinimap: showMinimap ?? this.showMinimap,
     showCardinality: showCardinality ?? this.showCardinality,
     focusMode: focusMode ?? this.focusMode,
+    hoverHighlight: hoverHighlight ?? this.hoverHighlight,
     layout: layout ?? this.layout,
   );
 }
