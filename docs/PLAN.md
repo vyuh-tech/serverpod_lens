@@ -180,5 +180,4 @@ See `docs/dogfood-elog.md` for extraction details and mapping decisions.
 ## 10. References
 
 - Serverpod docs: https://docs.serverpod.dev
-- Serverpod models skill: `.opencode/skills/serverpod-models/SKILL.md`
 - Vyuh Diagram: https://diagram.vyuh.tech

@@ -6,6 +6,8 @@
 pubspec_overrides.yaml
 
 # Agents
+.opencode/
+opencode.json
 .dart_skills/
 .agents/
 .claude/
