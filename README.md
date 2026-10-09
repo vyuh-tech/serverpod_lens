@@ -16,18 +16,25 @@ schema adapter being built toward that integration.
 The initial view loads SQL declarations from the local `flutter_elog` project.
 The imported snapshot contains 396 tables across ten database schemas, including
 `public`, `sso`, `elog`, `docs_iq`, `workflow_runtime` and `assure_iq`. This is a
-source-file snapshot, not a connection to its live database. Of 536 imported foreign keys, 505 have targets present in
-the snapshot; the report lists the other 31. Its provenance and
+source-file snapshot, not a connection to its live database. Of 536 imported
+foreign keys, 505 have targets present in the snapshot; the report lists the
+other 31. Its provenance and
 import limitations are recorded in [the schema notes](docs/elog-schema.md).
 
 For a Serverpod project, choose **Open project** and select a ZIP containing one
-server package. Archives with multiple server packages are rejected. Lens reads the newest migration definition, preferring complete
+server package. Archives with multiple server packages are rejected. Lens reads
+the newest migration definition, preferring complete
 `definition.json` over `definition_project.json`. Complete definitions include
 installed modules and framework tables. A malformed newest snapshot is reported
 rather than silently replaced with an older schema.
 
 ZIP analysis happens locally in Flutter. It does not execute uploaded code,
 upload your project to a server or connect to your project's database.
+
+On phones, the canvas fills the available space. Open **Browse schemas** to
+search or choose a schema in the navigation drawer; selecting a table closes
+the drawer and focuses its node. Desktop keeps the browser beside the canvas
+and lets you collapse it. Both light and dark modes use neutral Material colors.
 
 The viewer provides:
 
@@ -41,8 +48,8 @@ The viewer provides:
 - View settings for animation speed (0.25–3×), particles, dashes, arrows, pulse,
   blinking and an Off option, with trail density and reverse flow controls.
 - Orthogonal connections by default, with straight, Bézier, quadratic and
-  rounded orthogonal options,
-  with line width, dashed strokes, corner radius and port lead controls.
+  rounded orthogonal options. Adjust line width, dashed strokes, corner radius
+  and port leads.
 - Native alignment guides and tolerance, grid snapping and spacing, minimap
   connections, edge panning and Fit schema. Preferences last for the session,
   including when another project is opened.
@@ -187,11 +194,14 @@ cd ../serverpod_lens_flutter && flutter test
 
 Regression checks cover migration ordering and invalid snapshots, types,
 module/schema identity, composite constraints, foreign keys, native layout and
-JSON round-tripping. The canvas test checks native node dragging, click-triggered connection flow and
-blocked deletion while preserving schema content. Port offsets are checked against
+JSON round-tripping. Canvas checks cover native node dragging, click-triggered
+connection flow and blocked schema edits while preserving content. Responsive
+checks cover the mobile drawer, desktop collapse and search state.
+Port offsets are checked against
 native resolved row geometry; only bound ports are exposed. Route switching
 preserves column bindings and labels. Nodes use native table styling with a flat
-header, subtle row separators and right-aligned types. The SQL importer has a separate Python test:
+header, subtle row separators and right-aligned types. The SQL importer has a
+separate Python test:
 
 ```sh
 /tmp/lens-schema-import/bin/python -m unittest discover \
@@ -200,7 +210,7 @@ header, subtle row separators and right-aligned types. The SQL importer has a se
 
 There are no GitHub Actions workflows or OpenCode configuration in this repo.
 See [the architecture plan](docs/PLAN.md), [remaining work](docs/ROADMAP.md)
-and [the project audit](docs/AUDIT.md).
+[the project audit](docs/AUDIT.md) and [verification results](docs/VERIFICATION.md).
 
 ## Licensing
 

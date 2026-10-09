@@ -3,6 +3,10 @@
 The read-only viewer imports Serverpod migration snapshots and project ZIPs. Its
 initial SQL graph comes from flutter_elog; the README describes both input paths.
 
+The next feature milestone is live host connection, table inspection, and visual
+migration comparison. See [FEATURE_PLAN.md](FEATURE_PLAN.md) for the construction
+plan, delivery sequence, and verification criteria.
+
 ## Integrate with Serverpod tooling
 
 - Agree on the host development-tool surface with the Serverpod team.
@@ -24,8 +28,8 @@ initial SQL graph comes from flutter_elog; the README describes both input paths
 - Measure frame time, startup time and memory on large schemas.
 - Move ZIP parsing off the UI thread if measurements warrant it; impose appropriate
   archive limits before making arbitrary public uploads a supported service.
-- Test keyboard navigation, accessibility, narrow screens and long table names.
-- Persist native view settings between imports and sessions.
+- Extend keyboard and screen-reader coverage; verify on physical mobile devices.
+- Persist native view settings across app restarts.
 
 Schema authoring is outside the current feature. There is no plan to reintroduce
 editor palettes or editable table cells into this read-only viewer.

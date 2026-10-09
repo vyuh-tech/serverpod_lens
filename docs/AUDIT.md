@@ -42,6 +42,7 @@ needed. Authentication initialization remains in the Serverpod backend.
 | Neater view settings | Animation, connections and canvas options in a scrollable dialog |
 | Shared reader and focused regressions | Shared reader, ZIP selection, types, identity, relations and native viewer tests |
 | Documentation consistent with code | README, architecture, source notes and roadmap rewritten |
+| Mobile canvas space and neutral Material styling | Browser moves into a phone drawer; desktop sidebar collapses; light/dark controls use neutral colors |
 
 The native effects API requires the interactive canvas. A later interaction
 update enables native node dragging and connection flow on selection, with
@@ -89,7 +90,15 @@ partial uniqueness, composite cardinality, source filtering, SQL FK actions,
 native layout/codecs and the read-only canvas. Node dragging changes positions only; selection plays native connection effects,
 and Delete is rejected.
 
-Analysis and formatting pass. Eleven Flutter tests, five shared-reader tests,
-one backend bridge test and one Python importer test pass. The development app and release web build are checked in a browser;
-the release is served by Python and the existing Cloudflare quick tunnel. Runtime
-checks use Serverpod MCP for restarts and logs.
+Analysis and formatting pass. Twenty Flutter tests, five shared-reader tests,
+one backend bridge test and one Python importer test pass. Native layout and
+admission coverage was expanded, and responsive tests found and fixed a
+long-schema-name dropdown overflow. ZIP loading now skips unrelated entries
+before decoding them as text.
+
+The JavaScript release build and desktop/phone browser checks pass in light and
+dark modes. Python serves the release and the Cloudflare quick tunnel remains
+available. Serverpod MCP restarts succeed, but live Dart MCP widget inspection
+and Flutter Driver requests timed out in this session. That verification remains
+incomplete. See [the verification record](VERIFICATION.md) for the exact coverage
+and practical limits.
