@@ -1,0 +1,9 @@
+class: ElogRolePermissions
+table: elog_role_permissions
+fields:
+  id: UuidValue?, defaultPersist=random
+  roleId: UuidValue, relation(parent=elog_roles)
+  entity: String
+  action: String
+  grantedAt: DateTime?
+  grantedBy: UuidValue?, relation(parent=sso_users)

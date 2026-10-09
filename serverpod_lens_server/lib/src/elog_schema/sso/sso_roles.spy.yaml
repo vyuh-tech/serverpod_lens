@@ -1,0 +1,14 @@
+class: SsoRoles
+table: sso_roles
+fields:
+  id: UuidValue?, defaultPersist=random
+  code: String
+  name: String
+  description: String?
+  level: int
+  hasGlobalProductAccess: bool
+  isActive: bool
+  createdAt: DateTime
+  updatedAt: DateTime
+  createdBy: UuidValue?
+  updatedBy: UuidValue?

@@ -1,0 +1,9 @@
+class: ElogRoles
+table: elog_roles
+fields:
+  id: UuidValue?, defaultPersist=random
+  code: String
+  name: String
+  description: String?
+  roleCategoryId: UuidValue?, relation(parent=elog_role_categories)
+  level: int

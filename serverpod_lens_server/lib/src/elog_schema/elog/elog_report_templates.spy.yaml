@@ -1,0 +1,8 @@
+class: ElogReportTemplates
+table: elog_report_templates
+fields:
+  id: UuidValue?, defaultPersist=random
+  code: String
+  name: String
+  description: String?
+  template: String?

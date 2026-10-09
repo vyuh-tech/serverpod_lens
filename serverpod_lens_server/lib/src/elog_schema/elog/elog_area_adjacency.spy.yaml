@@ -1,0 +1,7 @@
+class: ElogAreaAdjacency
+table: elog_area_adjacency
+fields:
+  id: UuidValue?, defaultPersist=random
+  areaId: UuidValue, relation(parent=elog_areas)
+  adjacentAreaId: UuidValue, relation(parent=elog_areas)
+  isActive: bool?

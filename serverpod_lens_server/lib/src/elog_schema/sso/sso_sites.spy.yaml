@@ -1,0 +1,21 @@
+class: SsoSites
+table: sso_sites
+fields:
+  id: UuidValue?, defaultPersist=random
+  parentSiteId: UuidValue, relation(parent=sso_sites)
+  name: String
+  code: String
+  description: String?
+  addressLine1: String?
+  addressLine2: String?
+  city: String?
+  state: String?
+  country: String?
+  postalCode: String?
+  language: String?
+  timeZone: String?
+  dateFormat: String?
+  timeFormat: String?
+  numberFormat: String?
+  firstDayOfWeek: int?
+  metadata: String?

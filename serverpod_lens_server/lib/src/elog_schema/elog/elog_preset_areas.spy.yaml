@@ -1,0 +1,13 @@
+class: ElogPresetAreas
+table: elog_preset_areas
+fields:
+  id: UuidValue?, defaultPersist=random
+  industryId: UuidValue, relation(parent=elog_preset_industries)
+  code: String
+  name: String
+  categoryCode: String
+  description: String?
+  floorNumber: int?
+  roomNumber: int?
+  capacity: int?
+  displayOrder: int

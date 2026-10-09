@@ -1,0 +1,19 @@
+class: ElogCampaigns
+table: elog_campaigns
+fields:
+  id: UuidValue?, defaultPersist=random
+  code: String
+  name: String
+  description: String?
+  productId: UuidValue, relation(parent=elog_products)
+  batchLimit: int
+  status: String
+  startedAt: DateTime?
+  completedAt: DateTime?
+  notes: String?
+  isActive: bool
+  createdAt: DateTime
+  updatedAt: DateTime
+  createdBy: UuidValue?, relation(parent=sso_users)
+  updatedBy: UuidValue?, relation(parent=sso_users)
+  versionNumber: int

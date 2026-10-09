@@ -1,0 +1,9 @@
+class: SsoDepartments
+table: sso_departments
+fields:
+  id: UuidValue?, defaultPersist=random
+  companyId: UuidValue, relation(parent=sso_companies)
+  departmentTypeId: UuidValue, relation(parent=sso_department_types)
+  code: String
+  name: String
+  description: String?

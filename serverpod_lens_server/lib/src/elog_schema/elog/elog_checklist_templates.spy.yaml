@@ -1,0 +1,10 @@
+class: ElogChecklistTemplates
+table: elog_checklist_templates
+fields:
+  id: UuidValue?, defaultPersist=random
+  code: String
+  name: String
+  description: String?
+  template: String?
+  printConfig: String
+  checklistType: String?

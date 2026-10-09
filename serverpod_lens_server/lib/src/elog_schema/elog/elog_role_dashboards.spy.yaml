@@ -1,0 +1,11 @@
+class: ElogRoleDashboards
+table: elog_role_dashboards
+fields:
+  id: UuidValue?, defaultPersist=random
+  roleId: UuidValue, relation(parent=elog_roles)
+  dashboardId: UuidValue, relation(parent=elog_dashboard_configs)
+  isDefault: bool?
+  isActive: bool?
+  displayOrder: int?
+  assignedAt: DateTime?
+  assignedBy: UuidValue?, relation(parent=sso_users)

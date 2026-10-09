@@ -1,0 +1,17 @@
+class: PublicESignatures
+table: public_e_signatures
+fields:
+  id: UuidValue?, defaultPersist=random
+  entityType: String
+  entityId: String?
+  operation: String
+  role: String
+  meaning: String
+  authMethod: String
+  remarks: String?
+  versionNumber: int?
+  workflowInstanceId: UuidValue?
+  createdBy: UuidValue
+  updatedBy: UuidValue
+  createdAt: DateTime
+  updatedAt: DateTime

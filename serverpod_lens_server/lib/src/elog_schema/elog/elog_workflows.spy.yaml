@@ -1,0 +1,15 @@
+class: ElogWorkflows
+table: elog_workflows
+fields:
+  id: UuidValue?, defaultPersist=random
+  idField: UuidValue
+  code: String
+  name: String
+  description: String?
+  version: int
+  isActive: bool
+  template: String
+  createdAt: DateTime
+  updatedAt: DateTime
+  createdBy: UuidValue?
+  updatedBy: UuidValue?

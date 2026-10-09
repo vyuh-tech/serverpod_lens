@@ -1,0 +1,13 @@
+class: SsoDashboardConfigs
+table: sso_dashboard_configs
+fields:
+  id: UuidValue?, defaultPersist=random
+  code: String
+  name: String
+  description: String?
+  config: String
+  isActive: bool
+  createdAt: DateTime
+  updatedAt: DateTime
+  createdBy: UuidValue?, relation(parent=sso_users)
+  updatedBy: UuidValue?, relation(parent=sso_users)

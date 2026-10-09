@@ -1,0 +1,15 @@
+class: SsoReportExports
+table: sso_report_exports
+fields:
+  id: UuidValue?, defaultPersist=random
+  title: String
+  reportType: String
+  generatedBy: UuidValue?, relation(parent=sso_users)
+  generatedByName: String
+  generatedAt: DateTime
+  recordCount: int
+  filterSummary: String?
+  purpose: String?
+  regulatoryReference: String?
+  pageSize: String
+  orientation: String

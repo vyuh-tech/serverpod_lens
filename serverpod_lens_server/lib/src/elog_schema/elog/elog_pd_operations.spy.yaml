@@ -1,0 +1,21 @@
+class: ElogPdOperations
+table: elog_pd_operations
+fields:
+  id: UuidValue?, defaultPersist=random
+  punchSetId: UuidValue, relation(parent=elog_punch_sets)
+  triggerType: String
+  triggerData: String
+  sourceState: String
+  behaviorConfig: String
+  designSnapshot: String
+  policy: String
+  status: String
+  signatureId: UuidValue?, relation(parent=public_e_signatures)
+  witnessSignatureId: UuidValue?, relation(parent=public_e_signatures)
+  submittedBy: UuidValue, relation(parent=sso_users)
+  submittedAt: DateTime
+  decidedBy: UuidValue?, relation(parent=sso_users)
+  decidedAt: DateTime?
+  workflowInstanceId: UuidValue?
+  companyId: UuidValue?
+  siteId: UuidValue?

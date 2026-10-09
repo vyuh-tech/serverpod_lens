@@ -1,0 +1,31 @@
+class: SsoUsers
+table: sso_users
+fields:
+  id: UuidValue?, defaultPersist=random
+  email: String
+  firstName: String
+  lastName: String
+  name: String?
+  username: String
+  companyId: UuidValue, relation(parent=sso_companies)
+  designationId: UuidValue, relation(parent=sso_designations)
+  departmentId: UuidValue, relation(parent=sso_departments)
+  isActive: bool
+  isSystemAccount: bool
+  phone: String?
+  avatarUrl: String?
+  avatarPath: String?
+  employeeId: String?
+  lastLoginAt: DateTime?
+  failedLoginAttempts: int?
+  lockedAt: DateTime?
+  requiresPasswordReset: bool
+  passwordExpiryAt: DateTime?
+  passwordChangedAt: DateTime?
+  dormancyDeactivatedAt: DateTime?
+  deactivationReason: String?
+  userSource: String
+  createdAt: DateTime?
+  updatedAt: DateTime?
+  createdBy: UuidValue?
+  updatedBy: UuidValue?

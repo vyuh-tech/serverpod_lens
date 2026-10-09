@@ -1,0 +1,9 @@
+class: ElogLogTemplates
+table: elog_log_templates
+fields:
+  id: UuidValue?, defaultPersist=random
+  code: String
+  name: String
+  description: String?
+  template: String?
+  logType: String

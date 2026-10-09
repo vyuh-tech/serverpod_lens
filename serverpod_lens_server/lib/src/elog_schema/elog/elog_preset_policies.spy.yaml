@@ -1,0 +1,9 @@
+class: ElogPresetPolicies
+table: elog_preset_policies
+fields:
+  id: UuidValue?, defaultPersist=random
+  industryId: UuidValue, relation(parent=elog_preset_industries)
+  cleaningConfig: String?
+  calibrationConfig: String?
+  usageConfig: String?
+  maintenanceConfig: String?

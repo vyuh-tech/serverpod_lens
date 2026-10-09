@@ -1,0 +1,7 @@
+class: ElogAreaUserGroups
+table: elog_area_user_groups
+fields:
+  id: UuidValue?, defaultPersist=random
+  areaId: UuidValue, relation(parent=elog_areas)
+  userGroupId: UuidValue, relation(parent=elog_user_groups)
+  isActive: bool?

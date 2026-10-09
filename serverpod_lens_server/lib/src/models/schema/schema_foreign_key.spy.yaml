@@ -1,0 +1,8 @@
+class: SchemaForeignKey
+fields:
+  name: String
+  columns: List<String>
+  refTable: String
+  refColumns: List<String>
+  onDelete: String
+  onUpdate: String

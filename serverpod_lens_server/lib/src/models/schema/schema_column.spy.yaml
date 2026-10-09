@@ -1,0 +1,10 @@
+class: SchemaColumn
+fields:
+  name: String
+  fieldName: String
+  dartType: String
+  dbType: String
+  isNullable: bool
+  isPrimaryKey: bool
+  isUnique: bool
+  defaultValue: String?

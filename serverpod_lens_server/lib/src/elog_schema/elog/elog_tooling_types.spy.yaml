@@ -1,0 +1,16 @@
+class: ElogToolingTypes
+table: elog_tooling_types
+fields:
+  id: UuidValue?, defaultPersist=random
+  idField: UuidValue
+  code: String
+  name: String
+  description: String?
+  productId: UuidValue?
+  config: String
+  versionNumber: int
+  isActive: bool
+  createdAt: DateTime
+  updatedAt: DateTime
+  createdBy: UuidValue?
+  updatedBy: UuidValue?

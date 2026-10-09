@@ -1,0 +1,12 @@
+class: ElogPresetRoles
+table: elog_preset_roles
+fields:
+  id: UuidValue?, defaultPersist=random
+  industryId: UuidValue, relation(parent=elog_preset_industries)
+  code: String
+  name: String
+  level: int
+  categoryCode: String
+  description: String?
+  isDefaultEnabled: bool
+  displayOrder: int

@@ -1,0 +1,6 @@
+class: ElogPdAssemblyMembers
+table: elog_pd_assembly_members
+fields:
+  id: UuidValue?, defaultPersist=random
+  assemblyId: UuidValue, relation(parent=elog_pd_assemblies)
+  componentId: UuidValue, relation(parent=elog_equipment_parts)

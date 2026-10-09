@@ -1,0 +1,21 @@
+class: ElogResourceStates
+table: elog_resource_states
+fields:
+  id: UuidValue?, defaultPersist=random
+  resourceType: String
+  resourceId: UuidValue
+  states: String
+  totalUsageCount: int
+  usagesSinceLastCleaning: int
+  usagesSinceLastInspection: int
+  usagesSinceLastMaintenance: int
+  lastEventAt: DateTime?
+  isBlocked: bool
+  blockingReason: String?
+  versionNumber: int
+  status: String
+  isActive: bool
+  createdAt: DateTime
+  updatedAt: DateTime
+  createdBy: UuidValue?, relation(parent=sso_users)
+  updatedBy: UuidValue?, relation(parent=sso_users)

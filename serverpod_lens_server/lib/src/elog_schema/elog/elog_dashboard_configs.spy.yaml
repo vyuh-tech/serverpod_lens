@@ -1,0 +1,9 @@
+class: ElogDashboardConfigs
+table: elog_dashboard_configs
+fields:
+  id: UuidValue?, defaultPersist=random
+  code: String
+  name: String
+  description: String?
+  dashboardCategory: String
+  config: String

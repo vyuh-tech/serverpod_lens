@@ -1,0 +1,8 @@
+class: ElogUserGroups
+table: elog_user_groups
+fields:
+  id: UuidValue?, defaultPersist=random
+  code: String
+  name: String
+  description: String?
+  groupType: String?

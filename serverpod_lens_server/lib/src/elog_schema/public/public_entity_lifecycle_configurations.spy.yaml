@@ -1,0 +1,20 @@
+class: PublicEntityLifecycleConfigurations
+table: public_entity_lifecycle_configurations
+fields:
+  id: UuidValue?, defaultPersist=random
+  entityType: String
+  registrationEsignRequired: bool
+  registrationRemarksRequired: bool
+  registrationApprovalsRequired: int
+  modificationEsignRequired: bool
+  modificationRemarksRequired: bool
+  modificationApprovalsRequired: int
+  statusChangeEsignRequired: bool
+  statusChangeRemarksRequired: bool
+  statusChangeApprovalsRequired: int
+  isActive: bool
+  createdAt: DateTime
+  updatedAt: DateTime
+  createdBy: UuidValue?, relation(parent=sso_users)
+  updatedBy: UuidValue?, relation(parent=sso_users)
+  versionNumber: int

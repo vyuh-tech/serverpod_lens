@@ -1,0 +1,12 @@
+class: PublicEntityDraftsAudit
+table: public_entity_drafts_audit
+fields:
+  id: UuidValue?, defaultPersist=random
+  draftId: UuidValue
+  action: String
+  draftVersion: int?
+  previousData: String?
+  newData: String?
+  reason: String?
+  performedAt: DateTime?
+  performedBy: UuidValue?, relation(parent=sso_users)

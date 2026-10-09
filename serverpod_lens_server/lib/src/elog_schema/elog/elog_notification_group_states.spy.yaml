@@ -1,0 +1,11 @@
+class: ElogNotificationGroupStates
+table: elog_notification_group_states
+fields:
+  id: UuidValue?, defaultPersist=random
+  userId: UuidValue, relation(parent=sso_users)
+  groupKey: String
+  notificationId: UuidValue
+  latestOccurrenceKey: String
+  occurrenceCount: int
+  firstOccurredAt: DateTime
+  lastOccurredAt: DateTime

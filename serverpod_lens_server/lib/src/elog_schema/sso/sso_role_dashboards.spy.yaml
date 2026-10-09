@@ -1,0 +1,9 @@
+class: SsoRoleDashboards
+table: sso_role_dashboards
+fields:
+  id: UuidValue?, defaultPersist=random
+  roleId: UuidValue, relation(parent=sso_roles)
+  dashboardId: UuidValue, relation(parent=sso_dashboard_configs)
+  isDefault: bool
+  displayOrder: int
+  isActive: bool

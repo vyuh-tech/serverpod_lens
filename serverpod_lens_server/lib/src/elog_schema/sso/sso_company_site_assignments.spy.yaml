@@ -1,0 +1,9 @@
+class: SsoCompanySiteAssignments
+table: sso_company_site_assignments
+fields:
+  id: UuidValue?, defaultPersist=random
+  companyId: UuidValue, relation(parent=sso_companies)
+  siteId: UuidValue, relation(parent=sso_sites)
+  effectiveFrom: DateTime
+  effectiveTo: DateTime?
+  metadata: String

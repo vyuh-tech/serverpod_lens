@@ -1,0 +1,12 @@
+class: ElogAreas
+table: elog_areas
+fields:
+  id: UuidValue?, defaultPersist=random
+  code: String
+  name: String
+  description: String?
+  parentAreaId: UuidValue?, relation(parent=elog_areas)
+  capacity: int?
+  floorNumber: int?
+  roomNumber: String?
+  areaCategoryId: UuidValue?, relation(parent=elog_area_categories)

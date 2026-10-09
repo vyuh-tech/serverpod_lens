@@ -1,0 +1,14 @@
+class: ElogActivityArtifacts
+table: elog_activity_artifacts
+fields:
+  id: UuidValue?, defaultPersist=random
+  activityId: UuidValue, relation(parent=elog_activities)
+  artifactType: String
+  artifactTemplateId: UuidValue
+  artifactUsageId: UuidValue
+  status: String
+  sortOrder: int
+  createdBy: UuidValue?, relation(parent=sso_users)
+  updatedBy: UuidValue?, relation(parent=sso_users)
+  createdAt: DateTime?
+  updatedAt: DateTime?

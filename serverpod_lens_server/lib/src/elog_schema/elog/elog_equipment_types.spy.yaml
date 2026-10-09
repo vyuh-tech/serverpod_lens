@@ -1,0 +1,16 @@
+class: ElogEquipmentTypes
+table: elog_equipment_types
+fields:
+  id: UuidValue?, defaultPersist=random
+  idField: UuidValue
+  code: String
+  name: String
+  description: String?
+  equipmentCategoryId: UuidValue?
+  config: String
+  versionNumber: int
+  isActive: bool
+  createdAt: DateTime
+  updatedAt: DateTime
+  createdBy: UuidValue?
+  updatedBy: UuidValue?

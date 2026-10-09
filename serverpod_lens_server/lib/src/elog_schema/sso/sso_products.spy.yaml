@@ -1,0 +1,17 @@
+class: SsoProducts
+table: sso_products
+fields:
+  id: UuidValue?, defaultPersist=random
+  name: String
+  code: String
+  description: String?
+  version: String?
+  logoUrl: String?
+  isActive: bool?
+  webhookUrl: String?
+  productUrl: String?
+  metadata: String?
+  createdAt: DateTime?
+  updatedAt: DateTime?
+  createdBy: UuidValue?
+  updatedBy: UuidValue?

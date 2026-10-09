@@ -1,0 +1,30 @@
+class: ElogChecklistUsageInstructions
+table: elog_checklist_usage_instructions
+fields:
+  id: UuidValue?, defaultPersist=random
+  usageId: UuidValue, relation(parent=elog_checklist_usages)
+  instructionId: String
+  sourceInstructionId: String?
+  occurrenceIndex: int?
+  occurrenceTotal: int?
+  availableAt: DateTime?
+  warningAt: DateTime?
+  dueAt: DateTime?
+  deviationReason: String?
+  setId: String
+  instructionData: String
+  setData: String?
+  response: String?
+  workflowInstanceId: UuidValue?
+  sequenceNumber: int
+  status: String
+  createdAt: DateTime
+  updatedAt: DateTime
+  createdBy: UuidValue?, relation(parent=sso_users)
+  updatedBy: UuidValue?, relation(parent=sso_users)
+  claimedBy: UuidValue?, relation(parent=sso_users)
+  timerStartedAt: DateTime?
+  operatorSignature: String?
+  witnessSignature: String?
+  witnessUserId: UuidValue?, relation(parent=sso_users)
+  approvalSignatures: String?

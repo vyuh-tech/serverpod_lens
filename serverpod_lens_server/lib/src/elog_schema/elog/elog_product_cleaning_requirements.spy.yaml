@@ -1,0 +1,13 @@
+class: ElogProductCleaningRequirements
+table: elog_product_cleaning_requirements
+fields:
+  id: UuidValue?, defaultPersist=random
+  fromProductId: UuidValue?, relation(parent=elog_products)
+  toProductId: UuidValue?, relation(parent=elog_products)
+  cleaningTypeId: UuidValue, relation(parent=elog_cleaning_types)
+  resourceType: String
+  equipmentCategoryId: UuidValue?, relation(parent=elog_equipment_categories)
+  priority: int?
+  notes: String?
+  regulatoryReference: String?
+  isActive: bool?

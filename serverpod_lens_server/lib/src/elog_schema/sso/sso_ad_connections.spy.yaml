@@ -1,0 +1,24 @@
+class: SsoAdConnections
+table: sso_ad_connections
+fields:
+  id: UuidValue?, defaultPersist=random
+  companyId: UuidValue, relation(parent=sso_companies)
+  name: String
+  host: String
+  port: int
+  useSsl: bool
+  baseDn: String
+  bindDn: String
+  bindPassword: String
+  userSearchFilter: String?
+  usernameAttribute: String?
+  emailAttribute: String?
+  nameAttribute: String?
+  isActive: bool
+  lastTestAt: DateTime?
+  lastTestSuccess: bool?
+  createdAt: DateTime?
+  updatedAt: DateTime?
+  createdBy: UuidValue?
+  updatedBy: UuidValue?
+  versionNumber: int

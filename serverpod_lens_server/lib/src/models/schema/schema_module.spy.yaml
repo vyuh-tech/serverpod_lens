@@ -1,0 +1,4 @@
+class: SchemaModule
+fields:
+  name: String
+  tableCount: int

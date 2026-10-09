@@ -1,0 +1,24 @@
+class: ElogNotificationsArchive
+table: elog_notifications_archive
+fields:
+  id: UuidValue?, defaultPersist=random
+  userId: UuidValue
+  companyId: UuidValue?
+  siteId: UuidValue?
+  type: String
+  title: String
+  message: String?
+  resourceType: String?
+  resourceId: UuidValue?
+  workflowInstanceId: UuidValue?
+  workflowTaskId: UuidValue?
+  isRead: bool?
+  readAt: DateTime?
+  createdAt: DateTime?
+  metadata: String?
+  groupKey: String?
+  latestOccurrenceKey: String?
+  occurrenceCount: int
+  firstOccurredAt: DateTime?
+  lastOccurredAt: DateTime?
+  archivedAt: DateTime

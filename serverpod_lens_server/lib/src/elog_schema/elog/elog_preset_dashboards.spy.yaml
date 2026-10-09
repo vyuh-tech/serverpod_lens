@@ -1,0 +1,11 @@
+class: ElogPresetDashboards
+table: elog_preset_dashboards
+fields:
+  id: UuidValue?, defaultPersist=random
+  industryId: UuidValue, relation(parent=elog_preset_industries)
+  roleCode: String
+  code: String
+  name: String
+  config: String
+  isDefault: bool
+  displayOrder: int

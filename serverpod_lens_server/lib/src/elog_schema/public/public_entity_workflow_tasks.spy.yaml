@@ -1,0 +1,11 @@
+class: PublicEntityWorkflowTasks
+table: public_entity_workflow_tasks
+fields:
+  id: UuidValue?, defaultPersist=random
+  idField: UuidValue
+  name: String
+  workflowInstanceId: UuidValue
+  state: String
+  context: String
+  completedBy: UuidValue?
+  completedAt: DateTime?

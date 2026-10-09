@@ -1,0 +1,8 @@
+class: ElogOnboardingStatus
+table: elog_onboarding_status
+fields:
+  id: UuidValue?, defaultPersist=random
+  industry: String
+  completedAt: DateTime
+  completedBy: UuidValue?, relation(parent=sso_users)
+  provisioningSummary: String

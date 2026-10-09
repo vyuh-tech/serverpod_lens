@@ -1,0 +1,9 @@
+class: PublicEntityDraftsVersions
+table: public_entity_drafts_versions
+fields:
+  id: UuidValue?, defaultPersist=random
+  draftId: UuidValue
+  draftVersion: int
+  entityData: String
+  createdAt: DateTime?
+  createdBy: UuidValue?, relation(parent=sso_users)

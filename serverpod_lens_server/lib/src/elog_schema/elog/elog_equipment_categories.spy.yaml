@@ -1,0 +1,9 @@
+class: ElogEquipmentCategories
+table: elog_equipment_categories
+fields:
+  id: UuidValue?, defaultPersist=random
+  code: String
+  name: String
+  description: String?
+  type: String
+  isActive: bool

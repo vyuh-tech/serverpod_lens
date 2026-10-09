@@ -1,0 +1,4 @@
+class: SchemaEnum
+fields:
+  name: String
+  values: List<String>

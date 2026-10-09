@@ -1,0 +1,27 @@
+class: ElogResourcePolicies
+table: elog_resource_policies
+fields:
+  id: UuidValue?, defaultPersist=random
+  code: String
+  name: String
+  description: String?
+  scopeLevel: String
+  resourceType: String?
+  resourceCategoryId: UuidValue?
+  resourceId: UuidValue?
+  cleaningConfig: String?
+  calibrationConfig: String?
+  maintenanceConfig: String?
+  usageConfig: String?
+  problemConfig: String?
+  otherConfig: String?
+  inspectionConfig: String?
+  containmentConfig: String?
+  activityCompatibility: String?
+  priority: int?
+  isActive: bool?
+  versionNumber: int?
+  createdAt: DateTime?
+  updatedAt: DateTime?
+  createdBy: UuidValue?, relation(parent=sso_users)
+  updatedBy: UuidValue?, relation(parent=sso_users)

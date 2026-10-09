@@ -1,0 +1,10 @@
+class: SchemaTable
+fields:
+  name: String
+  className: String
+  schema: String
+  module: String
+  documentation: String?
+  columns: List<SchemaColumn>
+  foreignKeys: List<SchemaForeignKey>
+  indexes: List<SchemaIndex>

@@ -1,0 +1,10 @@
+class: SsoProductSiteMappings
+table: sso_product_site_mappings
+fields:
+  id: UuidValue?, defaultPersist=random
+  productId: UuidValue, relation(parent=sso_products)
+  siteId: UuidValue, relation(parent=sso_sites)
+  installedVersion: String?
+  installationDate: DateTime?
+  expiryDate: DateTime?
+  metadata: String?

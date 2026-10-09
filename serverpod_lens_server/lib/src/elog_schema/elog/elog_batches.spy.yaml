@@ -1,0 +1,9 @@
+class: ElogBatches
+table: elog_batches
+fields:
+  id: UuidValue?, defaultPersist=random
+  batchNumber: String
+  productId: UuidValue, relation(parent=elog_products)
+  batchSize: int
+  batchSizeUnitId: UuidValue, relation(parent=elog_unit_of_measures)
+  isActive: bool?

@@ -1,0 +1,6 @@
+class: SchemaIndex
+fields:
+  name: String
+  columns: List<String>
+  unique: bool
+  type: String

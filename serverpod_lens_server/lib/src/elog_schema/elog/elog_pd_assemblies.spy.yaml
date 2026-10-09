@@ -1,0 +1,7 @@
+class: ElogPdAssemblies
+table: elog_pd_assemblies
+fields:
+  id: UuidValue?, defaultPersist=random
+  punchSetId: UuidValue, relation(parent=elog_punch_sets)
+  ordinal: int
+  label: String

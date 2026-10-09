@@ -1,0 +1,7 @@
+class: SchemaGraph
+fields:
+  source: String
+  generatedAt: DateTime
+  modules: List<SchemaModule>
+  tables: List<SchemaTable>
+  enums: List<SchemaEnum>

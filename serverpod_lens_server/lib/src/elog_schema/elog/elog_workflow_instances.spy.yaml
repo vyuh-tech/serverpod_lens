@@ -1,0 +1,26 @@
+class: ElogWorkflowInstances
+table: elog_workflow_instances
+fields:
+  id: UuidValue?, defaultPersist=random
+  idField: UuidValue
+  workflowId: UuidValue
+  workflowVersion: int
+  status: String
+  input: String
+  output: String
+  variables: String
+  tokens: String
+  runNumber: int
+  parentInstanceId: UuidValue?
+  parentNodeId: String?
+  error: String?
+  correlationId: String?
+  metadata: String
+  createdAt: DateTime
+  updatedAt: DateTime
+  startedAt: DateTime?
+  completedAt: DateTime?
+  createdBy: UuidValue?, relation(parent=sso_users)
+  startedBy: UuidValue?, relation(parent=sso_users)
+  completedBy: UuidValue?, relation(parent=sso_users)
+  updatedBy: UuidValue?, relation(parent=sso_users)

@@ -1,0 +1,11 @@
+class: SsoLoginChallenges
+table: sso_login_challenges
+fields:
+  id: UuidValue?, defaultPersist=random
+  challengeToken: UuidValue
+  userId: UuidValue, relation(parent=sso_users)
+  resolvedEmail: String
+  ipAddress: String?
+  userAgent: String?
+  createdAt: DateTime
+  expiresAt: DateTime

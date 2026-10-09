@@ -1,0 +1,8 @@
+class: ElogAreaEquipment
+table: elog_area_equipment
+fields:
+  id: UuidValue?, defaultPersist=random
+  areaId: UuidValue, relation(parent=elog_areas)
+  equipmentId: UuidValue, relation(parent=elog_equipments)
+  isPrimary: bool?
+  isActive: bool?

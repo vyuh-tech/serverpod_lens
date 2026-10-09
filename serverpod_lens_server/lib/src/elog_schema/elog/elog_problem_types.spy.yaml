@@ -1,0 +1,15 @@
+class: ElogProblemTypes
+table: elog_problem_types
+fields:
+  id: UuidValue?, defaultPersist=random
+  code: String
+  name: String
+  description: String?
+  category: String
+  subcategory: String?
+  defaultSeverity: String
+  requiresImmediateAction: bool
+  detailsLogTemplateId: UuidValue?, relation(parent=elog_log_templates)
+  appliesToAreas: bool
+  appliesToEquipment: bool
+  isActive: bool

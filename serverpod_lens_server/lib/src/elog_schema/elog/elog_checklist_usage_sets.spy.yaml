@@ -1,0 +1,23 @@
+class: ElogChecklistUsageSets
+table: elog_checklist_usage_sets
+fields:
+  id: UuidValue?, defaultPersist=random
+  usageId: UuidValue, relation(parent=elog_checklist_usages)
+  setId: String
+  setData: String
+  governanceSnapshot: String?
+  status: String
+  submittedAt: DateTime?
+  submittedBy: UuidValue?, relation(parent=sso_users)
+  completedAt: DateTime?
+  completedBy: UuidValue?, relation(parent=sso_users)
+  workflowInstanceId: UuidValue?
+  operatorSignature: String?
+  witnessSignature: String?
+  witnessUserId: UuidValue?, relation(parent=sso_users)
+  approvalSignatures: String
+  rejectionReason: String?
+  createdAt: DateTime
+  updatedAt: DateTime
+  createdBy: UuidValue?, relation(parent=sso_users)
+  updatedBy: UuidValue?, relation(parent=sso_users)
