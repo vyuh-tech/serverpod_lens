@@ -15,7 +15,7 @@ Serverpod migration definition
   └─ SchemaDefinitionReader (serverpod_lens_schema)
        └─ generated SchemaGraph (server/client codec bridges)
             └─ SchemaDiagram (native Vyuh tables, ports and connectors)
-                 └─ DiagramCanvas (native read-only surface)
+                 └─ DiagramCanvas (native movement/effects; schema edits blocked)
 ```
 
 - `serverpod_lens_flutter/tool/import_elog_schema.py` reads the external flutter_elog

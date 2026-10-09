@@ -34,7 +34,7 @@ needed. Authentication initialization remains in the Serverpod backend.
 
 | Requirement | Result |
 | --- | --- |
-| Read-only canvas | Native viewer surface; no editable extensions or cells |
+| Read-only canvas | Native interaction surface with schema changes blocked; cells remain read-only |
 | Remove palette, bottom editing toolbar and property panel | Editor dependency and configuration removed |
 | Real database schemas and All filtering | Ten SQL schema groups; table list and canvas filter by schema |
 | No sample/dogfood labels | Removed from the UI and dataset source |
@@ -43,9 +43,9 @@ needed. Authentication initialization remains in the Serverpod backend.
 | Shared reader and focused regressions | Shared reader, ZIP selection, types, identity, relations and native viewer tests |
 | Documentation consistent with code | README, architecture, source notes and roadmap rewritten |
 
-The native effects API requires an editing canvas. Animation/focus effect
-controls and the custom relationship extension were removed instead of enabling
-editing in a read-only viewer.
+The native effects API requires the interactive canvas. A later interaction
+update enables native node dragging and connection flow on selection, with
+admission rules rejecting content changes. Editor chrome remains absent.
 
 The SQL importer now preserves declared types/defaults, PKs, unique constraints,
 indexes, referential actions and basic ADD COLUMN statements. The current source
@@ -82,8 +82,8 @@ benchmarks remain open.
 The automated suite checks shared schema parsing, both generated-protocol bridges,
 latest/empty/invalid migration selection, same-named tables in different schemas,
 partial uniqueness, composite cardinality, source filtering, SQL FK actions,
-native layout/codecs and the read-only canvas. Navigation, selection and Delete
-leave the native document unchanged.
+native layout/codecs and the read-only canvas. Node dragging changes positions only; selection plays native connection effects,
+and Delete is rejected.
 
 Analysis and formatting pass. Eleven Flutter tests, five shared-reader tests,
 one backend bridge test and one Python importer test pass. The development app and release web build are checked in a browser;

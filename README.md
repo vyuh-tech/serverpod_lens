@@ -34,14 +34,16 @@ The viewer provides:
 - A **Schema** dropdown with an **All schemas** option. Filtering updates both
   the table list and the canvas; connections appear when both ends are visible.
 - Search across table and column names. Selecting a result brings its node into view.
-- Native pan, zoom, selection and minimap navigation.
+- Native pan, zoom, node dragging, selection and minimap navigation. Clicking a
+  table animates its visible relationships with Vyuh’s native flow effect.
 - Native layered, grid, tree, force and circular layouts. The initial view uses
   grid layout to avoid expensive startup arrangement of the full schema.
 - View settings for the background grid and minimap.
 
-The canvas uses Vyuh's read-only surface. There are no drawing tools, editable
+The canvas uses Vyuh's interactive surface with schema changes blocked by native
+admission rules. There are no drawing tools, editable
 cells, property panels or diagram-editing toolbars. It cannot change your models
-or database. Automatic layout rearranges the view only.
+or database. Dragging and automatic layout rearrange the view only.
 
 ## Run locally
 
@@ -177,8 +179,8 @@ cd ../serverpod_lens_flutter && flutter test
 
 Regression checks cover migration ordering and invalid snapshots, types,
 module/schema identity, composite constraints, foreign keys, native layout and
-JSON round-tripping. The canvas test checks that navigation, selection and the
-Delete key preserve the document. The SQL importer has a separate Python test:
+JSON round-tripping. The canvas test checks native node dragging, click-triggered connection flow and
+blocked deletion while preserving schema content. The SQL importer has a separate Python test:
 
 ```sh
 /tmp/lens-schema-import/bin/python -m unittest discover \

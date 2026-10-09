@@ -4,6 +4,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import 'package:serverpod_lens_client/serverpod_lens_client.dart'
     show SchemaGraph, SchemaTable;
 import 'package:vyuh_diagram_extension_layout/vyuh_diagram_extension_layout.dart';
@@ -14,6 +15,7 @@ import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
 import '../schema/project_analyzer.dart';
 import '../schema/schema_catalog.dart';
 import '../schema/schema_diagram.dart';
+import '../schema/schema_view_interactions.dart';
 
 /// Schema search and filtering around Vyuh's native read-only canvas.
 class SchemaMapScreen extends StatefulWidget {
@@ -24,6 +26,7 @@ class SchemaMapScreen extends StatefulWidget {
 }
 
 class _SchemaMapScreenState extends State<SchemaMapScreen> {
+  ReactionDisposer? _selectionWatcher;
   SchemaGraph? _graph;
   DiagramController? _controller;
   String? _schema;
@@ -60,6 +63,7 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
     final controller = DiagramController(
       configuration: DiagramConfiguration(
         extensions: [
+          schemaViewInteractions,
           SchemaTableExtension(),
           const LayoutExtension(),
           TableFlutterExtension(),
@@ -87,6 +91,9 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
       controller.dispose();
       return;
     }
+    controller.diagram.setRules(schemaViewRules);
+    _selectionWatcher?.call();
+    _selectionWatcher = watchSchemaSelection(controller);
     final previous = _controller;
     setState(() {
       _controller = controller;
@@ -259,6 +266,7 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
   @override
   void dispose() {
     ++_loadGeneration;
+    _selectionWatcher?.call();
     final controller = _controller;
     // The child canvas must unmount before its controller is disposed.
     if (controller != null) {

@@ -28,9 +28,10 @@ and foreign-key connectors. Source metadata belongs to declared native shape val
 Vyuh handles rendering, connector geometry, selection, navigation, minimap, layout
 and serialization. No custom minimap, renderer, layout or effect engine exists.
 
-No editable extension is installed. DiagramCanvas therefore mounts Vyuh's native
-read-only surface. Shape dragging, cell edits, drawing tools and editor keyboard
-commands are absent. Programmatic filtering and layout remain view operations.
+A small configuration enables Vyuh's native interactive surface without the editor
+shell. Nodes can move and selecting a table plays native connection flow. Native
+admission rules allow positions and visibility only, rejecting content changes,
+creation, deletion, resizing and rewiring. Table cells remain non-editable.
 
 ## UI
 
