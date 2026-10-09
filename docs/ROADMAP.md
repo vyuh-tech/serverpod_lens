@@ -31,5 +31,14 @@ plan, delivery sequence, and verification criteria.
 - Extend keyboard and screen-reader coverage; verify on physical mobile devices.
 - Persist native view settings across app restarts.
 
+## Extend contextual exploration
+
+- Profile focus and fitting against dense neighborhoods in the full dogfood map.
+- Persist named groups per project and reconcile membership after schema refresh.
+- Add collapsed group views and group-to-group summaries while retaining original
+  table and foreign-key identities.
+- Verify contextual keyboard navigation and screen-reader announcements in the
+  running app.
+
 Schema authoring is outside the current feature. There is no plan to reintroduce
 editor palettes or editable table cells into this read-only viewer.

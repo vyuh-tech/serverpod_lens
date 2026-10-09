@@ -25,13 +25,18 @@ final schemaViewRules = DiagramRules(
       if (before is ShapeElement && after is ShapeElement) {
         if (before.frame.width != after.frame.width ||
             before.frame.height != after.frame.height ||
-            before.copyWith(frame: after.frame, isVisible: after.isVisible) !=
+            before.copyWith(
+                  frame: after.frame,
+                  isVisible: after.isVisible,
+                  opacity: after.opacity,
+                ) !=
                 after) {
           return denied;
         }
       } else if (before is ConnectorElement && after is ConnectorElement) {
         if (before.copyWith(
               isVisible: after.isVisible,
+              opacity: after.opacity,
               route: after.route,
               routeOptions: after.routeOptions,
               controlPoints: after.controlPoints,

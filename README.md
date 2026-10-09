@@ -41,6 +41,13 @@ The viewer provides:
 - A **Schema** dropdown with an **All schemas** option. Filtering updates both
   the table list and the canvas; connections appear when both ends are visible.
 - Search across table and column names. Selecting a result brings its node into view.
+- Select a table to emphasize its neighborhood and dim unrelated tables. Choose
+  incoming, outgoing or both directions, expand to two hops, and reveal related
+  tables excluded by the schema filter. Fit the context explicitly, return to
+  the previous camera, or use **Show all** to clear focus.
+- Create named, overlapping table groups with colors and notes. Inspect internal,
+  incoming and outgoing foreign keys and navigate to a related table. Groups
+  last for the opened dataset's session; opening another project clears them.
 - Native pan, zoom, node dragging, selection and minimap navigation. Clicking a
   table animates its visible relationships with Vyuh’s native flow effect.
 - Native layered, grid, tree, force and circular layouts. The initial view uses
@@ -127,7 +134,8 @@ so identically named tables in different schemas do not collide.
 
 `SchemaDiagram` maps schema semantics onto native Vyuh shapes. Vyuh owns table
 rendering, connector geometry, selection, the camera, minimap and layout.
-`SchemaCatalog` handles queries over the imported graph; the screen handles
+`SchemaCatalog` handles queries over the imported graph; `SchemaContext` caches
+directional adjacency and computes neighborhoods and group boundaries. The screen handles
 widgets and user actions. There is no second mutable schema workspace.
 
 The backend remains Serverpod, with its authentication setup retained. Greeting
@@ -200,6 +208,9 @@ module/schema identity, composite constraints, foreign keys, native layout and
 JSON round-tripping. Canvas checks cover native node dragging, click-triggered
 connection flow and blocked schema edits while preserving content. Responsive
 checks cover the mobile drawer, desktop collapse and search state.
+Context checks cover direction and hop traversal, cycles, unresolved targets,
+overlapping groups, exact foreign-key counts, opacity restoration, camera return,
+group editing and mobile controls.
 Port offsets are checked against
 native resolved row geometry; only bound ports are exposed. Route switching
 preserves column bindings and labels. Nodes use native table styling with a flat
