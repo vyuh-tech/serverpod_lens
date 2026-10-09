@@ -1,3 +1,6 @@
+import 'dart:typed_data';
+
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:serverpod_lens_client/serverpod_lens_client.dart'
@@ -12,6 +15,7 @@ import '../schema/podlens_minimap_extension.dart';
 import '../schema/podlens_signals_extension.dart';
 import '../schema/podlens_table_extension.dart';
 import '../schema/podlens_view_extension.dart';
+import '../schema/project_analyzer.dart';
 import '../schema/schema_diagram.dart';
 
 const _kAll = 'All';
@@ -40,47 +44,95 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
   String _selectedModule = _kAll;
   String? _selectedTable;
   String _query = '';
+  String? _sourceLabel;
+  bool _busy = false;
 
   @override
   void initState() {
     super.initState();
-    _load();
+    _loadSample();
   }
 
-  Future<void> _load() async {
+  Future<void> _loadSample() async {
     try {
       final json = await rootBundle.loadString(widget.asset);
       final graph = SchemaDiagram.graphFromJson(json);
-
-      final colors = {for (final t in graph.tables) t.name: moduleColor(t.module)};
-      final controller = DiagramController(
-        configuration: DiagramConfiguration(
-          extensions: [
-            PodLensTableExtension(graph.tables, lens: _lens),
-            PodLensSignalsExtension(lens: _lens),
-            PodLensMinimapExtension(lens: _lens, colors: colors),
-            const PodLensViewExtension(),
-            GridExtension(visible: false),
-            RenderingExtension(
-              render: const DiagramRenderPolicy(retainContent: true),
-            ),
-          ],
-        ),
-      );
-      _lens.attach(controller);
-      SchemaDiagram.build(graph, controller: controller, layout: _lens.value.layout);
-
-      if (!mounted) {
-        controller.dispose();
-        return;
-      }
-      setState(() {
-        _graph = graph;
-        _controller = controller;
-      });
+      _setGraph(graph, label: graph.source);
     } catch (error) {
       if (mounted) setState(() => _error = error);
     }
+  }
+
+  /// Builds a controller for [graph] and swaps it in. Loading a *new dataset*
+  /// is the one case where the controller is recreated.
+  void _setGraph(SchemaGraph graph, {String? label}) {
+    final colors = {for (final t in graph.tables) t.name: moduleColor(t.module)};
+    final controller = DiagramController(
+      configuration: DiagramConfiguration(
+        extensions: [
+          PodLensTableExtension(graph.tables, lens: _lens),
+          PodLensSignalsExtension(lens: _lens),
+          PodLensMinimapExtension(lens: _lens, colors: colors),
+          const PodLensViewExtension(),
+          GridExtension(visible: false),
+          RenderingExtension(
+            render: const DiagramRenderPolicy(retainContent: true),
+          ),
+        ],
+      ),
+    );
+    _lens.attach(controller);
+    SchemaDiagram.build(graph, controller: controller, layout: _lens.value.layout);
+
+    final previous = _controller;
+    setState(() {
+      _graph = graph;
+      _controller = controller;
+      _sourceLabel = label ?? graph.source;
+      _selectedModule = _kAll;
+      _selectedTable = null;
+      _query = '';
+    });
+    if (previous != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => previous.dispose());
+    }
+  }
+
+  Future<void> _openProject() async {
+    if (_busy) return;
+    const zip = XTypeGroup(label: 'Serverpod project', extensions: ['zip']);
+    final file = await openFile(acceptedTypeGroups: [zip]);
+    if (file == null) return;
+
+    setState(() => _busy = true);
+    try {
+      final Uint8List bytes = await file.readAsBytes();
+      final analysis = ProjectAnalyzer.analyzeZip(
+        bytes,
+        name: file.name,
+      );
+      if (!mounted) return;
+      if (analysis.isEmpty) {
+        _showMessage(
+          analysis.warnings.isEmpty
+              ? 'No Serverpod schema found in ${file.name}.'
+              : analysis.warnings.first,
+        );
+        return;
+      }
+      _setGraph(analysis.graph, label: file.name);
+      if (analysis.warnings.isNotEmpty) _showMessage(analysis.warnings.first);
+    } catch (error) {
+      if (mounted) _showMessage('Failed to read project: $error');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
+    );
   }
 
   @override
@@ -215,11 +267,24 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        'Visualize your Serverpod schema as a connected map',
+                        _sourceLabel == null
+                            ? 'Visualize your Serverpod schema as a connected map'
+                            : 'Source: $_sourceLabel',
                         style: theme.textTheme.bodySmall?.copyWith(color: muted),
                       ),
                     ],
                   ),
+                ),
+                TextButton.icon(
+                  onPressed: _busy ? null : _openProject,
+                  icon: _busy
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.folder_open, size: 18),
+                  label: const Text('Open project'),
                 ),
                 IconButton(
                   tooltip: 'Settings',
