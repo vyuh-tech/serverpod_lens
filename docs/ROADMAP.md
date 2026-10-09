@@ -27,6 +27,18 @@ comes next; `docs/PLAN.md` holds the vision and architecture.
 
 ## Next steps
 
+### Hackathon and Serverpod integration milestone
+
+Build the schema visualization layer for eventual integration into Serverpod
+core, and demonstrate it in the Serverpod hackathon submission. The first
+milestone is accurate visualization of all schemas in a Serverpod project,
+with reliable search, filtering, and relationship inspection.
+
+Work through [BUGS.md](BUGS.md), starting with schema correctness and viewer
+reliability. The authoring work below remains on the roadmap after that viewer
+milestone. The hackathon date, submission requirements, and exact Serverpod
+integration surface are still to be established.
+
 ### Phase 2 — finish authoring
 1. **Relations on the canvas.** "Add relation" between two selected tables
    (pick child column + parent) → creates a connector and records the FK in the

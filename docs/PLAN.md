@@ -9,9 +9,20 @@ project and it renders the database schema as a single, connected map: tables as
 nodes, columns as rows, relations as edges. Explore, filter, search, and (later)
 edit schemas directly on the canvas.
 
-The end goal is for this to be good enough that the **Serverpod team itself can
-adopt it** as an official companion tool — a first-class way to see and shape a
-project's data model.
+The end goal is a **schema visualization feature integrated into Serverpod
+itself**: a layer for exploring all schemas in a Serverpod project. The current
+app is the implementation and demonstration vehicle for that feature. Adoption
+into Serverpod core is the intended outcome, subject to the Serverpod team's
+review.
+
+The immediate milestone is a **Serverpod hackathon submission** demonstrating
+accurate schema visualization and exploration. Prioritize schema completeness,
+correct relationships, and reliable navigation for that milestone. Canvas
+authoring remains a later phase.
+
+Track audit findings and their resolution in [BUGS.md](BUGS.md). Fix and verify
+them incrementally; preserve the original evidence until a targeted check
+confirms a resolution.
 
 ## 2. Goals
 
