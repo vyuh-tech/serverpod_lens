@@ -1,8 +1,6 @@
-import 'package:serverpod_lens_client/serverpod_lens_client.dart'
-    show SchemaGraph;
 import 'package:serverpod_lens_schema/serverpod_lens_schema.dart';
 
-/// Bridges the shared definition reader to this package's generated protocol.
+/// Converts a complete resolved Serverpod definition into the viewer contract.
 abstract final class SchemaExtractor {
   static SchemaGraph fromDefinitionJson(
     String definition, {

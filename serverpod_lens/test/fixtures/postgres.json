@@ -1,0 +1,504 @@
+{
+  "version": 170007,
+  "stmts": [
+    {
+      "stmt": {
+        "CreateEnumStmt": {
+          "typeName": [
+            {
+              "String": {
+                "sval": "app"
+              }
+            },
+            {
+              "String": {
+                "sval": "status"
+              }
+            }
+          ],
+          "vals": [
+            {
+              "String": {
+                "sval": "new"
+              }
+            },
+            {
+              "String": {
+                "sval": "done"
+              }
+            }
+          ]
+        }
+      },
+      "stmt_len": 47
+    },
+    {
+      "stmt": {
+        "CreateStmt": {
+          "relation": {
+            "schemaname": "app",
+            "relname": "parent",
+            "inh": true,
+            "relpersistence": "p",
+            "location": 62
+          },
+          "tableElts": [
+            {
+              "ColumnDef": {
+                "colname": "tenant",
+                "typeName": {
+                  "names": [
+                    {
+                      "String": {
+                        "sval": "uuid"
+                      }
+                    }
+                  ],
+                  "typemod": -1,
+                  "location": 81
+                },
+                "is_local": true,
+                "location": 74
+              }
+            },
+            {
+              "ColumnDef": {
+                "colname": "id",
+                "typeName": {
+                  "names": [
+                    {
+                      "String": {
+                        "sval": "pg_catalog"
+                      }
+                    },
+                    {
+                      "String": {
+                        "sval": "int8"
+                      }
+                    }
+                  ],
+                  "typemod": -1,
+                  "location": 90
+                },
+                "is_local": true,
+                "location": 87
+              }
+            },
+            {
+              "Constraint": {
+                "contype": "CONSTR_PRIMARY",
+                "keys": [
+                  {
+                    "String": {
+                      "sval": "tenant"
+                    }
+                  },
+                  {
+                    "String": {
+                      "sval": "id"
+                    }
+                  }
+                ],
+                "location": 98
+              }
+            }
+          ],
+          "oncommit": "ONCOMMIT_NOOP"
+        }
+      },
+      "stmt_location": 48,
+      "stmt_len": 75
+    },
+    {
+      "stmt": {
+        "CreateStmt": {
+          "relation": {
+            "schemaname": "app",
+            "relname": "child",
+            "inh": true,
+            "relpersistence": "p",
+            "location": 138
+          },
+          "tableElts": [
+            {
+              "ColumnDef": {
+                "colname": "id",
+                "typeName": {
+                  "names": [
+                    {
+                      "String": {
+                        "sval": "bigserial"
+                      }
+                    }
+                  ],
+                  "typemod": -1,
+                  "location": 154
+                },
+                "is_local": true,
+                "constraints": [
+                  {
+                    "Constraint": {
+                      "contype": "CONSTR_PRIMARY",
+                      "location": 164
+                    }
+                  }
+                ],
+                "location": 151
+              }
+            },
+            {
+              "ColumnDef": {
+                "colname": "tenant",
+                "typeName": {
+                  "names": [
+                    {
+                      "String": {
+                        "sval": "uuid"
+                      }
+                    }
+                  ],
+                  "typemod": -1,
+                  "location": 184
+                },
+                "is_local": true,
+                "constraints": [
+                  {
+                    "Constraint": {
+                      "contype": "CONSTR_NOTNULL",
+                      "location": 189
+                    }
+                  }
+                ],
+                "location": 177
+              }
+            },
+            {
+              "ColumnDef": {
+                "colname": "parent_id",
+                "typeName": {
+                  "names": [
+                    {
+                      "String": {
+                        "sval": "pg_catalog"
+                      }
+                    },
+                    {
+                      "String": {
+                        "sval": "int8"
+                      }
+                    }
+                  ],
+                  "typemod": -1,
+                  "location": 209
+                },
+                "is_local": true,
+                "location": 199
+              }
+            },
+            {
+              "ColumnDef": {
+                "colname": "title",
+                "typeName": {
+                  "names": [
+                    {
+                      "String": {
+                        "sval": "pg_catalog"
+                      }
+                    },
+                    {
+                      "String": {
+                        "sval": "varchar"
+                      }
+                    }
+                  ],
+                  "typmods": [
+                    {
+                      "A_Const": {
+                        "ival": {
+                          "ival": 80
+                        },
+                        "location": 232
+                      }
+                    }
+                  ],
+                  "typemod": -1,
+                  "location": 224
+                },
+                "is_local": true,
+                "constraints": [
+                  {
+                    "Constraint": {
+                      "contype": "CONSTR_DEFAULT",
+                      "raw_expr": {
+                        "A_Const": {
+                          "sval": {
+                            "sval": "it's; valid"
+                          },
+                          "location": 244
+                        }
+                      },
+                      "location": 236
+                    }
+                  }
+                ],
+                "location": 218
+              }
+            },
+            {
+              "ColumnDef": {
+                "colname": "tags",
+                "typeName": {
+                  "names": [
+                    {
+                      "String": {
+                        "sval": "text"
+                      }
+                    }
+                  ],
+                  "typemod": -1,
+                  "arrayBounds": [
+                    {
+                      "Integer": {
+                        "ival": -1
+                      }
+                    }
+                  ],
+                  "location": 265
+                },
+                "is_local": true,
+                "location": 260
+              }
+            },
+            {
+              "ColumnDef": {
+                "colname": "state",
+                "typeName": {
+                  "names": [
+                    {
+                      "String": {
+                        "sval": "app"
+                      }
+                    },
+                    {
+                      "String": {
+                        "sval": "status"
+                      }
+                    }
+                  ],
+                  "typemod": -1,
+                  "location": 279
+                },
+                "is_local": true,
+                "location": 273
+              }
+            },
+            {
+              "Constraint": {
+                "contype": "CONSTR_FOREIGN",
+                "conname": "parent_fk",
+                "initially_valid": true,
+                "pktable": {
+                  "schemaname": "app",
+                  "relname": "parent",
+                  "inh": true,
+                  "relpersistence": "p",
+                  "location": 356
+                },
+                "fk_attrs": [
+                  {
+                    "String": {
+                      "sval": "tenant"
+                    }
+                  },
+                  {
+                    "String": {
+                      "sval": "parent_id"
+                    }
+                  }
+                ],
+                "fk_matchtype": "s",
+                "fk_upd_action": "a",
+                "fk_del_action": "c",
+                "location": 292
+              }
+            }
+          ],
+          "oncommit": "ONCOMMIT_NOOP"
+        }
+      },
+      "stmt_location": 124,
+      "stmt_len": 262
+    },
+    {
+      "stmt": {
+        "IndexStmt": {
+          "idxname": "child_title",
+          "relation": {
+            "schemaname": "app",
+            "relname": "child",
+            "inh": true,
+            "relpersistence": "p",
+            "location": 423
+          },
+          "accessMethod": "btree",
+          "indexParams": [
+            {
+              "IndexElem": {
+                "name": "title",
+                "ordering": "SORTBY_DEFAULT",
+                "nulls_ordering": "SORTBY_NULLS_DEFAULT"
+              }
+            }
+          ],
+          "whereClause": {
+            "A_Expr": {
+              "kind": "AEXPR_OP",
+              "name": [
+                {
+                  "String": {
+                    "sval": ">"
+                  }
+                }
+              ],
+              "lexpr": {
+                "ColumnRef": {
+                  "fields": [
+                    {
+                      "String": {
+                        "sval": "parent_id"
+                      }
+                    }
+                  ],
+                  "location": 446
+                }
+              },
+              "rexpr": {
+                "A_Const": {
+                  "ival": {},
+                  "location": 458
+                }
+              },
+              "location": 456
+            }
+          },
+          "unique": true
+        }
+      },
+      "stmt_location": 387,
+      "stmt_len": 72
+    },
+    {
+      "stmt": {
+        "AlterTableStmt": {
+          "relation": {
+            "schemaname": "app",
+            "relname": "child",
+            "inh": true,
+            "relpersistence": "p",
+            "location": 473
+          },
+          "cmds": [
+            {
+              "AlterTableCmd": {
+                "subtype": "AT_AddColumn",
+                "def": {
+                  "ColumnDef": {
+                    "colname": "active",
+                    "typeName": {
+                      "names": [
+                        {
+                          "String": {
+                            "sval": "pg_catalog"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "bool"
+                          }
+                        }
+                      ],
+                      "typemod": -1,
+                      "location": 501
+                    },
+                    "is_local": true,
+                    "constraints": [
+                      {
+                        "Constraint": {
+                          "contype": "CONSTR_DEFAULT",
+                          "raw_expr": {
+                            "A_Const": {
+                              "boolval": {
+                                "boolval": true
+                              },
+                              "location": 517
+                            }
+                          },
+                          "location": 509
+                        }
+                      }
+                    ],
+                    "location": 494
+                  }
+                },
+                "behavior": "DROP_RESTRICT"
+              }
+            }
+          ],
+          "objtype": "OBJECT_TABLE"
+        }
+      },
+      "stmt_location": 460,
+      "stmt_len": 61
+    },
+    {
+      "stmt": {
+        "AlterTableStmt": {
+          "relation": {
+            "schemaname": "app",
+            "relname": "child",
+            "inh": true,
+            "relpersistence": "p",
+            "location": 535
+          },
+          "cmds": [
+            {
+              "AlterTableCmd": {
+                "subtype": "AT_SetNotNull",
+                "name": "active",
+                "behavior": "DROP_RESTRICT"
+              }
+            }
+          ],
+          "objtype": "OBJECT_TABLE"
+        }
+      },
+      "stmt_location": 522,
+      "stmt_len": 55
+    },
+    {
+      "stmt": {
+        "AlterTableStmt": {
+          "relation": {
+            "schemaname": "app",
+            "relname": "child",
+            "inh": true,
+            "relpersistence": "p",
+            "location": 591
+          },
+          "cmds": [
+            {
+              "AlterTableCmd": {
+                "subtype": "AT_ColumnDefault",
+                "name": "title",
+                "behavior": "DROP_RESTRICT"
+              }
+            }
+          ],
+          "objtype": "OBJECT_TABLE"
+        }
+      },
+      "stmt_location": 578,
+      "stmt_len": 54
+    }
+  ]
+}

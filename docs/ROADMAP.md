@@ -1,7 +1,8 @@
 # Remaining work
 
 The read-only viewer imports Serverpod migration snapshots and project ZIPs. Its
-initial SQL graph comes from flutter_elog; the README describes both input paths.
+initial SQL graph comes from flutter_elog. Pasted PostgreSQL and SQL files now
+parse locally on web; partial imports require review before rendering.
 
 The next feature milestone is live host connection, table inspection, and visual
 migration comparison. See [FEATURE_PLAN.md](FEATURE_PLAN.md) for the construction
@@ -11,15 +12,16 @@ plan, delivery sequence, and verification criteria.
 
 - Agree on the host development-tool surface with the Serverpod team.
 - Supply the host project's complete resolved definition directly.
-- Refresh when the host schema changes, preserving view preferences.
+- Connect the host schema-change event to the viewer's existing graph refresh interface.
 - Restrict any schema-delivery endpoint to authorized development use.
 - Establish a tested compatibility range across Serverpod versions.
 
 ## Improve schema fidelity
 
-- Report references to tables absent from the imported snapshot.
+- Expand import diagnostics into a browsable report with statement locations.
 - Expose enum values, partial-index predicates and vector dimensions where useful.
-- Replace the partial YAML fallback with compiler-resolved definitions.
+- Integrate Serverpod compiler resolution for YAML imports; current inference
+  discloses its limitations.
 - Expand SQL fixture coverage for ALTER and procedural transformations, or obtain
   an authoritative read-only database catalog export for that dataset.
 

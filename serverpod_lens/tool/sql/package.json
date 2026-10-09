@@ -1,0 +1,1 @@
+{"name":"lens-postgres-parser","private":true,"scripts":{"build":"node build.mjs","test":"node --test parser.test.cjs"},"dependencies":{"libpg-query":"17.7.4"},"devDependencies":{"esbuild":"0.25.12"}}

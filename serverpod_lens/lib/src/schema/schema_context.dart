@@ -1,4 +1,4 @@
-import 'package:serverpod_lens_client/serverpod_lens_client.dart';
+import 'package:serverpod_lens_schema/serverpod_lens_schema.dart';
 import 'package:vyuh_diagram_core/vyuh_diagram_core.dart';
 
 enum RelationDirection {

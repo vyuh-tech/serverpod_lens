@@ -1,5 +1,36 @@
 # Verification — 9 October 2026
 
+## Package and SQL import checks — 2026-10-09
+
+The package extraction passes `dart analyze` with no issues. Automated suites
+pass: 5 shared-reader tests, 6 package tests, 27 demo regressions and 1 Serverpod
+bridge test. The generated Serverpod graph round-trips through the plain model
+and back. Three Node tests exercise the real PostgreSQL parser, and the offline
+SQLGlot importer regression passes separately.
+
+The package tests cover real PostgreSQL 17 AST mapping, composite primary and
+foreign keys, implicit referenced PK columns, enums, arrays, partial uniqueness,
+ALTER nullability/default changes, unresolved references and unsupported nested
+schema declarations. YAML tests cover inferred IDs, parent-class resolution,
+non-persisted fields, indexes and invalid-file diagnostics. The host widget test
+supplies and replaces a graph without import controls or bundled demo data.
+
+Chromium loaded the bundled worker and WASM from the release assets, parsed a
+two-table relationship, and imported pasted SQL into the actual Flutter screen.
+The SQL dialog was checked at 320×568. Parse errors, partial-result review and
+file imports are checked in the browser pass described below. The local Python
+server and Cloudflare tunnel both returned HTTP 200.
+
+Serverpod MCP restarted the backend and relaunched the companion Flutter app.
+The restarted app serves `lib/driver.dart`; prior compile errors in its log came
+from the intermediate package move. The release compiles successfully. Live Dart
+MCP driver verification remains incomplete; release-browser and mounted-widget
+checks are the evidence for this pass.
+
+The JavaScript release succeeds. Its WASM dry run still reports transitive
+`dart:html` dependencies, and its icon scan reports unused Cupertino and Fluent
+Light font families. This is distinct from the working PostgreSQL WASM worker.
+
 These checks cover the standalone schema viewer. They do not establish that it
 is ready to ship inside Serverpod or that every database schema is represented
 without loss.
@@ -63,7 +94,8 @@ unused transitive icon declarations were not changed in this pass.
 
 ## Still to verify or implement
 
-- Host-project delivery and automatic refresh inside Serverpod development tools.
+- Host-project delivery and its refresh event inside Serverpod development tools.
+  Graph replacement through the viewer widget is already tested.
 - Compatibility beyond the tested Serverpod 4.0.4 schema contract.
 - Physical iOS/Android devices, Safari/Firefox and screen-reader navigation.
 - Large-schema frame time, memory, heavy layouts and large ZIP responsiveness.

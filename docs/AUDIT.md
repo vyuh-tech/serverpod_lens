@@ -1,104 +1,67 @@
 # Project audit — 2026-10-09
 
-The architecture matches the intended read-only Serverpod schema feature. One
-shared reader interprets resolved definitions; generated contracts carry the
-graph; a small adapter maps it to native Vyuh shapes; the Flutter screen provides
-search and schema filtering. It remains a standalone prototype until Serverpod's
-host-development tooling supplies the project's schema directly.
+The architecture fits a read-only feature for Serverpod development tools.
+The host supplies a resolved schema; Lens reads it into a plain Dart graph and
+maps it to native Vyuh shapes. The reusable viewer is separate from the demo.
+Upstream installation and automatic host delivery remain integration work.
 
-The audit reviewed the repository, the changes after `b1355ae`, the actual
-flutter_elog SQL and native Vyuh implementation. Standards and requirements
-reviews were performed separately, followed by targeted fixes and regression checks.
+## Boundaries
 
-## Standards review
-
-| Finding | Resolution |
+| Module | Owns |
 | --- | --- |
-| Server and Flutter duplicated definition interpretation | Shared pure Dart package with generated-protocol bridges |
-| Cross-schema table names and FK targets could collide | Schema-qualified identities, including `referenceTableSchema` |
-| Corrupt newest migrations silently fell back to older data | Invalid newest snapshots reject with their path; valid empty schemas remain empty |
-| Individual components of composite primary keys looked unique | Cardinality requires an actual individual or full constraint |
-| Partial unique indexes implied global uniqueness | Predicate retained; excluded from global uniqueness inference |
-| Old dump command overwrote the SQL dataset | Separate output under `docs/serverpod-schema.json` |
-| Published transitive package broke Dart test startup | Pin official `base_menu` 0.2.0, which removes absent workspace paths |
-| Unused greeting and sign-in scaffolding obscured purpose | Removed source paths; Serverpod regenerated client/server/test helpers |
+| `serverpod_lens_schema` | Graph model and resolved migration interpretation |
+| `serverpod_lens` import adapters | ZIP selection, partial YAML inference and PostgreSQL AST mapping |
+| `SchemaCatalog` / `SchemaContext` | Search, filtering, neighborhoods and groups |
+| `SchemaDiagram` | Schema meaning mapped to native table shapes and connections |
+| `SchemaViewer` | Canvas and screen interactions with a supplied graph |
+| Demo `SchemaMapScreen` | Asset loading, file picking, pasted SQL and diagnostic review |
+| Serverpod fixture | Backend authentication and generated protocol bridge |
 
-The parsing/mapping/UI boundaries are now explicit. The final browser check found connector paint escaping into the sidebar; the
-screen now clips the native canvas to its viewport.
+The viewer has no generated client, API initialization, file picker or bundled
+schema dependency. Replacing the widget's graph refreshes the map and preserves
+view preferences. Context groups reset for the new dataset.
 
-No handwritten generated
-code, custom minimap, custom graph layout, table renderer or animation engine is
-needed. Authentication initialization remains in the Serverpod backend.
+## Cleanup and corrections
 
-## Requirements review
+- Removed obsolete demo forwarding files, client initialization, unused config
+  asset, authentication dependencies, obsolete backend app-config route, unused landing
+  template/widgets and scaffold pubspec comments.
+- Kept one shared migration reader. Generated protocol code remains managed by
+  Serverpod; the viewer consumes the plain graph model.
+- Preserved schema-qualified identities and distinct module metadata for resolved
+  definitions. YAML imports label inferred project membership rather than inventing
+  modules from table-name prefixes.
+- Kept newest-migration selection, complete-definition preference, invalid snapshot
+  rejection and valid empty schemas. Project-only snapshots disclose missing modules.
+- Added explicit YAML import diagnostics, parent-class resolution, inferred IDs,
+  basic indexes and invalid-file messages.
+- Added browser SQL import with the PostgreSQL WASM parser and an AST adapter.
+  Unsupported statements and unresolved relationships are disclosed before rendering.
+- Retained native table rendering, minimap, layouts, connector routing, snap guides
+  and effects. There is no custom diagram renderer or animation engine.
+- Retained contextual exploration, overlapping groups, neutral themes, the mobile
+  drawer and the collapsible desktop browser.
 
-| Requirement | Result |
-| --- | --- |
-| Read-only canvas | Native interaction surface with schema changes blocked; cells remain read-only |
-| Remove palette, bottom editing toolbar and property panel | Editor dependency and configuration removed |
-| Real database schemas and All filtering | Ten SQL schema groups; table list and canvas filter by schema |
-| No sample/dogfood labels | Removed from the UI and dataset source |
-| Native minimap and automatic layout | Hosted Vyuh extensions retained |
-| Neater view settings | Animation, connections and canvas options in a scrollable dialog |
-| Shared reader and focused regressions | Shared reader, ZIP selection, types, identity, relations and native viewer tests |
-| Documentation consistent with code | README, architecture, source notes and roadmap rewritten |
-| Mobile canvas space and neutral Material styling | Browser moves into a phone drawer; desktop sidebar collapses; light/dark controls use neutral colors |
+Native admission rules reject schema edits, deletion, creation, resizing and
+rewiring while allowing node movement. Measured native rows supply port offsets;
+unused column ports are omitted and native fallback markers are transparent. Composite relationships retain their pair labels and
+attach at the first pair.
 
-The native effects API requires the interactive canvas. A later interaction
-update enables native node dragging and connection flow on selection, with
-admission rules rejecting content changes. Editor chrome remains absent. Settings expose native effects, connector routes
-and snap guides. Ports now follow measured native cell centres, rather than
-assuming authored row heights. Appearance changes preserve relation bindings. Unconnected ports are omitted,
-headers have square lower corners, and native row separators replace the heavy
-cell grid. Marching dashes use the native dash particle with an adjustable count.
+## Evidence and limits
 
-The SQL importer now preserves declared types/defaults, PKs, unique constraints,
-indexes, referential actions and basic ADD COLUMN statements. The current source
-snapshot contains 396 tables, 5,133 columns and 536 foreign-key declarations.
-31 targets are absent, so 505 relationships render. The import report lists
-unsupported SQL and every unresolved target; this is not a lossless live catalog.
+Migration mapping is tested against Serverpod 4.0.4. Regressions cover types,
+modules, foreign keys, composite constraints and partial uniqueness. Real parser
+AST fixtures cover SQL keys, enum declarations, arrays, indexes and selected ALTER
+operations. A host widget test covers graph replacement without demo controls.
+[Verification notes](VERIFICATION.md) record suite and browser results.
 
-## Remaining work and practical limits
+The current dataset is a source snapshot: 396 tables, 5,133 columns and 536 foreign
+keys, of which 505 have targets present. It is not a live catalog. Initial native
+grid layout keeps startup practical; more expensive layouts remain explicit choices.
 
-- Direct host-project schema delivery, development authorization and automatic
-  refresh are not implemented. No claim of completed Serverpod-core integration.
-- Migration parsing is tested against Serverpod 4.0.4. Cross-version compatibility
-  needs an explicit supported-version matrix.
-- YAML-only inference omits compiler-resolved details and warns. It should not be
-  treated as an authoritative database definition.
-- SQL procedural/ALTER transformations remain partial; source files do not prove
-  what is installed in a running database.
-- Composite foreign keys attach at the first column pair and label all pairs.
-  Missing referenced tables do not get fabricated nodes.
-- ZIP parsing runs synchronously and assumes one server package. Multiple server
-  archives reject. Large archive limits, memory and responsiveness need measurement.
-- Large-schema frame time, keyboard accessibility and preferences across app restarts
-  still need dedicated verification beyond the current functional checks.
-- A project license and hosted-package redistribution terms must be settled before
-  presenting this as an adoptable distributed Serverpod component.
-
-The initial layered layout of all 396 tables stalled the debug browser startup
-check. The viewer now opens with Vyuh's native grid layout; layered, tree, force
-and circular layouts remain explicit choices. Detailed startup/frame-time
-benchmarks remain open.
-
-## Verification
-
-The automated suite checks shared schema parsing, both generated-protocol bridges,
-latest/empty/invalid migration selection, same-named tables in different schemas,
-partial uniqueness, composite cardinality, source filtering, SQL FK actions,
-native layout/codecs and the read-only canvas. Node dragging changes positions only; selection plays native connection effects,
-and Delete is rejected.
-
-Analysis and formatting pass. Twenty Flutter tests, five shared-reader tests,
-one backend bridge test and one Python importer test pass. Native layout and
-admission coverage was expanded, and responsive tests found and fixed a
-long-schema-name dropdown overflow. ZIP loading now skips unrelated entries
-before decoding them as text.
-
-The JavaScript release build and desktop/phone browser checks pass in light and
-dark modes. Python serves the release and the Cloudflare quick tunnel remains
-available. Serverpod MCP restarts succeed, but live Dart MCP widget inspection
-and Flutter Driver requests timed out in this session. That verification remains
-incomplete. See [the verification record](VERIFICATION.md) for the exact coverage
-and practical limits.
+Remaining work includes host delivery and authorization, cross-version compatibility,
+compiler-backed YAML imports, additional SQL operations, physical-device and
+accessibility checks, archive limits and large-schema performance measurements.
+Native SQL text parsing, drift detection, schema authoring and migration execution
+are not implemented. Project licensing and extension redistribution terms need to
+be settled before distribution as a Serverpod component.

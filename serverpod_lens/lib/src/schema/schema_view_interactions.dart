@@ -210,24 +210,21 @@ ReactionDisposer watchSchemaSelection(
   SchemaViewPreferences? preferences,
 }) {
   final settings = preferences ?? SchemaViewPreferences();
-  return reaction(
-    (_) => (controller.selection, settings.effect),
-    (state) {
-      if (!controller.isAttached) return;
-      controller.effects.stopAll();
-      final (selection, effect) = state;
-      if (selection is! ElementSelection || effect == null) return;
-      final ids = selection.elementIds;
-      for (final edge
-          in controller.document.elements.whereType<ConnectorElement>()) {
-        if (!edge.isVisible) continue;
-        final start = edge.start;
-        final end = edge.end;
-        if ((start is BoundEndpoint && ids.contains(start.elementId)) ||
-            (end is BoundEndpoint && ids.contains(end.elementId))) {
-          controller.effects.play(effect, on: edge.id);
-        }
+  return reaction((_) => (controller.selection, settings.effect), (state) {
+    if (!controller.isAttached) return;
+    controller.effects.stopAll();
+    final (selection, effect) = state;
+    if (selection is! ElementSelection || effect == null) return;
+    final ids = selection.elementIds;
+    for (final edge
+        in controller.document.elements.whereType<ConnectorElement>()) {
+      if (!edge.isVisible) continue;
+      final start = edge.start;
+      final end = edge.end;
+      if ((start is BoundEndpoint && ids.contains(start.elementId)) ||
+          (end is BoundEndpoint && ids.contains(end.elementId))) {
+        controller.effects.play(effect, on: edge.id);
       }
-    },
-  );
+    }
+  });
 }

@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:serverpod_lens_flutter/schema/project_analyzer.dart';
+import 'package:serverpod_lens/serverpod_lens.dart';
 
 void main() {
   test('rejects ambiguous archives containing multiple server packages', () {
@@ -95,6 +95,7 @@ void main() {
         name: 'empty.zip',
       );
       expect(empty.graph.tables, isEmpty);
+      expect(empty.isValid, isTrue);
     },
   );
 
@@ -124,7 +125,7 @@ void main() {
       expect(result.graph.tables.map((table) => table.name), [
         'public.current',
       ]);
-      expect(result.warnings, isEmpty);
+      expect(result.warnings.single, contains('Project-only migration'));
     },
   );
 

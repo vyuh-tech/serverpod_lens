@@ -2,12 +2,13 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
-import 'package:serverpod_lens_client/serverpod_lens_client.dart'
+import 'package:serverpod_lens_schema/serverpod_lens_schema.dart'
     show
         SchemaColumn,
         SchemaEnum,
         SchemaForeignKey,
         SchemaGraph,
+        SchemaIndex,
         SchemaModule,
         SchemaTable;
 import 'package:yaml/yaml.dart';
@@ -20,11 +21,15 @@ class ProjectAnalysis {
     this.graph, {
     this.warnings = const [],
     this.projectName,
+    this.isValid = true,
   });
 
   final SchemaGraph graph;
   final List<String> warnings;
   final String? projectName;
+
+  /// False when no usable source was found; an empty resolved schema is valid.
+  final bool isValid;
 
   bool get isEmpty => graph.tables.isEmpty;
 }
@@ -49,6 +54,7 @@ abstract final class ProjectAnalyzer {
     } catch (error) {
       return ProjectAnalysis(
         _emptyGraph(name),
+        isValid: false,
         warnings: ['Not a valid zip: $error'],
       );
     }
@@ -91,6 +97,7 @@ abstract final class ProjectAnalyzer {
     if (serverRoots.length > 1) {
       return ProjectAnalysis(
         _emptyGraph(name),
+        isValid: false,
         warnings: const [
           'Multiple Serverpod server packages found. Upload a ZIP containing one server package.',
         ],
@@ -113,9 +120,19 @@ abstract final class ProjectAnalyzer {
         name,
         projectOnly: false,
       );
-      if (graph != null) return ProjectAnalysis(_withModules(graph, name));
+      if (graph != null) {
+        return ProjectAnalysis(
+          _withModules(graph, name),
+          warnings: fullDefs.containsKey(path)
+              ? const []
+              : const [
+                  'Project-only migration: installed Serverpod modules and framework tables may be absent. Prefer definition.json for the complete schema.',
+                ],
+        );
+      }
       return ProjectAnalysis(
         _emptyGraph(name),
+        isValid: false,
         warnings: [
           'The newest migration definition is invalid: $path. Older snapshots were not loaded.',
         ],
@@ -124,21 +141,29 @@ abstract final class ProjectAnalyzer {
 
     // 3. .spy.yaml fallback
     if (spyFiles.isNotEmpty) {
-      final graph = _fromSpyFiles(spyFiles, name);
-      return ProjectAnalysis(
-        _withModules(graph, name),
-        warnings: const [
-          'No migrations found; derived from .spy.yaml (relations may be partial).',
-        ],
-      );
+      return analyzeYamlFiles(spyFiles, name: name);
     }
 
     return ProjectAnalysis(
       _emptyGraph(name),
+      isValid: false,
       warnings: const [
         'No Serverpod schema found (looked for migrations/*/definition*.json and *.spy.yaml).',
       ],
     );
+  }
+
+  /// Imports model declarations without requiring a ZIP. This is inference,
+  /// not Serverpod's compiler: complete migration definitions are authoritative.
+  static ProjectAnalysis analyzeYamlFiles(
+    Map<String, String> files, {
+    required String name,
+  }) {
+    final warnings = <String>[
+      'YAML inference is partial: implicit relation columns, join tables, module dependencies and compiler-specific mappings may be absent. Default id columns are inferred as bigint.',
+    ];
+    final graph = _fromSpyFiles(files, name, warnings);
+    return ProjectAnalysis(_withModules(graph, name), warnings: warnings);
   }
 
   static SchemaGraph? _tryDefinition(
@@ -202,7 +227,11 @@ abstract final class ProjectAnalyzer {
     );
   }
 
-  static SchemaGraph _fromSpyFiles(Map<String, String> files, String source) {
+  static SchemaGraph _fromSpyFiles(
+    Map<String, String> files,
+    String source,
+    List<String> warnings,
+  ) {
     final tables = <SchemaTable>[];
     final enums = <SchemaEnum>[];
 
@@ -210,10 +239,13 @@ abstract final class ProjectAnalyzer {
       final Object? doc;
       try {
         doc = loadYaml(entry.value);
-      } catch (_) {
+      } catch (error) {
+        throw FormatException('Invalid Serverpod YAML in ${entry.key}: $error');
+      }
+      if (doc is! YamlMap) {
+        warnings.add('${entry.key}: expected a model mapping.');
         continue;
       }
-      if (doc is! YamlMap) continue;
 
       if (doc['enum'] != null) {
         final values = (doc['values'] as YamlList?)?.map((v) => '$v').toList();
@@ -229,6 +261,19 @@ abstract final class ProjectAnalyzer {
       if (fields is! YamlMap) continue;
 
       final columns = <SchemaColumn>[];
+      if (!fields.containsKey('id')) {
+        columns.add(
+          SchemaColumn(
+            name: 'id',
+            fieldName: 'id',
+            dartType: 'int',
+            dbType: 'bigint',
+            isNullable: false,
+            isPrimaryKey: true,
+            isUnique: true,
+          ),
+        );
+      }
       final foreignKeys = <SchemaForeignKey>[];
 
       for (final field in fields.entries) {
@@ -244,11 +289,18 @@ abstract final class ProjectAnalyzer {
           type = '${spec['type'] ?? 'String'}';
           modifiers = spec.toString();
         }
-        final nullable = type.endsWith('?');
+        if (modifiers.contains('!persist')) continue;
+        if (!type.startsWith('List<') && _dbTypeFor(type) == 'unknown') {
+          warnings.add(
+            '${entry.key}: $name ($type) needs compiler resolution and was omitted.',
+          );
+          continue;
+        }
+        final nullable = name != 'id' && type.endsWith('?');
 
-        final parent = RegExp(
-          r'parent\s*=\s*([A-Za-z0-9_]+)',
-        ).firstMatch(modifiers)?.group(1);
+        final parent = RegExp(r'parent\s*=\s*([A-Za-z0-9_.]+)')
+            .firstMatch(modifiers)
+            ?.group(1);
         if (parent != null) {
           foreignKeys.add(
             SchemaForeignKey(
@@ -270,26 +322,78 @@ abstract final class ProjectAnalyzer {
             dbType: _dbTypeFor(type),
             isNullable: nullable,
             isPrimaryKey: name == 'id',
-            isUnique: modifiers.contains('unique'),
+            isUnique: name == 'id' || modifiers.contains('unique'),
             defaultValue: null,
           ),
         );
       }
 
+      final indexes = <SchemaIndex>[];
+      final rawIndexes = doc['indexes'];
+      if (rawIndexes is YamlMap) {
+        for (final item in rawIndexes.entries) {
+          final index = item.value;
+          if (index is! YamlMap) continue;
+          final rawFields = index['fields'];
+          final names = rawFields is YamlList
+              ? rawFields.map((v) => '$v').toList()
+              : '$rawFields'.split(',').map((v) => v.trim()).toList();
+          indexes.add(
+            SchemaIndex(
+              name: '${item.key}',
+              columns: names,
+              unique: index['unique'] == true,
+              type: index['type']?.toString() ?? 'btree',
+            ),
+          );
+        }
+      }
       tables.add(
         SchemaTable(
           name: tableName,
           className: '${doc['class']}',
           schema: 'public',
-          module: _domainOf(tableName),
+          module: 'project',
           documentation: null,
           columns: columns,
           foreignKeys: foreignKeys,
-          indexes: const [],
+          indexes: indexes,
         ),
       );
     }
 
+    final aliases = <String, String>{
+      for (final table in tables) table.className: table.name,
+      for (final table in tables) table.name: table.name,
+    };
+    for (var i = 0; i < tables.length; i++) {
+      final table = tables[i];
+      tables[i] = table.copyWith(
+        foreignKeys: table.foreignKeys.map((key) {
+          final target = aliases[key.refTable];
+          if (target == null) {
+            warnings.add(
+              '${table.name}: parent ${key.refTable} is not present in these YAML files.',
+            );
+          }
+          return key.copyWith(refTable: target ?? key.refTable);
+        }).toList(),
+        columns: table.columns
+            .map(
+              (column) => column.copyWith(
+                isUnique:
+                    column.isUnique ||
+                    table.indexes.any(
+                      (index) =>
+                          index.unique &&
+                          index.columns.length == 1 &&
+                          index.columns.single == column.name,
+                    ),
+              ),
+            )
+            .toList(),
+      );
+    }
     tables.sort((a, b) => a.name.compareTo(b.name));
     return SchemaGraph(
       source: source,
@@ -314,12 +418,7 @@ abstract final class ProjectAnalyzer {
       'Duration' => 'interval',
       'ByteData' => 'bytea',
       'Uri' => 'text',
-      _ => 'text',
+      _ => 'unknown',
     };
-  }
-
-  static String _domainOf(String tableName) {
-    final underscore = tableName.indexOf('_');
-    return underscore > 0 ? tableName.substring(0, underscore) : 'main';
   }
 }

@@ -13,8 +13,8 @@ Current pipeline:
 ```
 Serverpod migration definition
   └─ SchemaDefinitionReader (serverpod_lens_schema)
-       └─ generated SchemaGraph (server/client codec bridges)
-            └─ SchemaDiagram (native Vyuh tables, ports and connectors)
+       └─ plain Dart SchemaGraph (serverpod_lens_schema)
+            └─ SchemaDiagram (serverpod_lens; native Vyuh tables, ports and connectors)
                  └─ DiagramCanvas (native movement/effects; schema edits blocked)
 ```
 
@@ -29,7 +29,10 @@ Serverpod migration definition
   Do not install editable extensions, editor toolbars, property panels or custom
   diagram renderers. Keep source reading, semantic mapping and screen UI separate.
 
-This project is a Flutter app (frontend) backed by a Serverpod server (backend). Always build the app's backend with Serverpod.
+The reusable `serverpod_lens` viewer accepts a graph from its host. The
+`serverpod_lens_flutter` demo handles local imports and has no backend dependency.
+The retained server/client packages are Serverpod integration fixtures. Build any
+host backend with Serverpod.
 Build for multiple users, use Serverpod's built-in authentication, which is already set up in `lib/server.dart`.
 
 The user starts the server and Flutter app with `serverpod start`. There is no need to check if the server is running: make the changes and call the `serverpod` MCP tools as needed. If the server is not running, an informative error message will be received from the MCP server. Then STOP and ask the user to start it. NEVER start the server yourself. The Flutter app is started along with it, or can be launched from the MCP tool `spawn_flutter_app`.

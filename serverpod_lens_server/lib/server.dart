@@ -6,7 +6,6 @@ import 'package:serverpod_cloud_storage/serverpod_cloud_storage.dart';
 
 import 'src/cache_busting.dart';
 import 'src/generated/serverpod.dart';
-import 'src/web/routes/app_config_route.dart';
 
 /// The starting point of the Serverpod server.
 void run(List<String> args) async {
@@ -40,14 +39,6 @@ void run(List<String> args) async {
   pod.webServer.addRoute(
     StaticRoute.withCacheBusting(cacheBustingConfig),
     cacheBustingConfig.mountPrefix,
-  );
-
-  // Setup the app config route.
-  // We build this configuration based on the servers api url and serve it to
-  // the flutter app.
-  pod.webServer.addRoute(
-    AppConfigRoute(apiConfig: pod.config.apiServer),
-    '/assets/assets/config.json',
   );
 
   // Checks if the flutter web app has been built and serves it if it has.

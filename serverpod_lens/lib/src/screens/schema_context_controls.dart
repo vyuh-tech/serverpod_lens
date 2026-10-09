@@ -105,10 +105,7 @@ class SchemaContextControls extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: focus,
-                    ),
+                    child: Align(alignment: Alignment.centerLeft, child: focus),
                   ),
                   fit,
                   if (hasPreviousView) back,

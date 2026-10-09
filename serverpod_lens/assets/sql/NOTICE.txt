@@ -1,0 +1,6 @@
+Bundled PostgreSQL parser: npm libpg-query 17.7.4 (PostgreSQL 17 AST).
+Source: https://github.com/constructive-io/libpg-query-node
+Underlying parser: https://github.com/pganalyze/libpg_query
+Includes PostgreSQL code: https://www.postgresql.org/
+See the adjacent license and copyright notices.
+Worker bundle built with esbuild 0.25.12; rebuild instructions in tool/sql/.

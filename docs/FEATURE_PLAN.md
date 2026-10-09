@@ -44,7 +44,7 @@ HostSchemaSource → immutable SchemaSnapshot
            ↙                 ↘
 SchemaCatalog inspection   SchemaComparison
            ↘                 ↙
-      SchemaMapScreen + native Vyuh canvas
+      SchemaViewer + native Vyuh canvas
 ```
 
 Use three modules with small interfaces:

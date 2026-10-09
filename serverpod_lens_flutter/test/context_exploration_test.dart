@@ -87,6 +87,8 @@ void main() {
           ),
         );
         await Future<void>.delayed(const Duration(milliseconds: 500));
+        await tester.pump();
+        await Future<void>.delayed(const Duration(milliseconds: 500));
       });
       await tester.pumpAndSettle();
       final controller = tester

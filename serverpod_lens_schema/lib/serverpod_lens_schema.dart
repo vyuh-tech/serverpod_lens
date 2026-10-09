@@ -1,10 +1,12 @@
+export 'src/schema_graph.dart';
+
 import 'dart:convert';
 
 /// Reads resolved Serverpod database definitions into the shared wire contract.
 ///
 /// No Flutter, server runtime or generated protocol dependency is needed here.
-/// The server and client each deserialize this contract with their own generated
-/// SchemaGraph codec. Database schema and Serverpod module remain distinct.
+/// The viewer uses the plain model; the Serverpod fixture bridges to its generated
+/// protocol. Database schema and Serverpod module remain distinct.
 abstract final class SchemaDefinitionReader {
   static const _columnTypes = [
     'text',

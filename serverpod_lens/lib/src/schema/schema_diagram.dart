@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:serverpod_lens_client/serverpod_lens_client.dart'
+import 'package:serverpod_lens_schema/serverpod_lens_schema.dart'
     show SchemaGraph, SchemaTable;
 import 'package:vyuh_diagram_core/vyuh_diagram_core.dart';
 import 'package:vyuh_diagram_core/extension_api.dart';
@@ -28,10 +28,7 @@ abstract final class SchemaDiagram {
         controller ??
         DiagramController(
           configuration: DiagramConfiguration(
-            extensions: [
-              SchemaTableExtension(),
-              const LayoutExtension(),
-            ],
+            extensions: [SchemaTableExtension(), const LayoutExtension()],
           ),
         );
     final byName = {for (final table in graph.tables) table.name: table};
@@ -317,7 +314,16 @@ final class SchemaTableExtension extends DiagramExtension {
             type: SchemaDiagram.tableShapeType,
             name: 'Schema table',
             values: {'schema': ObjectValueField(defaultValue: {})},
-            connection: ShapeConnectionDefinition.instancePorts(),
+            // Vyuh requires fallback ports; make those markers transparent.
+            // Explicit relationship ports retain their own native styling.
+            connection: ShapeConnectionDefinition.instancePorts(
+              portStyle: const PortStyle(
+                fill: DiagramColor(0x00000000),
+                stroke: DiagramColor(0x00000000),
+                strokeWidth: 0,
+                connectedFill: DiagramColor(0x00000000),
+              ),
+            ),
             behavior: const ShapeBehavior(resizable: false, rotatable: false),
             body: ShapeColumn([
               ShapeSized(

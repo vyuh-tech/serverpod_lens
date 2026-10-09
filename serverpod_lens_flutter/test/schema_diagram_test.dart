@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:serverpod_lens_flutter/schema/schema_diagram.dart';
+import 'package:serverpod_lens/serverpod_lens.dart';
 import 'package:vyuh_diagram_extension_layout/vyuh_diagram_extension_layout.dart';
 import 'package:vyuh_diagram_extension_table/extension_api.dart';
 import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
@@ -18,6 +18,29 @@ void main() {
     );
     addTearDown(controller.dispose);
     expect(controller.document.elements, isEmpty);
+  });
+
+  test('isolated tables keep native fallback port markers invisible', () async {
+    final table = graph.tables.first.copyWith(foreignKeys: []);
+    final controller = await SchemaDiagram.build(
+      graph.copyWith(tables: [table]),
+      layout: Layout.grid(),
+    );
+    addTearDown(controller.dispose);
+    final shape = controller.document.elements.whereType<ShapeElement>().single;
+    expect(shape.ports, isEmpty);
+    final defaults = SchemaTableExtension().shapes.single.connection.portsFor(
+      shape,
+    );
+    expect(defaults, isNotEmpty);
+    expect(
+      defaults.every(
+        (port) =>
+            port.style.fill == const DiagramColor(0x00000000) &&
+            port.style.strokeWidth == 0,
+      ),
+      isTrue,
+    );
   });
 
   test(

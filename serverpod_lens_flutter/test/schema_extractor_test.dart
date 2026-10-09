@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:serverpod_lens_flutter/schema/schema_extractor.dart';
+import 'package:serverpod_lens/serverpod_lens.dart';
 
 void main() {
   test('preserves resolved types, modules and composite constraints', () {

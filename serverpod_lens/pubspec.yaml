@@ -1,0 +1,49 @@
+name: serverpod_lens
+description: Embeddable read-only schema viewer for Serverpod development tools.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+environment:
+  sdk: ^3.13.0
+  flutter: '>=3.47.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  serverpod_lens_schema:
+    path: ../serverpod_lens_schema
+  web: ^1.1.1
+  vyuh_diagram_flutter: ^3.5.1
+  vyuh_diagram_core: ^3.5.1
+  vyuh_diagram_extension_snap_guides:
+    hosted: https://pub.vyuh.tech
+    version: ^3.5.1
+  vyuh_diagram_extension_connectors:
+    hosted: https://pub.vyuh.tech
+    version: ^3.5.1
+  vyuh_diagram_extension_minimap:
+    hosted: https://pub.vyuh.tech
+    version: ^3.5.1
+  vyuh_diagram_extension_layout:
+    hosted: https://pub.vyuh.tech
+    version: ^3.5.1
+  vyuh_diagram_extension_table:
+    hosted: https://pub.vyuh.tech
+    version: ^3.5.1
+  vyuh_diagram_extension_table_flutter:
+    hosted: https://pub.vyuh.tech
+    version: ^3.5.1
+  flutter_mobx: ^2.4.0
+  mobx: ^2.7.0
+  archive: ^4.3.0
+  yaml: ^3.1.4
+
+dev_dependencies:
+  flutter_localizations:
+    sdk: flutter
+  flutter_test:
+    sdk: flutter
+  flutter_lints: '>=3.0.0 <7.0.0'
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/sql/

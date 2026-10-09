@@ -1,8 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:serverpod_lens_flutter/schema/schema_catalog.dart';
-import 'package:serverpod_lens_flutter/schema/schema_diagram.dart';
+import 'package:serverpod_lens/serverpod_lens.dart';
 
 void main() {
   test(

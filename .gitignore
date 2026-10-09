@@ -23,3 +23,9 @@ opencode.json
 # Offline schema-import tools and generated local exports
 __pycache__/
 /docs/serverpod-schema.json
+
+# Browser SQL parser build dependencies
+node_modules/
+
+# Flutter package build outputs
+build/

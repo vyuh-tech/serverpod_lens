@@ -1,7 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:serverpod_lens_flutter/schema/schema_context.dart';
-import 'package:serverpod_lens_flutter/schema/schema_diagram.dart';
-import 'package:serverpod_lens_flutter/schema/schema_view_interactions.dart';
+import 'package:serverpod_lens/serverpod_lens.dart';
 import 'package:vyuh_diagram_extension_layout/vyuh_diagram_extension_layout.dart';
 import 'package:vyuh_diagram_core/vyuh_diagram_core.dart';
 

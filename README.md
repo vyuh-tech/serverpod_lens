@@ -1,232 +1,222 @@
 # Serverpod Lens
 
-Serverpod Lens is a read-only schema map for Serverpod projects. Tables show
-columns, database types and keys; foreign-key connections show how the backend
-fits together. Search for a table or column, choose a database schema, and follow
-its relationships without opening each model file.
+Serverpod Lens turns a Serverpod project's database schema into a map you can
+explore. Tables show columns, types and keys; connections show foreign keys.
+Choose a schema, find a column, or follow a table's incoming and outgoing
+relationships without opening every model file.
 
-The app uses Flutter, Serverpod 4.0.4 and Vyuh Diagram 3.5.1. The intended home is
-Serverpod's development tooling. This repository is the standalone viewer and
-schema adapter being built toward that integration.
+The intended home is **a feature inside Serverpod's development tools**. The
+viewer is a reusable Flutter package, and this repository includes a demo app
+around it. Serverpod supplies the project's resolved schema and handles access
+to that project. Lens interprets and displays the schema. Vyuh Diagram supplies
+the canvas, tables, connectors, layout, minimap and interactions.
 
-![Serverpod Lens schema viewer](docs/schema-map.png)
+![Serverpod Lens](docs/schema-map.png)
 
-## Explore a project
+## Package and host
 
-The initial view loads SQL declarations from the local `flutter_elog` project.
-The imported snapshot contains 396 tables across ten database schemas, including
-`public`, `sso`, `elog`, `docs_iq`, `workflow_runtime` and `assure_iq`. This is a
-source-file snapshot, not a connection to its live database. Of 536 imported
-foreign keys, 505 have targets present in the snapshot; the report lists the
-other 31. Its provenance and
-import limitations are recorded in [the schema notes](docs/elog-schema.md).
+`serverpod_lens` exposes `SchemaViewer`, `SchemaExtractor`, `ProjectAnalyzer` and
+`PostgresSchemaImporter`. Its shared model, `SchemaGraph`, lives in the pure Dart
+`serverpod_lens_schema` package. Neither package depends on a generated Serverpod
+client or initializes a backend connection.
 
-For a Serverpod project, choose **Open project** and select a ZIP containing one
-server package. Archives with multiple server packages are rejected. Lens reads
-the newest migration definition, preferring complete
-`definition.json` over `definition_project.json`. Complete definitions include
-installed modules and framework tables. A malformed newest snapshot is reported
-rather than silently replaced with an older schema.
+A Serverpod host can pass its complete migration definition directly:
 
-ZIP analysis happens locally in Flutter. It does not execute uploaded code,
-upload your project to a server or connect to your project's database.
+```dart
+import 'package:serverpod_lens/serverpod_lens.dart';
 
-On phones, the canvas fills the available space. Open **Browse schemas** to
-search or choose a schema in the navigation drawer; selecting a table closes
-the drawer and focuses its node. Desktop keeps the browser beside the canvas
-and lets you collapse it. Both light and dark modes use neutral Material colors.
+final graph = SchemaExtractor.fromDefinitionJson(
+  definitionJson,
+  source: 'My Serverpod project',
+);
 
-The viewer provides:
+// Place this inside the host's Flutter application.
+SchemaViewer(graph: graph)
+```
 
-- A **Schema** dropdown with an **All schemas** option. Filtering updates both
-  the table list and the canvas; connections appear when both ends are visible.
-- Search across table and column names. Selecting a result brings its node into view.
-- Select a table to emphasize its neighborhood and dim unrelated tables. Choose
-  incoming, outgoing or both directions, expand to two hops, and reveal related
-  tables excluded by the schema filter. Fit the context explicitly, return to
-  the previous camera, or use **Show all** to clear focus.
-- Create named, overlapping table groups with colors and notes. Inspect internal,
-  incoming and outgoing foreign keys and navigate to a related table. Groups
-  last for the opened dataset's session; opening another project clears them.
-- Native pan, zoom, node dragging, selection and minimap navigation. Clicking a
-  table animates its visible relationships with Vyuh’s native flow effect.
-- Native layered, grid, tree, force and circular layouts. The initial view uses
-  grid layout to avoid expensive startup arrangement of the full schema.
-- View settings for animation speed (0.25–3×), particles, dashes, arrows, pulse,
-  blinking and an Off option, with trail density and reverse flow controls.
-  Adjust particle radius, arrow size or dash length for each flow type; each
-  remembers its size. Active effects expose opacity, with stroke width for
-  dashes, pulse and blink. Changes apply to selected relationships immediately.
-- Orthogonal connections by default, with straight, Bézier, quadratic and
-  rounded orthogonal options. Adjust line width, dashed strokes, corner radius
-  and port leads.
-- Native alignment guides and tolerance, grid snapping and spacing, minimap
-  connections, edge panning and Fit schema. Preferences last for the session,
-  including when another project is opened.
+Passing a new graph refreshes the viewer while retaining view preferences.
+Import buttons are optional; the demo adds them. The package reads no bundled
+project and makes no request for schema data on its own.
 
-The canvas uses Vyuh's interactive surface with schema changes blocked by native
-admission rules. There are no drawing tools, editable
-cells, property panels or diagram-editing toolbars. It cannot change your models
-or database. Dragging and automatic layout rearrange the view only.
+The Serverpod backend and generated client in this workspace remain an integration
+fixture. Its authentication setup is retained. They are useful for checking
+Serverpod's resolved schema contract, but the demo does not need them to run.
+Automatic delivery from a host project and installation in Serverpod's tools
+are still integration work; this repository does not claim that upstream feature
+has shipped.
 
-## Run locally
+## Import a schema
 
-Use Flutter **3.47 or newer** and Dart **3.13 or newer**. The current checks use
-Flutter 3.47.5 and Dart 3.13.4.
+The demo has two entry points: **Import schema** for files and **Paste SQL** for
+PostgreSQL declarations.
 
-Vyuh's hosted extensions require a publisher-issued registry token:
+| Input | What Lens reads |
+| --- | --- |
+| Serverpod project ZIP | The newest migration, preferring its complete `definition.json` |
+| Migration JSON | A resolved Serverpod database definition |
+| Serverpod YAML or YAML-only ZIP | Model declarations, with partial inference clearly disclosed |
+| PostgreSQL `.sql` or pasted SQL | PostgreSQL AST, then the shared graph model; web only |
+
+A project-only migration can omit installed modules and framework tables. Lens
+warns before rendering it. Archives containing multiple server packages are
+rejected, and a broken newest migration never falls back silently to an older one.
+For the most accurate Serverpod view, use the complete resolved definition.
+
+YAML inference can recover basic columns, indexes and explicit parent relations.
+It infers a default bigint ID and resolves parent class names across imported
+files. It cannot reproduce the Serverpod compiler's implicit relation columns,
+join tables or installed-module resolution. Unsupported fields and invalid YAML
+are reported. Use a ZIP to import several related model files together.
+
+SQL follows this path:
+
+```text
+PostgreSQL text → PostgreSQL AST → SchemaGraph → Vyuh Diagram
+```
+
+The browser uses [libpg-query](https://github.com/constructive-io/libpg-query-node),
+pinned to 17.7.4, which packages PostgreSQL's C parser as WebAssembly. The bundled
+parser runs in a dedicated worker. Importing never executes SQL or sends the
+input to a remote service. Python and Node are not required to use the built app.
+
+The adapter supports CREATE TABLE, enum declarations, column and table keys,
+foreign keys, ordinary and partial indexes, and selected ALTER operations: add
+columns or constraints, change nullability, and set or drop defaults. Composite
+keys, schema-qualified references, arrays and type modifiers are retained.
+Statements such as DROP, procedural blocks and unsupported ALTER operations
+produce import notes. Review these before choosing **Render supported schema**;
+cancelling or a parse error keeps the current map. This is a declarative importer,
+not a migration execution engine. SQL input is limited to two million characters
+and parsing has a 30-second timeout. Native hosts can use `fromAst` with a
+PostgreSQL 17 AST; built-in text parsing is currently available on web.
+
+## Explore the map
+
+The schema selector includes **All schemas**. Search covers table and column
+names. Selecting a table emphasizes its relationships; choose incoming, outgoing
+or both directions, expand the neighborhood to two hops, and reveal related
+tables outside the current filter. Named groups can overlap and carry colors
+and notes. Groups belong to the opened dataset's session.
+
+The canvas supports selection, dragging, pan, zoom and minimap navigation.
+Connections use orthogonal routing by default. View settings expose Vyuh's
+straight, Bézier, quadratic and rounded orthogonal alternatives, native layouts,
+alignment guides, grid snapping and edge panning. Connection effects include
+marching dashes, particles, arrows, pulse and blink, with speed, size, density,
+reverse flow and applicable stroke and opacity controls.
+
+Phones keep the canvas visible and put search and lists in a drawer. Desktop
+shows a collapsible browser beside the canvas. The app uses neutral Material
+colors in light and dark modes. There are no drawing tools or editable table
+cells: dragging and layout change the view, never the schema or database.
+
+Composite foreign keys use one connector labelled with their column pairs and
+attach at the first pair. Missing targets cannot be drawn. Enum values and
+partial-index predicates remain in the graph; vector dimensions and some
+compiler metadata are not represented. The viewer does not introspect a running
+database or detect drift.
+
+## Run the demo
+
+Use Flutter 3.47 or newer and Dart 3.13 or newer. Vyuh's commercial extensions
+require a registry token issued by the publisher:
 
 ```sh
 dart pub token add https://pub.vyuh.tech
 flutter pub get
-cd serverpod_lens_server
-serverpod start
+cd serverpod_lens_flutter
+flutter run -d chrome
 ```
 
-Serverpod starts the backend and companion Flutter app, handles incremental
-code generation and watches for changes. The development configuration uses
-Serverpod's managed PostgreSQL database; Docker is not required. The API runs
-on port 8080. Open the Flutter URL printed by the runner.
+The demo starts with a source snapshot from `flutter_elog`: 396 tables across ten
+database schemas, 5,133 columns and 536 declared foreign keys. Of these, 505 have
+targets present in the snapshot. [Dataset notes](docs/elog-schema.md) record its
+provenance and missing references. It is not a live database connection.
 
-The native table, layout, minimap, connectors and snap-guide extensions come
-from `pub.vyuh.tech`.
-The publisher's base Diagram engine, Flutter renderer and SVG codec come from
-pub.dev. `vyuh_diagram_core` is the Diagram engine. Lens does not import the
-separate Vyuh application framework.
+To work with the Serverpod host fixture instead, run `serverpod start` from
+`serverpod_lens_server`. It manages the development database, code generation
+and companion Flutter app. The API uses port 8080; schema delivery to the viewer
+is not yet wired to an endpoint.
 
-The workspace pins the transitive `base_menu` dependency to 0.2.0 because 0.1.5
-publishes missing workspace paths that break Dart test startup.
+The table, layout, minimap, connector and snap-guide extensions come from
+`pub.vyuh.tech`. Their publisher-declared base Diagram engine, Flutter renderer
+and SVG codec dependencies come from pub.dev. `vyuh_diagram_core` is part of
+Diagram; Lens does not use the Vyuh application framework.
 
-## Serve a release build
+## Build and share
 
 ```sh
-# From serverpod_lens_flutter
+cd serverpod_lens_flutter
 flutter build web --release
 python3 -m http.server 8090 --bind 127.0.0.1 --directory build/web
 ```
 
-Open `http://localhost:8090`. To share it temporarily, run this in another terminal:
+Open `http://localhost:8090`. For a temporary public link, run
+`cloudflared tunnel --url http://127.0.0.1:8090` in another terminal. The link lasts
+while both processes run and shares the static demo, including its bundled
+snapshot. It does not expose the Serverpod API.
+
+The SQL worker and WASM are checked in as package assets. Rebuild them only when
+changing the parser or worker:
 
 ```sh
-cloudflared tunnel --url http://127.0.0.1:8090
+cd serverpod_lens/tool/sql
+npm ci
+npm test
+npm run build
 ```
 
-The printed `trycloudflare.com` link stays available while Python and cloudflared
-are running. This publishes the static schema viewer, not the local Serverpod API.
+## Code and checks
 
-## How the code is divided
+| Directory | Responsibility |
+| --- | --- |
+| `serverpod_lens_schema/` | Plain Dart model and shared migration-definition reader |
+| `serverpod_lens/` | Import adapters, schema queries, native diagram mapping and embeddable viewer |
+| `serverpod_lens_flutter/` | Demo: file picking, SQL dialog, asset loading and app theme |
+| `serverpod_lens_server/` | Serverpod host fixture and generated protocol bridge |
+| `serverpod_lens_client/` | Generated client for that host fixture; absent from viewer dependencies |
 
-```text
-Serverpod migration definition
-       ↓
-serverpod_lens_schema — one pure Dart definition reader
-       ↓
-generated SchemaGraph — server/client codec bridges
-       ↓
-SchemaDiagram — native table content, ports and connectors
-       ↓
-SchemaMapScreen — loading, search, schema filter and view settings
+`SchemaCatalog` handles search and filtering; `SchemaContext` handles directional
+neighborhoods and groups. `SchemaDiagram` maps schema meaning to Vyuh shapes.
+`SchemaViewer` owns screen interactions. The demo owns source loading.
+
+```sh
+# From the repository root
+dart analyze
+dart format --output=none --set-exit-if-changed .
+(cd serverpod_lens_schema && dart test)
+(cd serverpod_lens && flutter test)
+(cd serverpod_lens_flutter && flutter test)
+(cd serverpod_lens_server && dart test)
 ```
 
-The shared reader preserves database schema and Serverpod module as separate
-values. Table identities and referenced targets include their schema names,
-so identically named tables in different schemas do not collide.
+Tests cover migration selection, type mapping, modules, composite constraints,
+relations, real PostgreSQL AST mapping, partial import diagnostics, host graph
+refresh, native movement and effects, read-only admission rules, responsive
+navigation and contextual exploration. [Verification notes](docs/VERIFICATION.md)
+separate automated checks from remaining device and integration work. The
+workspace pins `base_menu` to 0.2.0 because 0.1.5 contains broken workspace paths.
+There are no GitHub Actions workflows or OpenCode configuration.
 
-`SchemaDiagram` maps schema semantics onto native Vyuh shapes. Vyuh owns table
-rendering, connector geometry, selection, the camera, minimap and layout.
-`SchemaCatalog` handles queries over the imported graph; `SchemaContext` caches
-directional adjacency and computes neighborhoods and group boundaries. The screen handles
-widgets and user actions. There is no second mutable schema workspace.
+## Refresh the dataset
 
-The backend remains Serverpod, with its authentication setup retained. Greeting
-screens, their endpoint and the unused sign-in wrapper have been removed.
-Generated code is changed through Serverpod's generator, never by hand.
-
-## Coverage and limits
-
-Migration extraction covers Serverpod 4.0.4's resolved column-type identifiers,
-including vectors, JSONB and geography; unfamiliar string type names are kept.
-It preserves nullability, defaults, indexes and referential actions. Composite
-unique constraints and primary keys are distinguished from individually unique
-columns. Self-references and cross-schema foreign keys use the same mapping.
-
-Composite foreign keys remain one connector, with a label listing all column
-pairs; the line attaches at the first pair. References absent from the snapshot
-cannot be drawn. Enum declarations are retained in the graph but are not separate
-canvas nodes. Partial-index predicates are retained and do not imply global uniqueness.
-Vector dimensions and some compiler metadata are not represented by the graph contract.
-
-A ZIP containing only `.spy.yaml` files uses a partial fallback parser and shows
-a warning. It does not reproduce Serverpod's complete compiler semantics. Use
-resolved migration definitions for the database view.
-
-The viewer does not introspect a running database, detect drift or automatically
-follow changes in a host project. It is not yet installed inside Serverpod's
-tools. Providing that host-project connection is the next integration milestone;
-validated schema authoring is outside this read-only feature.
-
-## Refresh the flutter_elog snapshot
-
-The offline SQL importer reads the source project without changing it. It uses
-SQLGlot, rather than implementing a SQL parser inside the Flutter app.
+The offline dataset tool remains separate from interactive SQL import. It uses
+SQLGlot to collect declarations from the external source tree without modifying it:
 
 ```sh
 python3 -m venv /tmp/lens-schema-import
 /tmp/lens-schema-import/bin/pip install sqlglot==30.21.0
 /tmp/lens-schema-import/bin/python serverpod_lens_flutter/tool/import_elog_schema.py \
   /path/to/flutter_elog/supabase/schemas
-```
-
-It writes `assets/schema_graph.json` and an import report beside it. Procedural
-DDL and some ALTER transformations remain partial; review the report when the
-source changes. `serverpod_lens_server/bin/dump_schema.dart` separately exports
-this repository's resolved Serverpod schema to `docs/serverpod-schema.json`.
-It does not overwrite the flutter_elog view.
-
-## Checks and repository layout
-
-| Location | Responsibility |
-| --- | --- |
-| `serverpod_lens_schema/` | Shared database-definition reader and tests |
-| `serverpod_lens_server/` | Serverpod backend and generated schema contract |
-| `serverpod_lens_client/` | Generated Serverpod client |
-| `serverpod_lens_flutter/lib/schema/` | Project loading, schema queries and diagram mapping |
-| `serverpod_lens_flutter/lib/screens/` | Read-only viewer UI |
-| `serverpod_lens_flutter/tool/` | Offline SQL import and SVG export |
-
-```sh
-# Repository root
-dart analyze
-dart format --output=none --set-exit-if-changed .
-cd serverpod_lens_schema && dart test
-cd ../serverpod_lens_server && dart test
-cd ../serverpod_lens_flutter && flutter test
-```
-
-Regression checks cover migration ordering and invalid snapshots, types,
-module/schema identity, composite constraints, foreign keys, native layout and
-JSON round-tripping. Canvas checks cover native node dragging, click-triggered
-connection flow and blocked schema edits while preserving content. Responsive
-checks cover the mobile drawer, desktop collapse and search state.
-Context checks cover direction and hop traversal, cycles, unresolved targets,
-overlapping groups, exact foreign-key counts, opacity restoration, camera return,
-group editing and mobile controls.
-Port offsets are checked against
-native resolved row geometry; only bound ports are exposed. Route switching
-preserves column bindings and labels. Nodes use native table styling with a flat
-header, subtle row separators and right-aligned types. The SQL importer has a
-separate Python test:
-
-```sh
 /tmp/lens-schema-import/bin/python -m unittest discover \
   -s serverpod_lens_flutter/tool -p 'test_*.py'
 ```
 
-There are no GitHub Actions workflows or OpenCode configuration in this repo.
-See [the architecture plan](docs/PLAN.md), [remaining work](docs/ROADMAP.md)
-[the project audit](docs/AUDIT.md) and [verification results](docs/VERIFICATION.md).
+It writes the graph asset and an import report. Review the report when refreshing.
+`serverpod_lens_server/bin/dump_schema.dart` separately exports the fixture's
+resolved schema to `docs/serverpod-schema.json`; it does not replace the demo asset.
 
-## Licensing
-
-No project license has been declared yet. Vyuh's hosted extensions have their
-own access and licensing terms.
+See [architecture](docs/PLAN.md), [remaining work](docs/ROADMAP.md) and
+[the audit](docs/AUDIT.md) for the integration plan and practical limits.
+No project license has been declared. Vyuh extensions have their own terms;
+SQL parser notices are included in `serverpod_lens/assets/sql/`.

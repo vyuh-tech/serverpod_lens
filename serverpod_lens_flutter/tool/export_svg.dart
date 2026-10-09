@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:serverpod_lens_flutter/schema/schema_diagram.dart';
+import 'package:serverpod_lens/serverpod_lens.dart';
 import 'package:vyuh_diagram_codec_svg/vyuh_diagram_codec_svg.dart';
 import 'package:vyuh_diagram_core/vyuh_diagram_core.dart';
 import 'package:vyuh_diagram_core/vyuh_diagram_pango.dart';

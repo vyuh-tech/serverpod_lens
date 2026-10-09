@@ -1,4 +1,4 @@
-import 'package:serverpod_lens_client/serverpod_lens_client.dart';
+import 'package:serverpod_lens/serverpod_lens.dart';
 
 SchemaGraph contextFixture() {
   SchemaForeignKey fk(String name, String target) => SchemaForeignKey(

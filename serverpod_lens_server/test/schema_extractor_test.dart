@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:test/test.dart';
+import 'package:serverpod_lens_schema/serverpod_lens_schema.dart' as plain;
+import 'package:serverpod_lens_server/src/generated/protocol.dart' as protocol;
 import 'package:serverpod_lens_server/src/schema/schema_extractor.dart';
 
 void main() {
@@ -52,6 +54,14 @@ void main() {
       }),
       source: 'fixture',
     );
+    final shared = plain.SchemaGraph.fromJson(
+      jsonDecode(jsonEncode(graph.toJson())),
+    );
+    final bridged = protocol.SchemaGraph.fromJson(
+      jsonDecode(jsonEncode(shared.toJson())),
+    );
+    expect(bridged.tables.first.foreignKeys.single.refTable, 'tenant.child');
+    expect(shared.tables.first.columns.last.defaultValue, '42');
     final table = graph.tables.first;
     expect(graph.tables.length, 2);
     expect(table.module, 'custom_module');
