@@ -47,6 +47,9 @@ The viewer provides:
   grid layout to avoid expensive startup arrangement of the full schema.
 - View settings for animation speed (0.25–3×), particles, dashes, arrows, pulse,
   blinking and an Off option, with trail density and reverse flow controls.
+  Adjust particle radius, arrow size or dash length for each flow type; each
+  remembers its size. Active effects expose opacity, with stroke width for
+  dashes, pulse and blink. Changes apply to selected relationships immediately.
 - Orthogonal connections by default, with straight, Bézier, quadratic and
   rounded orthogonal options. Adjust line width, dashed strokes, corner radius
   and port leads.

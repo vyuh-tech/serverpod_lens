@@ -83,6 +83,25 @@ final class SchemaViewPreferences {
   final _speed = Observable(1.0);
   final _reverse = Observable(false);
   final _density = Observable(12);
+  final _particleSizes = ObservableMap<SchemaAnimation, double>.of({
+    SchemaAnimation.particles: 2,
+    SchemaAnimation.dashes: 1,
+    SchemaAnimation.arrows: 4,
+  });
+  final _animationWidth = Observable(1.5);
+  final _animationOpacity = Observable(.9);
+  double get particleSize => _particleSizes[animation] ?? 2;
+  set particleSize(double value) => runInAction(() {
+    if (_particleSizes.containsKey(animation)) {
+      _particleSizes[animation] = value;
+    }
+  });
+  double get animationWidth => _animationWidth.value;
+  set animationWidth(double value) =>
+      runInAction(() => _animationWidth.value = value);
+  double get animationOpacity => _animationOpacity.value;
+  set animationOpacity(double value) =>
+      runInAction(() => _animationOpacity.value = value);
   SchemaAnimation get animation => _animation.value;
   set animation(SchemaAnimation value) =>
       runInAction(() => _animation.value = value);
@@ -116,6 +135,8 @@ final class SchemaViewPreferences {
         period: period,
         color: color,
         target: EffectTarget.stroke,
+        width: animationWidth,
+        opacity: animationOpacity,
         waveform: kind == SchemaAnimation.blink
             ? Waveform.step
             : Waveform.smooth,
@@ -128,12 +149,9 @@ final class SchemaViewPreferences {
           ? const DiagramColor(0xff737373)
           : color,
       count: density,
-      size: kind == SchemaAnimation.dashes
-          ? 1
-          : kind == SchemaAnimation.arrows
-          ? 4
-          : 2,
-      width: 1.5,
+      size: particleSize,
+      width: animationWidth,
+      opacity: animationOpacity,
       baseOpacity: kind == SchemaAnimation.dashes ? 0 : .2,
       particle: switch (kind) {
         SchemaAnimation.dashes => const EffectParticle.dash(),

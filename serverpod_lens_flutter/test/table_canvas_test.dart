@@ -73,6 +73,13 @@ void main() {
       controller.select([table.name]);
       await tester.pump();
       expect(controller.effects.playing, isNotEmpty);
+      preferences.particleSize = 6;
+      preferences.animationWidth = 3;
+      preferences.animationOpacity = .65;
+      await tester.pump();
+      expect(controller.effects.playing.first.effect!.size, 6);
+      expect(controller.effects.playing.first.effect!.width, 3);
+      expect(controller.effects.playing.first.effect!.opacity, .65);
       preferences.speed = 2;
       await tester.pump();
       expect(

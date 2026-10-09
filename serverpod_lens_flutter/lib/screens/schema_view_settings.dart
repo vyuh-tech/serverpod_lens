@@ -76,6 +76,13 @@ class _SchemaViewSettingsState extends State<SchemaViewSettings> {
             final speed = preferences.speed;
             final reverse = preferences.reverse;
             final density = preferences.density;
+            final flows =
+                animation == SchemaAnimation.particles ||
+                animation == SchemaAnimation.dashes ||
+                animation == SchemaAnimation.arrows;
+            final size = preferences.particleSize;
+            final width = preferences.animationWidth;
+            final opacity = preferences.animationOpacity;
             final guides = controller.options<SnapGuidesOptions>();
             final grid = controller.options<GridOptions>();
             final minimap = controller.options<MinimapOptions>();
@@ -129,6 +136,39 @@ class _SchemaViewSettingsState extends State<SchemaViewSettings> {
                     3,
                     32,
                     (value) => preferences.density = value.round(),
+                  ),
+                if (flows)
+                  _slider(
+                    switch (animation) {
+                      SchemaAnimation.dashes => 'Dash length',
+                      SchemaAnimation.arrows => 'Arrow size',
+                      _ => 'Particle radius',
+                    },
+                    '${(animation == SchemaAnimation.dashes ? size * 8 : size).toStringAsFixed(1)} px',
+                    size,
+                    .5,
+                    12,
+                    (value) => preferences.particleSize = value,
+                  ),
+                if (animation == SchemaAnimation.dashes ||
+                    animation == SchemaAnimation.pulse ||
+                    animation == SchemaAnimation.blink)
+                  _slider(
+                    'Animation stroke width',
+                    '${width.toStringAsFixed(1)} px',
+                    width,
+                    .5,
+                    8,
+                    (value) => preferences.animationWidth = value,
+                  ),
+                if (animation != SchemaAnimation.off)
+                  _slider(
+                    'Animation opacity',
+                    '${(opacity * 100).round()}%',
+                    opacity,
+                    .1,
+                    1,
+                    (value) => preferences.animationOpacity = value,
                   ),
                 _section('Connections'),
                 DropdownButtonFormField<SchemaConnectionStyle>(

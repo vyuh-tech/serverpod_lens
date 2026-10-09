@@ -115,6 +115,34 @@ void main() {
     },
   );
 
+  test('particle sizes are retained separately for each flow animation', () {
+    final prefs = SchemaViewPreferences();
+    for (final entry in {
+      SchemaAnimation.particles: 7.0,
+      SchemaAnimation.dashes: 3.0,
+      SchemaAnimation.arrows: 9.0,
+    }.entries) {
+      prefs.animation = entry.key;
+      prefs.particleSize = entry.value;
+      prefs.animationWidth = 4;
+      prefs.animationOpacity = .6;
+      expect(prefs.effect!.size, entry.value);
+      expect(prefs.effect!.width, 4);
+      expect(prefs.effect!.opacity, .6);
+    }
+    prefs.animation = SchemaAnimation.particles;
+    expect(prefs.particleSize, 7);
+    prefs.animation = SchemaAnimation.dashes;
+    expect(prefs.particleSize, 3);
+    prefs.animation = SchemaAnimation.arrows;
+    expect(prefs.particleSize, 9);
+    prefs.animation = SchemaAnimation.pulse;
+    expect(prefs.effect!.width, 4);
+    expect(prefs.effect!.opacity, .6);
+    prefs.animation = SchemaAnimation.off;
+    expect(prefs.effect, isNull);
+  });
+
   test('all animation choices and speed limits build valid native effects', () {
     final prefs = SchemaViewPreferences();
     expect(prefs.connectionStyle, SchemaConnectionStyle.orthogonal);

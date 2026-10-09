@@ -80,6 +80,26 @@ void main() {
       }
       expect(find.byType(TextField), findsOneWidget);
       expect(find.text('No matching tables'), findsOneWidget);
+      await tester.tap(find.byTooltip('Schema view settings'));
+      await tester.pumpAndSettle();
+      expect(find.text('Dash length'), findsOneWidget);
+      expect(find.text('Animation stroke width'), findsOneWidget);
+      expect(find.text('Animation opacity'), findsOneWidget);
+      await tester.tap(find.text('Marching dashes'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Particles').last);
+      await tester.pumpAndSettle();
+      expect(find.text('Particle radius'), findsOneWidget);
+      expect(find.text('Dash length'), findsNothing);
+      expect(find.text('Animation stroke width'), findsNothing);
+      await tester.tap(find.text('Particles'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Off').last);
+      await tester.pumpAndSettle();
+      expect(find.text('Particle radius'), findsNothing);
+      expect(find.text('Animation opacity'), findsNothing);
+      await tester.tap(find.text('Done'));
+      await tester.pumpAndSettle();
       final width = tester.getSize(find.byType(DiagramCanvas)).width;
       await tester.tap(find.byTooltip('Collapse schema browser'));
       await tester.pumpAndSettle();
