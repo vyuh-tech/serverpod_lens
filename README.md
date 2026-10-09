@@ -38,7 +38,13 @@ The viewer provides:
   table animates its visible relationships with Vyuh’s native flow effect.
 - Native layered, grid, tree, force and circular layouts. The initial view uses
   grid layout to avoid expensive startup arrangement of the full schema.
-- View settings for the background grid and minimap.
+- View settings for animation speed (0.25–3×), particles, dashes, arrows, pulse,
+  blinking and an Off option, with trail density and reverse flow controls.
+- Straight, Bézier, quadratic and sharp or rounded orthogonal connections,
+  with line width, dashed strokes, corner radius and port lead controls.
+- Native alignment guides and tolerance, grid snapping and spacing, minimap
+  connections, edge panning and Fit schema. Preferences last for the session,
+  including when another project is opened.
 
 The canvas uses Vyuh's interactive surface with schema changes blocked by native
 admission rules. There are no drawing tools, editable
@@ -64,7 +70,8 @@ code generation and watches for changes. The development configuration uses
 Serverpod's managed PostgreSQL database; Docker is not required. The API runs
 on port 8080. Open the Flutter URL printed by the runner.
 
-The native table, layout and minimap extensions come from `pub.vyuh.tech`.
+The native table, layout, minimap, connectors and snap-guide extensions come
+from `pub.vyuh.tech`.
 The publisher's base Diagram engine, Flutter renderer and SVG codec come from
 pub.dev. `vyuh_diagram_core` is the Diagram engine. Lens does not import the
 separate Vyuh application framework.
@@ -180,7 +187,10 @@ cd ../serverpod_lens_flutter && flutter test
 Regression checks cover migration ordering and invalid snapshots, types,
 module/schema identity, composite constraints, foreign keys, native layout and
 JSON round-tripping. The canvas test checks native node dragging, click-triggered connection flow and
-blocked deletion while preserving schema content. The SQL importer has a separate Python test:
+blocked deletion while preserving schema content. Port offsets are checked against
+native resolved row geometry; only bound ports are exposed. Route switching
+preserves column bindings and labels. Nodes use native table styling with a flat
+header, subtle row separators and right-aligned types. The SQL importer has a separate Python test:
 
 ```sh
 /tmp/lens-schema-import/bin/python -m unittest discover \

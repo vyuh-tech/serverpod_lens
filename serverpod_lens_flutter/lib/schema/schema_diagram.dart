@@ -44,9 +44,9 @@ abstract final class SchemaDiagram {
           size: DiagramSize(nodeWidth, heightOf(table)),
           style: ShapeStyle(
             fill: const DiagramColor(0xffffffff),
-            stroke: moduleColor(table.schema),
-            strokeWidth: 2,
-            cornerRadius: 8,
+            stroke: const DiagramColor(0xffcbd5e1),
+            strokeWidth: 1,
+            cornerRadius: 6,
           ),
           values: {'schema': table.toJson()},
           textStory: _story(table),
@@ -114,6 +114,58 @@ abstract final class SchemaDiagram {
         }
       }
     }).requireAllowed();
+    // Single-line native table rows use measured heights, not authored rowHeight.
+    // Bind ports to the resolved cell centres rather than approximating offsets.
+    final connectedPorts = <String>{};
+    for (final edge in target.document.elements.whereType<ConnectorElement>()) {
+      for (final endpoint in [edge.start, edge.end]) {
+        if (endpoint is BoundEndpoint && endpoint.portId != null) {
+          connectedPorts.add(endpoint.portId!);
+        }
+      }
+    }
+    final aligned = <String, List<Port>>{};
+    for (final table in graph.tables) {
+      final layout = target.resolvedTable(table.name, '${table.name}-columns');
+      if (layout == null) continue;
+      final top = target.scene.shapeById(table.name)!.source.frame.top;
+      aligned[table.name] = [
+        for (var i = 0; i < table.columns.length; i++)
+          for (final side in const [PortSide.left, PortSide.right])
+            if (connectedPorts.contains(
+              _portId(
+                table.name,
+                table.columns[i].name,
+                side == PortSide.left ? 'l' : 'r',
+              ),
+            ))
+              Port(
+                id: _portId(
+                  table.name,
+                  table.columns[i].name,
+                  side == PortSide.left ? 'l' : 'r',
+                ),
+                side: side,
+                offsetKind: PortOffsetMode.distanceFromStart,
+                offset:
+                    layout.cells
+                        .firstWhere((cell) => cell.row == i)
+                        .bounds
+                        .center
+                        .y -
+                    top,
+                width: 4,
+                height: 4,
+                stroke: const DiagramColor(0xff64748b),
+                strokeWidth: 1,
+              ),
+      ];
+    }
+    target.edits.batch('Align column ports', () {
+      for (final entry in aligned.entries) {
+        target.edits.setPorts(entry.value, ids: [entry.key]).requireAllowed();
+      }
+    }).requireAllowed();
     await target.layout(
       layout ??
           Layout.layered(
@@ -140,7 +192,20 @@ abstract final class SchemaDiagram {
           TextParagraph(
             id: '$id-text',
             slotId: id,
-            runs: [TextRun(text, fontSize: 11)],
+            alignment: column == 'type'
+                ? ParagraphAlignment.end
+                : column == 'key'
+                ? ParagraphAlignment.center
+                : ParagraphAlignment.start,
+            runs: [
+              TextRun(
+                text,
+                fontSize: column == 'name' ? 11 : 10,
+                color: column == 'name'
+                    ? const DiagramColor(0xff1f2937)
+                    : const DiagramColor(0xff64748b),
+              ),
+            ],
           ),
         ],
       );
@@ -155,9 +220,11 @@ abstract final class SchemaDiagram {
           role: TextRole.title,
           runs: [
             TextRun(
-              table.name,
+              table.name.startsWith('${table.schema}.')
+                  ? table.name.substring(table.schema.length + 1)
+                  : table.name,
               fontSize: 13,
-              color: const DiagramColor(0xffffffff),
+              color: const DiagramColor(0xff1f2937),
             ),
           ],
         ),
@@ -166,7 +233,13 @@ abstract final class SchemaDiagram {
         TextTable(
           id: '${table.name}-columns',
           slotId: 'columns',
-          cellPadding: 4,
+          cellPadding: 6,
+          outerBorder: const DiagramBorder(width: 0),
+          rowBorder: const DiagramBorder(
+            color: DiagramColor(0xffe2e8f0),
+            width: .6,
+          ),
+          columnBorder: const DiagramBorder(width: 0),
           columns: [
             DiagramTableColumn(id: '${table.name}::track-key', width: 30),
             DiagramTableColumn(id: '${table.name}::track-name', width: 210),
@@ -258,9 +331,11 @@ final class SchemaTableExtension extends DiagramExtension {
               ShapeSized(
                 extent: SchemaDiagram.headerHeight,
                 child: const ShapeSurface(
+                  outline: ShapeOutline.rect(cornerRadius: false),
                   style: ShapeStyle(
-                    fill: DiagramColor(0xff1e293b),
+                    fill: DiagramColor(0xfff1f5f9),
                     strokeWidth: 0,
+                    cornerRadius: 0,
                   ),
                   child: ShapeText(
                     'title',

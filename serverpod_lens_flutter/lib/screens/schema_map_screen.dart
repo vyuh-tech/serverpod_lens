@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:file_selector/file_selector.dart';
+import 'package:vyuh_diagram_extension_snap_guides/vyuh_diagram_extension_snap_guides.dart';
+import 'package:vyuh_diagram_extension_connectors/vyuh_diagram_extension_connectors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -16,6 +18,7 @@ import '../schema/project_analyzer.dart';
 import '../schema/schema_catalog.dart';
 import '../schema/schema_diagram.dart';
 import '../schema/schema_view_interactions.dart';
+import 'schema_view_settings.dart';
 
 /// Schema search and filtering around Vyuh's native read-only canvas.
 class SchemaMapScreen extends StatefulWidget {
@@ -26,6 +29,7 @@ class SchemaMapScreen extends StatefulWidget {
 }
 
 class _SchemaMapScreenState extends State<SchemaMapScreen> {
+  final _preferences = SchemaViewPreferences();
   ReactionDisposer? _selectionWatcher;
   SchemaGraph? _graph;
   DiagramController? _controller;
@@ -64,16 +68,31 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
       configuration: DiagramConfiguration(
         extensions: [
           schemaViewInteractions,
+          ConnectorsExtension(),
+          SnapGuidesExtension(
+            enabled: _preferences.snapGuides,
+            tolerance: _preferences.snapTolerance,
+          ),
           SchemaTableExtension(),
           const LayoutExtension(),
           TableFlutterExtension(),
           MinimapExtension(
+            visible: _preferences.minimap,
             initiallyExpanded: true,
             alignment: Alignment.bottomRight,
-            policy: const DiagramMinimapPolicy(showConnections: true),
+            policy: DiagramMinimapPolicy(
+              showConnections: _preferences.minimapConnections,
+            ),
           ),
-          NavigationExtension(fitOnAttach: true),
-          GridExtension(),
+          NavigationExtension(
+            fitOnAttach: true,
+            edgePanEnabled: _preferences.edgePan,
+          ),
+          GridExtension(
+            visible: _preferences.grid,
+            snap: _preferences.snap,
+            size: _preferences.gridSize,
+          ),
         ],
       ),
     );
@@ -83,6 +102,8 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
         controller: controller,
         layout: Layout.grid(columns: 12, gap: 56),
       );
+      controller.diagram.setRules(schemaViewRules);
+      applySchemaConnections(controller, _preferences);
     } catch (_) {
       controller.dispose();
       rethrow;
@@ -91,9 +112,11 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
       controller.dispose();
       return;
     }
-    controller.diagram.setRules(schemaViewRules);
     _selectionWatcher?.call();
-    _selectionWatcher = watchSchemaSelection(controller);
+    _selectionWatcher = watchSchemaSelection(
+      controller,
+      preferences: _preferences,
+    );
     final previous = _controller;
     setState(() {
       _controller = controller;
@@ -208,58 +231,8 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
     if (controller == null) return;
     await showDialog<void>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('View settings'),
-        content: SizedBox(
-          width: 380,
-          child: SingleChildScrollView(
-            child: Observer(
-              builder: (_) {
-                final grid = controller.options<GridOptions>();
-                final minimap = controller.options<MinimapOptions>();
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Canvas',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    SwitchListTile(
-                      title: const Text('Show grid'),
-                      subtitle: const Text(
-                        'Add a background guide to the canvas',
-                      ),
-                      value: grid.visible,
-                      onChanged: (value) =>
-                          controller.setOptions(grid.copyWith(visible: value)),
-                    ),
-                    SwitchListTile(
-                      title: const Text('Show minimap'),
-                      subtitle: const Text(
-                        'Navigate the whole schema at a glance',
-                      ),
-                      value: minimap.visible,
-                      onChanged: (value) => controller.setOptions(
-                        minimap.copyWith(visible: value),
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Done'),
-          ),
-        ],
-      ),
+      builder: (_) =>
+          SchemaViewSettings(controller: controller, preferences: _preferences),
     );
   }
 

@@ -31,7 +31,9 @@ and serialization. No custom minimap, renderer, layout or effect engine exists.
 A small configuration enables Vyuh's native interactive surface without the editor
 shell. Nodes can move and selecting a table plays native connection flow. Native
 admission rules allow positions and visibility only, rejecting content changes,
-creation, deletion, resizing and rewiring. Table cells remain non-editable.
+creation, deletion, resizing and rewiring. Connection appearance changes use
+Vyuh’s hosted connector extension. Native resolved table cells supply precise
+column-port offsets. Table cells remain non-editable.
 
 ## UI
 
@@ -39,6 +41,8 @@ creation, deletion, resizing and rewiring. Table cells remain non-editable.
 loading, search, schema selection and view settings. Selecting a schema filters nodes
 and connections with both endpoints visible. Selecting All restores the full graph.
 Search narrows the list; selecting a result navigates to its native node.
+View settings configure native effects, routing, alignment guides, grid snapping
+and navigation. Preferences survive source changes during the session.
 
 ## Serverpod integration
 

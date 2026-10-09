@@ -39,13 +39,17 @@ needed. Authentication initialization remains in the Serverpod backend.
 | Real database schemas and All filtering | Ten SQL schema groups; table list and canvas filter by schema |
 | No sample/dogfood labels | Removed from the UI and dataset source |
 | Native minimap and automatic layout | Hosted Vyuh extensions retained |
-| Neater view settings | Grid and minimap grouped in a scrollable view dialog |
+| Neater view settings | Animation, connections and canvas options in a scrollable dialog |
 | Shared reader and focused regressions | Shared reader, ZIP selection, types, identity, relations and native viewer tests |
 | Documentation consistent with code | README, architecture, source notes and roadmap rewritten |
 
 The native effects API requires the interactive canvas. A later interaction
 update enables native node dragging and connection flow on selection, with
-admission rules rejecting content changes. Editor chrome remains absent.
+admission rules rejecting content changes. Editor chrome remains absent. Settings expose native effects, connector routes
+and snap guides. Ports now follow measured native cell centres, rather than
+assuming authored row heights. Appearance changes preserve relation bindings. Unconnected ports are omitted,
+headers have square lower corners, and native row separators replace the heavy
+cell grid. Marching dashes use the native dash particle with an adjustable count.
 
 The SQL importer now preserves declared types/defaults, PKs, unique constraints,
 indexes, referential actions and basic ADD COLUMN statements. The current source
@@ -67,7 +71,7 @@ unsupported SQL and every unresolved target; this is not a lossless live catalog
   Missing referenced tables do not get fabricated nodes.
 - ZIP parsing runs synchronously and assumes one server package. Multiple server
   archives reject. Large archive limits, memory and responsiveness need measurement.
-- Large-schema frame time, keyboard accessibility and persistent view preferences
+- Large-schema frame time, keyboard accessibility and preferences across app restarts
   still need dedicated verification beyond the current functional checks.
 - A project license and hosted-package redistribution terms must be settled before
   presenting this as an adoptable distributed Serverpod component.

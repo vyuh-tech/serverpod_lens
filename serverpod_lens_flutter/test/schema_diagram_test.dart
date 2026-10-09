@@ -82,7 +82,35 @@ void main() {
           content.rows.length,
           table.columns.isEmpty ? 1 : table.columns.length,
         );
-        expect(shape.ports.length, table.columns.length * 2);
+        final boundPortIds = {
+          for (final edge in edges)
+            for (final endpoint in [edge.start, edge.end])
+              if (endpoint is BoundEndpoint &&
+                  endpoint.elementId == table.name &&
+                  endpoint.portId != null)
+                endpoint.portId!,
+        };
+        expect(shape.ports.map((port) => port.id).toSet(), boundPortIds);
+        final resolved = controller.resolvedTable(
+          table.name,
+          '${table.name}-columns',
+        )!;
+        for (var row = 0; row < table.columns.length; row++) {
+          final centre =
+              resolved.cells
+                  .firstWhere((cell) => cell.row == row)
+                  .bounds
+                  .center
+                  .y -
+              shape.frame.top;
+          for (final port in shape.ports.where(
+            (port) =>
+                port.id == '${table.name}::${table.columns[row].name}::l' ||
+                port.id == '${table.name}::${table.columns[row].name}::r',
+          )) {
+            expect(port.offset, closeTo(centre, .001));
+          }
+        }
         for (var index = 0; index < table.columns.length; index++) {
           expect(
             content.rows[index].cells[1].blocks.single.plainText,

@@ -86,3 +86,10 @@ and two server tests pass. The backend and companion web app start successfully.
 
 B09–B11, B17 and the remaining B20 profiling work stay open. See AUDIT.md for
 current verification and integration limits rather than the earlier baseline.
+
+## View interaction settings
+
+Native connector styles, effect speed/type/direction, alignment guides and grid
+snapping are now exposed in view settings. B17 is resolved for source changes
+within a session; preferences are not yet saved across app restarts. Port offsets
+use native resolved table-cell geometry, fixing fixed-height alignment drift.

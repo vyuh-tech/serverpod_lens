@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:vyuh_diagram_extension_connectors/vyuh_diagram_extension_connectors.dart';
+import 'package:vyuh_diagram_extension_snap_guides/vyuh_diagram_extension_snap_guides.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -11,6 +14,7 @@ import 'package:vyuh_diagram_extension_minimap/vyuh_diagram_extension_minimap.da
 import 'package:vyuh_diagram_extension_table_flutter/vyuh_diagram_extension_table_flutter.dart';
 import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
 import 'package:vyuh_diagram_core/extension_api.dart';
+import 'package:vyuh_diagram_extension_table/extension_api.dart';
 
 void main() {
   testWidgets(
@@ -30,6 +34,8 @@ void main() {
         configuration: DiagramConfiguration(
           extensions: [
             schemaViewInteractions,
+            ConnectorsExtension(),
+            SnapGuidesExtension(),
             SchemaTableExtension(),
             const LayoutExtension(),
             TableFlutterExtension(),
@@ -41,7 +47,11 @@ void main() {
         () => SchemaDiagram.build(graph, controller: controller),
       );
       controller.diagram.setRules(schemaViewRules);
-      final stopWatching = watchSchemaSelection(controller);
+      final preferences = SchemaViewPreferences();
+      final stopWatching = watchSchemaSelection(
+        controller,
+        preferences: preferences,
+      );
       await tester.pumpWidget(
         MaterialApp(
           localizationsDelegates: GlobalMaterialLocalizations.delegates,
@@ -63,10 +73,45 @@ void main() {
       controller.select([table.name]);
       await tester.pump();
       expect(controller.effects.playing, isNotEmpty);
+      preferences.speed = 2;
+      await tester.pump();
+      expect(
+        controller.effects.playing.first.effect!.period,
+        const Duration(milliseconds: 800),
+      );
+      preferences.animation = SchemaAnimation.blink;
+      await tester.pump();
+      expect(controller.effects.playing.first.effect!.kind, EffectKind.pulse);
+      expect(controller.effects.playing.first.effect!.waveform, Waveform.step);
+      preferences.animation = SchemaAnimation.off;
+      await tester.pump();
+      expect(controller.effects.playing, isEmpty);
+      preferences.animation = SchemaAnimation.particles;
+      await tester.pump();
       controller.effects.stopAll();
       await controller.view.show(ViewTarget.element(table.name));
       await tester.pumpAndSettle();
       final shape = controller.document.elementById(table.name) as ShapeElement;
+      final nativeTable = controller.resolvedTable(
+        table.name,
+        '${table.name}-columns',
+      )!;
+      final cellId =
+          '${shape.ports.first.id.substring(0, shape.ports.first.id.length - 3)}::key';
+      expect(
+        shape.ports.first.offset,
+        closeTo(
+          nativeTable.cells
+                  .firstWhere(
+                    (cell) => cell.source.id == cellId,
+                  )
+                  .bounds
+                  .center
+                  .y -
+              shape.frame.top,
+          .001,
+        ),
+      );
       final header = controller.camera.worldToScreen(
         DiagramPoint(shape.frame.left + 180, shape.frame.top + 18),
       );
@@ -81,6 +126,19 @@ void main() {
       expect(moved.frame, isNot(shape.frame));
       expect(moved.copyWith(frame: shape.frame), shape);
       controller.effects.stopAll();
+      final edgeBefore = controller.document.elements
+          .whereType<ConnectorElement>()
+          .first;
+      for (final style in SchemaConnectionStyle.values) {
+        preferences.connectionStyle = style;
+        applySchemaConnections(controller, preferences);
+        final edge =
+            controller.document.elementById(edgeBefore.id) as ConnectorElement;
+        expect(edge.route, style.route);
+        expect(edge.start, edgeBefore.start);
+        expect(edge.end, edgeBefore.end);
+        expect(edge.labels, edgeBefore.labels);
+      }
       final afterMove = controller.document;
       await tester.sendKeyEvent(LogicalKeyboardKey.delete);
       expect(controller.document, same(afterMove));

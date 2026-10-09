@@ -1852,6 +1852,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.5.1"
+  vyuh_diagram_extension_connectors:
+    dependency: transitive
+    description:
+      name: vyuh_diagram_extension_connectors
+      sha256: ac87f56dc1ec37f7d29e8527c07fc3397d43df621474f71d9a7806b4726f738e
+      url: "https://pub.vyuh.tech"
+    source: hosted
+    version: "3.5.1"
   vyuh_diagram_extension_layout:
     dependency: transitive
     description:
@@ -1865,6 +1873,14 @@ packages:
     description:
       name: vyuh_diagram_extension_minimap
       sha256: e394f11766f91244180550d609a9e01392a655ae4259983194a43d33f16c381b
+      url: "https://pub.vyuh.tech"
+    source: hosted
+    version: "3.5.1"
+  vyuh_diagram_extension_snap_guides:
+    dependency: transitive
+    description:
+      name: vyuh_diagram_extension_snap_guides
+      sha256: "067162ee2a2473b3addaa01d637f542340b6c1139287ae97057ae79294e5ff92"
       url: "https://pub.vyuh.tech"
     source: hosted
     version: "3.5.1"
