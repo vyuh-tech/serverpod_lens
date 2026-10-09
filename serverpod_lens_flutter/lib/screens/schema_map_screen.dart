@@ -2,9 +2,9 @@ import 'dart:typed_data';
 
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show Clipboard, ClipboardData, rootBundle;
 import 'package:serverpod_lens_client/serverpod_lens_client.dart'
-    show SchemaGraph, SchemaModule, SchemaTable;
+    show SchemaColumn, SchemaGraph, SchemaModule, SchemaTable;
 import 'package:vyuh_diagram_flutter/adapter.dart'
     show DiagramRenderPolicy, RenderingExtension;
 import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
@@ -17,6 +17,7 @@ import '../schema/podlens_table_extension.dart';
 import '../schema/podlens_view_extension.dart';
 import '../schema/project_analyzer.dart';
 import '../schema/schema_diagram.dart';
+import '../schema/schema_workspace.dart';
 
 const _kAll = 'All';
 
@@ -38,6 +39,7 @@ class SchemaMapScreen extends StatefulWidget {
 class _SchemaMapScreenState extends State<SchemaMapScreen> {
   SchemaGraph? _graph;
   DiagramController? _controller;
+  SchemaWorkspace? _workspace;
   final LensState _lens = LensState();
   Object? _error;
 
@@ -70,10 +72,11 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
     final columnsByTable = {
       for (final t in graph.tables) t.name: [for (final c in t.columns) c.name],
     };
+    final workspace = SchemaWorkspace(graph.tables);
     final controller = DiagramController(
       configuration: DiagramConfiguration(
         extensions: [
-          PodLensTableExtension(graph.tables, lens: _lens),
+          PodLensTableExtension(workspace: workspace, lens: _lens),
           PodLensSignalsExtension(lens: _lens, columnsByTable: columnsByTable),
           PodLensMinimapExtension(lens: _lens, colors: colors),
           const PodLensViewExtension(),
@@ -91,6 +94,7 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
     setState(() {
       _graph = graph;
       _controller = controller;
+      _workspace = workspace;
       _sourceLabel = label ?? graph.source;
       _selectedModule = _kAll;
       _selectedTable = null;
@@ -216,6 +220,161 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
     SchemaDiagram.applyLayout(controller, SchemaDiagram.positionsFor(graph, layout));
   }
 
+  Future<void> _addTable() async {
+    final spec = await showDialog<_NewTable>(
+      context: context,
+      builder: (context) => const _AddTableDialog(),
+    );
+    final workspace = _workspace;
+    final controller = _controller;
+    if (spec == null || workspace == null || controller == null) return;
+
+    final columns = <SchemaColumn>[
+      if (!spec.columns.any((c) => c.name == 'id'))
+        SchemaColumn(
+          name: 'id',
+          fieldName: 'id',
+          dartType: 'UuidValue?',
+          dbType: 'uuid',
+          isNullable: true,
+          isPrimaryKey: true,
+          isUnique: false,
+          defaultValue: 'random',
+        ),
+      ...spec.columns,
+    ];
+    final table = SchemaTable(
+      name: spec.name,
+      className: _pascal(spec.name),
+      schema: 'public',
+      module: spec.module,
+      documentation: null,
+      columns: columns,
+      foreignKeys: const [],
+      indexes: const [],
+    );
+    if (!workspace.addTable(table)) {
+      _showMessage('Table "${spec.name}" already exists.');
+      return;
+    }
+    final center = controller.camera.center;
+    controller.edits.createShape(
+      SchemaDiagram.tableShapeType,
+      id: table.name,
+      at: DiagramPoint(
+        center.x - SchemaDiagram.nodeWidth / 2,
+        center.y - SchemaDiagram.heightOf(table) / 2,
+      ),
+      size: DiagramSize(SchemaDiagram.nodeWidth, SchemaDiagram.heightOf(table)),
+      text: table.name,
+      ports: SchemaDiagram.portsFor(table),
+    );
+    _showMessage('Added table ${table.name}');
+  }
+
+  Future<void> _addColumn() async {
+    final tableId = _selectedTable;
+    if (tableId == null) {
+      _showMessage('Select a table first.');
+      return;
+    }
+    final column = await showDialog<SchemaColumn>(
+      context: context,
+      builder: (context) => const _AddColumnDialog(),
+    );
+    final workspace = _workspace;
+    final controller = _controller;
+    if (column == null || workspace == null || controller == null) return;
+
+    workspace.addColumn(tableId, column);
+    final table = workspace.table(tableId);
+    if (table == null) return;
+    DiagramRect? frame;
+    for (final element in controller.document.elements) {
+      if (element is ShapeElement && element.id == tableId) {
+        frame = element.frame;
+        break;
+      }
+    }
+    if (frame != null) {
+      controller.edits.setElementBounds(
+        tableId,
+        DiagramRect.fromLTWH(
+          frame.left,
+          frame.top,
+          SchemaDiagram.nodeWidth,
+          SchemaDiagram.heightOf(table),
+        ),
+      );
+    }
+    controller.edits.setPorts(SchemaDiagram.portsFor(table), ids: [tableId]);
+  }
+
+  Future<void> _exportModels() async {
+    final workspace = _workspace;
+    if (workspace == null) return;
+    final buffer = StringBuffer();
+    for (final table in workspace.tables) {
+      buffer
+        ..writeln(_modelYaml(table))
+        ..writeln();
+    }
+    final text = buffer.toString();
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Export .spy.yaml'),
+        content: SizedBox(
+          width: 640,
+          height: 480,
+          child: SingleChildScrollView(
+            child: SelectableText(
+              text,
+              style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: text));
+              Navigator.of(context).pop();
+              _showMessage('Copied .spy.yaml to clipboard');
+            },
+            child: const Text('Copy'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _modelYaml(SchemaTable table) {
+    final buffer = StringBuffer()
+      ..writeln('class: ${table.className}')
+      ..writeln('table: ${table.name}')
+      ..writeln('fields:');
+    for (final column in table.columns) {
+      final field = StringBuffer('  ${column.fieldName}: ${column.dartType}');
+      for (final fk in table.foreignKeys) {
+        if (fk.columns.length == 1 && fk.columns.first == column.name) {
+          field.write(', relation(parent=${fk.refTable})');
+          break;
+        }
+      }
+      buffer.writeln(field);
+    }
+    return buffer.toString();
+  }
+
+  static String _pascal(String name) {
+    final parts = name.split(RegExp('[^0-9a-zA-Z]+')).where((p) => p.isNotEmpty);
+    return parts.map((p) => p[0].toUpperCase() + p.substring(1)).join();
+  }
+
   void _selectTable(String tableId) {
     final controller = _controller;
     if (controller == null) return;
@@ -309,6 +468,31 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
                   tooltip: 'Settings',
                   icon: const Icon(Icons.settings_outlined),
                   onPressed: _openSettings,
+                ),
+                PopupMenuButton<String>(
+                  tooltip: 'More',
+                  icon: const Icon(Icons.more_vert),
+                  onSelected: (value) {
+                    switch (value) {
+                      case 'add_table':
+                        _addTable();
+                      case 'add_column':
+                        _addColumn();
+                      case 'export':
+                        _exportModels();
+                    }
+                  },
+                  itemBuilder: (context) => const [
+                    PopupMenuItem(value: 'add_table', child: Text('Add table')),
+                    PopupMenuItem(
+                      value: 'add_column',
+                      child: Text('Add column to selected table'),
+                    ),
+                    PopupMenuItem(
+                      value: 'export',
+                      child: Text('Export .spy.yaml'),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -632,4 +816,221 @@ class _SectionLabel extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// Spec returned by the Add-table dialog.
+class _NewTable {
+  const _NewTable(this.name, this.module, this.columns);
+
+  final String name;
+  final String module;
+  final List<SchemaColumn> columns;
+}
+
+String _dbTypeFor(String dartType) {
+  final t = dartType.replaceAll('?', '').trim();
+  if (t.startsWith('List<')) return 'array';
+  return switch (t) {
+    'UuidValue' => 'uuid',
+    'String' => 'text',
+    'int' => 'int',
+    'BigInt' => 'bigint',
+    'double' => 'double',
+    'bool' => 'boolean',
+    'DateTime' => 'timestamp',
+    'ByteData' => 'bytea',
+    _ => 'text',
+  };
+}
+
+class _AddTableDialog extends StatefulWidget {
+  const _AddTableDialog();
+
+  @override
+  State<_AddTableDialog> createState() => _AddTableDialogState();
+}
+
+class _AddTableDialogState extends State<_AddTableDialog> {
+  final _name = TextEditingController();
+  final _columns = TextEditingController(text: 'name: String');
+  String _module = 'public';
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _columns.dispose();
+    super.dispose();
+  }
+
+  List<SchemaColumn> _parseColumns() {
+    final columns = <SchemaColumn>[];
+    for (final raw in _columns.text.split('\n')) {
+      final line = raw.trim();
+      if (line.isEmpty || !line.contains(':')) continue;
+      final i = line.indexOf(':');
+      final field = line.substring(0, i).trim();
+      final type = line.substring(i + 1).trim();
+      if (field.isEmpty || type.isEmpty) continue;
+      columns.add(SchemaColumn(
+        name: field,
+        fieldName: field,
+        dartType: type,
+        dbType: _dbTypeFor(type),
+        isNullable: type.endsWith('?'),
+        isPrimaryKey: field == 'id',
+        isUnique: false,
+        defaultValue: null,
+      ));
+    }
+    return columns;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Add table'),
+      content: SizedBox(
+        width: 420,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: _name,
+              decoration: const InputDecoration(
+                labelText: 'Table name (snake_case)',
+              ),
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              initialValue: _module,
+              decoration: const InputDecoration(labelText: 'Module'),
+              items: const [
+                DropdownMenuItem(value: 'public', child: Text('public')),
+                DropdownMenuItem(value: 'sso', child: Text('sso')),
+                DropdownMenuItem(value: 'elog', child: Text('elog')),
+                DropdownMenuItem(value: 'main', child: Text('main')),
+              ],
+              onChanged: (v) => setState(() => _module = v ?? 'public'),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _columns,
+              maxLines: 6,
+              style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
+              decoration: const InputDecoration(
+                labelText: 'Columns (one per line: field: Type)',
+                alignLabelWithHint: true,
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () {
+            final name = _name.text.trim();
+            if (name.isEmpty) return;
+            Navigator.of(context).pop(
+              _NewTable(name, _module, _parseColumns()),
+            );
+          },
+          child: const Text('Add'),
+        ),
+      ],
+    );
+  }
+}
+
+class _AddColumnDialog extends StatefulWidget {
+  const _AddColumnDialog();
+
+  @override
+  State<_AddColumnDialog> createState() => _AddColumnDialogState();
+}
+
+class _AddColumnDialogState extends State<_AddColumnDialog> {
+  final _name = TextEditingController();
+  String _type = 'String';
+
+  static const _types = [
+    'String',
+    'String?',
+    'int',
+    'int?',
+    'bool',
+    'bool?',
+    'double',
+    'double?',
+    'DateTime',
+    'DateTime?',
+    'UuidValue',
+    'UuidValue?',
+  ];
+
+  @override
+  void dispose() {
+    _name.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Add column'),
+      content: SizedBox(
+        width: 360,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _name,
+              decoration: const InputDecoration(
+                labelText: 'Field name (camelCase)',
+              ),
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              initialValue: _type,
+              decoration: const InputDecoration(labelText: 'Type'),
+              items: [
+                for (final t in _types)
+                  DropdownMenuItem(value: t, child: Text(t)),
+              ],
+              onChanged: (v) => setState(() => _type = v ?? 'String'),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () {
+            final name = _name.text.trim();
+            if (name.isEmpty) return;
+            Navigator.of(context).pop(
+              SchemaColumn(
+                name: name,
+                fieldName: name,
+                dartType: _type,
+                dbType: _dbTypeFor(_type),
+                isNullable: _type.endsWith('?'),
+                isPrimaryKey: name == 'id',
+                isUnique: false,
+                defaultValue: null,
+              ),
+            );
+          },
+          child: const Text('Add'),
+        ),
+      ],
+    );
+  }
 }

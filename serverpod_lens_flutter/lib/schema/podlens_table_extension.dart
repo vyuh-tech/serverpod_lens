@@ -7,38 +7,32 @@ import 'package:vyuh_diagram_flutter/extension_api.dart';
 
 import 'lens_state.dart';
 import 'schema_diagram.dart';
+import 'schema_workspace.dart';
 
 /// Installs the `podlens.table` shape and the Flutter widget that renders a
 /// schema table as a dbdiagram.io-style card (colored header + column rows).
 ///
-/// The widget reads its table from a map captured at construction, keyed by the
-/// shape id (the table name). Row metrics match [SchemaDiagram.rowHeight] /
-/// [SchemaDiagram.headerHeight] so foreign-key ports line up with the rows.
-///
-/// View settings come from [lens] so toggling them updates the cards in place,
-/// without rebuilding the diagram.
+/// The card reads its table from [workspace], so adding a column updates the
+/// node live. View settings come from [lens]. Row metrics match
+/// [SchemaDiagram.rowHeight] / [SchemaDiagram.headerHeight] so foreign-key
+/// ports line up with the rows.
 final class PodLensTableExtension extends DiagramFlutterExtension {
-  factory PodLensTableExtension(
-    List<SchemaTable> tables, {
-    required LensState lens,
-  }) {
-    return PodLensTableExtension._({
-      for (final table in tables) table.name: table,
-    }, lens);
-  }
-
-  PodLensTableExtension._(
-    Map<String, SchemaTable> tables,
-    LensState lens,
-  ) : super(
+  PodLensTableExtension({required this.workspace, required this.lens})
+    : super(
         id: 'podlens.tables',
         editable: true,
         shapes: [_tableShapeDefinition()],
         widgets: {
-          SchemaDiagram.tableWidgetKey: (context, shape) =>
-              TableCard(table: tables[shape.owner.id], lens: lens),
+          SchemaDiagram.tableWidgetKey: (context, shape) => TableCard(
+            tableId: shape.owner.id,
+            workspace: workspace,
+            lens: lens,
+          ),
         },
       );
+
+  final SchemaWorkspace workspace;
+  final LensState lens;
 }
 
 ShapeDefinition _tableShapeDefinition() => ShapeDefinition(
@@ -63,24 +57,30 @@ ShapeDefinition _tableShapeDefinition() => ShapeDefinition(
 /// cheap: a `DecoratedBox` (no clip/`saveLayer`) and flat rows, since hundreds
 /// of these are on screen at once.
 class TableCard extends StatelessWidget {
-  const TableCard({super.key, required this.table, required this.lens});
+  const TableCard({
+    super.key,
+    required this.tableId,
+    required this.workspace,
+    required this.lens,
+  });
 
-  final SchemaTable? table;
+  final String tableId;
+  final SchemaWorkspace workspace;
   final LensState lens;
 
   @override
   Widget build(BuildContext context) {
-    final t = table;
-    if (t == null) return const SizedBox.shrink();
     return ListenableBuilder(
-      listenable: lens,
-      builder: (context, _) => _card(context, lens.value.showColumnTypes),
+      listenable: Listenable.merge([lens, workspace]),
+      builder: (context, _) {
+        final table = workspace.table(tableId);
+        if (table == null) return const SizedBox.shrink();
+        return _card(context, lens.value.showColumnTypes, table);
+      },
     );
   }
 
-  Widget _card(BuildContext context, bool showTypes) {
-    final t = table!;
-
+  Widget _card(BuildContext context, bool showTypes, SchemaTable t) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     final background = dark ? const Color(0xFF0B1220) : Colors.white;
     final nameColor = dark ? const Color(0xFFE2E8F0) : const Color(0xFF0F172A);
@@ -104,7 +104,7 @@ class TableCard extends StatelessWidget {
           Container(
             height: SchemaDiagram.headerHeight,
             decoration: BoxDecoration(
-              color: _moduleColor(t.module),
+              color: moduleColor(t.module),
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(9),
               ),
@@ -194,8 +194,6 @@ class TableCard extends StatelessWidget {
     }
     return const SizedBox(width: 13);
   }
-
-  static Color _moduleColor(String module) => moduleColor(module);
 }
 
 /// Accent color for a schema module, shared by cards and the minimap.

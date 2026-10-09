@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:serverpod_lens_flutter/schema/lens_state.dart';
 import 'package:serverpod_lens_flutter/schema/podlens_table_extension.dart';
 import 'package:serverpod_lens_flutter/schema/schema_diagram.dart';
+import 'package:serverpod_lens_flutter/schema/schema_workspace.dart';
 import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
 
 void main() {
@@ -18,7 +19,7 @@ void main() {
       configuration: DiagramConfiguration(
         extensions: [
           PodLensTableExtension(
-            graph.tables,
+            workspace: SchemaWorkspace(graph.tables),
             lens: LensState(),
           ),
         ],

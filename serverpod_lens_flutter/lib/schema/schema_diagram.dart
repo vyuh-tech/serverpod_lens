@@ -39,9 +39,9 @@ abstract final class SchemaDiagram {
         tableShapeType,
         id: table.name,
         at: positions[table.name]!,
-        size: DiagramSize(nodeWidth, _heightOf(table)),
+        size: DiagramSize(nodeWidth, heightOf(table)),
         text: table.name,
-        ports: _portsOf(table),
+        ports: portsFor(table),
       );
     }
 
@@ -158,7 +158,7 @@ abstract final class SchemaDiagram {
       var y = 0.0;
       for (final table in tables) {
         positions[table.name] = DiagramPoint(x, y);
-        y += _heightOf(table) + nodeGap;
+        y += heightOf(table) + nodeGap;
       }
     });
     return positions;
@@ -176,14 +176,15 @@ abstract final class SchemaDiagram {
       final x = column * (nodeWidth + nodeGap);
       final y = columnHeights[column];
       positions[table.name] = DiagramPoint(x, y);
-      columnHeights[column] = y + _heightOf(table) + nodeGap;
+      columnHeights[column] = y + heightOf(table) + nodeGap;
     }
     return positions;
   }
 
   static const int _gridColumns = 8;
 
-  static double _heightOf(SchemaTable table) =>
+  /// Height of a table node in world units.
+  static double heightOf(SchemaTable table) =>
       headerHeight + table.columns.length * rowHeight;
 
   static String _pairId(String table, String column) => '$table::$column';
@@ -191,7 +192,8 @@ abstract final class SchemaDiagram {
   static String _portId(String table, String column, String side) =>
       '${_pairId(table, column)}::$side';
 
-  static List<Port> _portsOf(SchemaTable table) {
+  /// Ports (one per column, both sides) for a table node.
+  static List<Port> portsFor(SchemaTable table) {
     final ports = <Port>[];
     for (var i = 0; i < table.columns.length; i++) {
       final column = table.columns[i];
