@@ -1,0 +1,7 @@
+class: SchemaSnapshot
+fields:
+  projectId: String
+  sourceKind: String
+  revision: String
+  checkedAt: DateTime
+  graph: SchemaGraph?

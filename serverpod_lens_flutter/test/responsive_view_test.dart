@@ -86,6 +86,11 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Animation'));
       await tester.pumpAndSettle();
+      expect(find.text('Animation opacity'), findsNothing);
+      await tester.tap(find.text('Off'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Marching dashes').last);
+      await tester.pumpAndSettle();
       expect(find.text('Dash length'), findsOneWidget);
       expect(find.text('Animation stroke width'), findsOneWidget);
       expect(find.text('Animation opacity'), findsOneWidget);

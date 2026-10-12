@@ -86,7 +86,9 @@ enum SchemaConnectionStyle {
 
 /// View preferences survive opening another project during this session.
 final class SchemaViewPreferences {
-  final _animation = Observable(SchemaAnimation.dashes);
+  // Selection should not start a continuous repaint loop on large schemas.
+  // Native relationship effects remain available as an explicit view setting.
+  final _animation = Observable(SchemaAnimation.off);
   final _speed = Observable(1.0);
   final _reverse = Observable(false);
   final _density = Observable(12);

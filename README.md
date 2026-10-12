@@ -38,12 +38,14 @@ Passing a new graph refreshes the viewer while retaining view preferences.
 Import buttons are optional; the demo adds them. The package reads no bundled
 project and makes no request for schema data on its own.
 
-The Serverpod backend and generated client in this workspace remain an integration
-fixture. Its authentication setup is retained. They are useful for checking
-Serverpod's resolved schema contract, but the demo does not need them to run.
-Automatic delivery from a host project and installation in Serverpod's tools
-are still integration work; this repository does not claim that upstream feature
-has shipped.
+The connected `serverpod_lens_host_flutter` app uses Serverpod's built-in email
+authentication and a project-scoped schema endpoint. It reads the host's resolved
+current target, including framework and auth modules. Manual refresh sends a
+revision hash: unchanged targets preserve the existing map; a changed target
+replaces it and resets exploration context. Network failures retain a labelled
+stale snapshot, while access denial removes it. The offline demo remains independent
+of the server and generated client. Installation inside Serverpod's upstream
+development tools has not shipped.
 
 ## Import a schema
 
@@ -109,6 +111,8 @@ straight, Bézier, quadratic and rounded orthogonal alternatives, native layouts
 alignment guides, grid snapping and edge panning. Connection effects include
 marching dashes, particles, arrows, pulse and blink, with speed, size, density,
 reverse flow and applicable stroke and opacity controls.
+Animation is off initially so selecting a table does not start continuous
+repainting; enable a connection effect from the Animation settings when needed.
 
 Phones keep the canvas visible and put search and lists in a drawer. Desktop
 shows a collapsible browser beside the canvas. The app uses neutral Material
@@ -139,10 +143,21 @@ database schemas, 5,133 columns and 536 declared foreign keys. Of these, 505 hav
 targets present in the snapshot. [Dataset notes](docs/elog-schema.md) record its
 provenance and missing references. It is not a live database connection.
 
-To work with the Serverpod host fixture instead, run `serverpod start` from
-`serverpod_lens_server`. It manages the development database, code generation
-and companion Flutter app. The API uses port 8080; schema delivery to the viewer
-is not yet wired to an endpoint.
+To run the connected host, run `serverpod start` from `serverpod_lens_server`.
+It manages the development database, code generation and connected Flutter app
+at `http://localhost:8092`; the API uses port 8080. Create an account with the
+built-in email flow (development verification codes appear in the server logs).
+New accounts have no schema access. Copy the account ID from the access screen
+and, as the project owner, run from the server package:
+
+```sh
+dart run bin/grant_schema_access.dart <account-uuid>
+```
+
+Sign out and back in to receive the project scope. The operator command uses
+the host's database credentials; there is no public endpoint for granting access.
+The current connected fixture contains 156 unique tables. It shows generated
+target metadata, not database records or drift detection.
 
 The table, layout, minimap, connector and snap-guide extensions come from
 `pub.vyuh.tech`. Their publisher-declared base Diagram engine, Flutter renderer
@@ -150,6 +165,14 @@ and SVG codec dependencies come from pub.dev. `vyuh_diagram_core` is part of
 Diagram; Lens does not use the Vyuh application framework.
 
 ## Build and share
+
+For the connected app, run `serverpod run flutter_build` in the server package.
+The server serves the output from `web/app` and supplies its API address through
+`assets/config.json`. Restart the server after the first build to install that
+route; local release URL: `http://localhost:8082`.
+See [Cloud deployment and judge access](docs/DEPLOYMENT.md) for production setup.
+
+For the separate offline demo:
 
 ```sh
 cd serverpod_lens_flutter
@@ -179,7 +202,8 @@ npm run build
 | `serverpod_lens_schema/` | Plain Dart model and shared migration-definition reader |
 | `serverpod_lens/` | Import adapters, schema queries, native diagram mapping and embeddable viewer |
 | `serverpod_lens_flutter/` | Demo: file picking, SQL dialog, asset loading and app theme |
-| `serverpod_lens_server/` | Serverpod host fixture and generated protocol bridge |
+| `serverpod_lens_host_flutter/` | Authenticated host app, refresh and connection state |
+| `serverpod_lens_server/` | Protected schema endpoint, auth and integration fixtures |
 | `serverpod_lens_client/` | Generated client for that host fixture; absent from viewer dependencies |
 
 `SchemaCatalog` handles search and filtering; `SchemaContext` handles directional
@@ -193,6 +217,7 @@ dart format --output=none --set-exit-if-changed .
 (cd serverpod_lens_schema && dart test)
 (cd serverpod_lens && flutter test)
 (cd serverpod_lens_flutter && flutter test)
+(cd serverpod_lens_host_flutter && flutter test)
 (cd serverpod_lens_server && dart test)
 ```
 

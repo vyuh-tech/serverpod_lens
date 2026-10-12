@@ -16,6 +16,8 @@ import 'dart:io' as _idi;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
+import 'package:serverpod_lens_server/src/generated/schema/schema_snapshot.dart'
+    as _ik9p8ken;
 import 'package:serverpod_test/serverpod_test.dart' as _ist;
 import 'package:serverpod_lens_server/src/generated/protocol.dart';
 import 'package:serverpod_lens_server/src/generated/endpoints.dart';
@@ -153,6 +155,8 @@ class TestEndpoints {
   late final _EmailIdpEndpoint emailIdp;
 
   late final _JwtRefreshEndpoint jwtRefresh;
+
+  late final _SchemaEndpoint schema;
 }
 
 class _InternalTestEndpoints extends TestEndpoints
@@ -167,6 +171,10 @@ class _InternalTestEndpoints extends TestEndpoints
       serializationManager,
     );
     jwtRefresh = _JwtRefreshEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    schema = _SchemaEndpoint(
       endpoints,
       serializationManager,
     );
@@ -483,6 +491,52 @@ class _JwtRefreshEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<_iacs.AuthSuccess>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _SchemaEndpoint {
+  _SchemaEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<_ik9p8ken.SchemaSnapshot> snapshot(
+    _ist.TestSessionBuilder sessionBuilder, {
+    required String projectId,
+    String? knownRevision,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'schema',
+            method: 'snapshot',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'schema',
+          methodName: 'snapshot',
+          parameters: _ist.testObjectToJson({
+            'projectId': projectId,
+            'knownRevision': knownRevision,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_ik9p8ken.SchemaSnapshot>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

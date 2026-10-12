@@ -10,6 +10,7 @@ workspace:
   - serverpod_lens_client
   - serverpod_lens_server
   - serverpod_lens_flutter
+  - serverpod_lens_host_flutter
 
 # base_menu 0.1.5 publishes workspace paths absent from its package archive,
 # which prevents `dart test` in this workspace. 0.2.0 removes those paths.

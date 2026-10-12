@@ -8,6 +8,14 @@ Keep the viewer reusable for eventual integration into Serverpod development
 tooling. This is an implementation proposal; the exact upstream host surface
 remains to be agreed with the Serverpod team.
 
+Implementation status, 12 October 2026: the separate connected host app now
+authenticates with Serverpod, checks a project-specific scope, and reads the
+generated current target through `schema.snapshot`. Manual revision-based refresh,
+stale-network recovery and denied-access handling are implemented. Unchanged
+refreshes retain the map; changed graphs reset exploration context. Migration
+comparison, automatic polling, full details panels and upstream tool installation
+below remain proposals, not shipped features.
+
 ## Scope and source meaning
 
 Treat these as distinct sources:

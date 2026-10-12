@@ -9,6 +9,7 @@ environment:
 resolution: workspace
 
 dependencies:
+  crypto: ^3.0.7
   serverpod_lens_schema:
     path: ../serverpod_lens_schema
   serverpod: 4.0.4
@@ -29,14 +30,14 @@ serverpod:
     flutter_build:
       windows: >-
         (if exist web\app rmdir /S /Q web\app)
-        & cd /D ..\serverpod_lens_flutter
-        & set ARGS=web --base-href /
+        & cd /D ..\serverpod_lens_host_flutter
+        & set ARGS=web --no-wasm-dry-run --base-href /
         && (call flutter build %ARGS% || (flutter clean && call flutter build %ARGS%))
         && xcopy /E /I /Y build\web ..\serverpod_lens_server\web\app
       posix: |
         rm -rf ../serverpod_lens_server/web/app
-        cd ../serverpod_lens_flutter
-        set -- web --base-href / --output ../serverpod_lens_server/web/app
+        cd ../serverpod_lens_host_flutter
+        set -- web --no-wasm-dry-run --base-href / --output ../serverpod_lens_server/web/app
         flutter build "$@" || { flutter clean && flutter build "$@"; }
 
   # Companion Flutter apps that `serverpod start` can launch (Ctrl+R), keyed
@@ -59,8 +60,14 @@ serverpod:
   #     API_URL=https://admin.example.com
   #     FLAVOR=production
   flutter_apps:
+    serverpod_lens_host:
+      path: ../serverpod_lens_host_flutter
+      displayName: "Connected Serverpod Lens"
+      auto_launch: true
+      target: lib/driver.dart
+      web-port: 8092
     serverpod_lens:
       path: ../serverpod_lens_flutter
       displayName: "Pod lens app"
-      auto_launch: true
+      auto_launch: false
       target: lib/driver.dart

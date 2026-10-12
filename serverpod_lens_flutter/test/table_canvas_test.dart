@@ -71,6 +71,9 @@ void main() {
       );
       controller.select([table.name]);
       await tester.pump();
+      expect(controller.effects.playing, isEmpty);
+      preferences.animation = SchemaAnimation.dashes;
+      await tester.pump();
       expect(controller.effects.playing, isNotEmpty);
       preferences.particleSize = 6;
       preferences.animationWidth = 3;

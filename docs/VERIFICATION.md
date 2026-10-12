@@ -1,5 +1,67 @@
 # Verification
 
+## Connected host and release — 2026-10-12
+
+Current automated suite: **92 passing checks** across seven suites:
+
+| Suite | Passed |
+| --- | ---: |
+| Pure Dart schema reader | 5 |
+| Reusable Flutter viewer | 24 |
+| Offline Flutter demo | 34 |
+| Connected Flutter host | 11 |
+| Serverpod backend, including embedded PostgreSQL integration | 12 |
+| Real PostgreSQL parser (Node) | 5 |
+| Offline SQL importer (Python, isolated sqlglot 30.21.0 environment) | 1 |
+
+Workspace `dart analyze` passes. The connected host builds as a release JavaScript
+web app, served locally by Serverpod's `FlutterRoute`. Cloud's packaging dry run
+succeeds, including `web/app` and the pure Dart schema dependency while excluding
+local credentials. The extracted archive resolves its Dart dependencies and
+builds a native backend with `dart build cli` (required for packages with native
+build hooks; plain `dart compile exe` is insufficient). This verifies packaging,
+not a Cloud rollout. Cloud creation was rejected because the account requires
+a payment method; hosting there is optional under the hackathon rules.
+
+Actual local HTTP uses two separate built-in email accounts. Signed-out access
+returns 401, the account without the project scope returns 403, the reader loads
+156 unique target tables, and an unchanged revision omits graph content. The
+operator-only scope grant command was also exercised successfully.
+
+Live Dart MCP inspection and sign-in exposed a duplicate-target integration bug:
+Serverpod's generated list included auth_core both directly and through auth_idp
+(161 entries, 156 unique tables). The viewer rejected the repeated node identity.
+The host now deduplicates identical database identities and rejects conflicting
+definitions. The minimal and actual-endpoint regressions both failed before the
+fix. The release browser now renders the connected graph successfully.
+
+Release Chromium checks additionally passed reader sign-in, actual graph rendering,
+selection preservation on unchanged refresh, an aborted schema request retaining
+the map with a stale warning, retry recovery, relationship-label and snapping
+settings, 320px settings, sign-out removing the map, and a separate denied account
+at phone width. Screenshots were inspected. Flutter semantics overlays sometimes
+intercept Playwright pointer targeting; settings were also exercised through their
+semantic actions. These checks do not replace physical-device or screen-reader
+verification. The release build retains an upstream unused Fluent Light font
+warning; the rendered controls checked here show their icons.
+
+Connection tests cover overlapping refreshes, late responses after disposal,
+malformed snapshots, wrong project, stale network recovery, protected-graph
+removal on 401/403, and denied layouts at 320/1100px with doubled text. Endpoint
+tests cover missing auth, wrong scope, arbitrary project/path rejection, module
+coverage, and revision handling. No production credentials were used in tests.
+
+Selection effects now default to Off. The native canvas regression confirms
+selection starts no effect until explicitly enabled, while all effect controls
+remain usable. The release browser comparison at 1440×960 with accessibility
+semantics and software rendering measured pointer-up to two animation frames:
+394–483ms before and 397–464ms after (three warm transitions). This is **not a
+meaningful focus-latency improvement**; disabling effects removes continuous
+animation work but leaves camera/paint cost. The earlier native batching result
+below is a separate measurement. Hardware-accelerated browser profiling remains
+necessary before claiming smooth performance on large schemas.
+
+
 ## Node focus latency — 2026-10-12
 
 Focus previously called the native opacity verb separately for every changed
@@ -223,8 +285,9 @@ unused transitive icon declarations were not changed in this pass.
 
 ## Still to verify or implement
 
-- Host-project delivery and its refresh event inside Serverpod development tools.
-  Graph replacement through the viewer widget is already tested.
+- Upstream installation inside Serverpod development tools. The separate host
+  now delivers its current target through an authenticated endpoint; manual
+  refresh and graph replacement are tested.
 - Compatibility beyond the tested Serverpod 4.0.4 schema contract.
 - Physical iOS/Android devices, Safari/Firefox and screen-reader navigation.
 - Large-schema frame time, memory, heavy layouts and large ZIP responsiveness.

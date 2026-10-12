@@ -140,12 +140,14 @@ import 'elog_schema/sso/sso_user_product_site_mappings.dart' as _i7stpwby;
 import 'elog_schema/sso/sso_user_roles.dart' as _iew7uxuv;
 import 'elog_schema/sso/sso_user_sessions.dart' as _ir5ofehs;
 import 'elog_schema/sso/sso_users.dart' as _i4fj2l14;
+import 'schema/schema_access_exception.dart' as _iqdes7hr;
 import 'schema/schema_column.dart' as _ip7yl2xa;
 import 'schema/schema_enum.dart' as _irxuw07j;
 import 'schema/schema_foreign_key.dart' as _iarzs90a;
 import 'schema/schema_graph.dart' as _is38wmwx;
 import 'schema/schema_index.dart' as _id0qwmzg;
 import 'schema/schema_module.dart' as _iyw9pr81;
+import 'schema/schema_snapshot.dart' as _iaxhcc5o;
 import 'schema/schema_table.dart' as _ixxyfkud;
 export 'elog_schema/elog/elog_activities.dart';
 export 'elog_schema/elog/elog_activity_artifacts.dart';
@@ -269,12 +271,14 @@ export 'elog_schema/sso/sso_user_product_site_mappings.dart';
 export 'elog_schema/sso/sso_user_roles.dart';
 export 'elog_schema/sso/sso_user_sessions.dart';
 export 'elog_schema/sso/sso_users.dart';
+export 'schema/schema_access_exception.dart';
 export 'schema/schema_column.dart';
 export 'schema/schema_enum.dart';
 export 'schema/schema_foreign_key.dart';
 export 'schema/schema_graph.dart';
 export 'schema/schema_index.dart';
 export 'schema/schema_module.dart';
+export 'schema/schema_snapshot.dart';
 export 'schema/schema_table.dart';
 export 'client.dart';
 
@@ -678,6 +682,9 @@ class Protocol extends _isc.SerializationManager {
     if (t == _i4fj2l14.SsoUsers) {
       return _i4fj2l14.SsoUsers.fromJson(data) as T;
     }
+    if (t == _iqdes7hr.SchemaAccessException) {
+      return _iqdes7hr.SchemaAccessException.fromJson(data) as T;
+    }
     if (t == _ip7yl2xa.SchemaColumn) {
       return _ip7yl2xa.SchemaColumn.fromJson(data) as T;
     }
@@ -695,6 +702,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _iyw9pr81.SchemaModule) {
       return _iyw9pr81.SchemaModule.fromJson(data) as T;
+    }
+    if (t == _iaxhcc5o.SchemaSnapshot) {
+      return _iaxhcc5o.SchemaSnapshot.fromJson(data) as T;
     }
     if (t == _ixxyfkud.SchemaTable) {
       return _ixxyfkud.SchemaTable.fromJson(data) as T;
@@ -1282,6 +1292,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == _isc.getType<_i4fj2l14.SsoUsers?>()) {
       return (data != null ? _i4fj2l14.SsoUsers.fromJson(data) : null) as T;
     }
+    if (t == _isc.getType<_iqdes7hr.SchemaAccessException?>()) {
+      return (data != null
+              ? _iqdes7hr.SchemaAccessException.fromJson(data)
+              : null)
+          as T;
+    }
     if (t == _isc.getType<_ip7yl2xa.SchemaColumn?>()) {
       return (data != null ? _ip7yl2xa.SchemaColumn.fromJson(data) : null) as T;
     }
@@ -1300,6 +1316,10 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_iyw9pr81.SchemaModule?>()) {
       return (data != null ? _iyw9pr81.SchemaModule.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iaxhcc5o.SchemaSnapshot?>()) {
+      return (data != null ? _iaxhcc5o.SchemaSnapshot.fromJson(data) : null)
+          as T;
     }
     if (t == _isc.getType<_ixxyfkud.SchemaTable?>()) {
       return (data != null ? _ixxyfkud.SchemaTable.fromJson(data) : null) as T;
@@ -1510,12 +1530,14 @@ class Protocol extends _isc.SerializationManager {
       _iew7uxuv.SsoUserRoles => 'SsoUserRoles',
       _ir5ofehs.SsoUserSessions => 'SsoUserSessions',
       _i4fj2l14.SsoUsers => 'SsoUsers',
+      _iqdes7hr.SchemaAccessException => 'SchemaAccessException',
       _ip7yl2xa.SchemaColumn => 'SchemaColumn',
       _irxuw07j.SchemaEnum => 'SchemaEnum',
       _iarzs90a.SchemaForeignKey => 'SchemaForeignKey',
       _is38wmwx.SchemaGraph => 'SchemaGraph',
       _id0qwmzg.SchemaIndex => 'SchemaIndex',
       _iyw9pr81.SchemaModule => 'SchemaModule',
+      _iaxhcc5o.SchemaSnapshot => 'SchemaSnapshot',
       _ixxyfkud.SchemaTable => 'SchemaTable',
       _ => null,
     };
@@ -1778,6 +1800,8 @@ class Protocol extends _isc.SerializationManager {
         return 'SsoUserSessions';
       case _i4fj2l14.SsoUsers():
         return 'SsoUsers';
+      case _iqdes7hr.SchemaAccessException():
+        return 'SchemaAccessException';
       case _ip7yl2xa.SchemaColumn():
         return 'SchemaColumn';
       case _irxuw07j.SchemaEnum():
@@ -1790,6 +1814,8 @@ class Protocol extends _isc.SerializationManager {
         return 'SchemaIndex';
       case _iyw9pr81.SchemaModule():
         return 'SchemaModule';
+      case _iaxhcc5o.SchemaSnapshot():
+        return 'SchemaSnapshot';
       case _ixxyfkud.SchemaTable():
         return 'SchemaTable';
     }
@@ -2190,6 +2216,9 @@ class Protocol extends _isc.SerializationManager {
     if (dataClassName == 'SsoUsers') {
       return deserialize<_i4fj2l14.SsoUsers>(data['data']);
     }
+    if (dataClassName == 'SchemaAccessException') {
+      return deserialize<_iqdes7hr.SchemaAccessException>(data['data']);
+    }
     if (dataClassName == 'SchemaColumn') {
       return deserialize<_ip7yl2xa.SchemaColumn>(data['data']);
     }
@@ -2207,6 +2236,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'SchemaModule') {
       return deserialize<_iyw9pr81.SchemaModule>(data['data']);
+    }
+    if (dataClassName == 'SchemaSnapshot') {
+      return deserialize<_iaxhcc5o.SchemaSnapshot>(data['data']);
     }
     if (dataClassName == 'SchemaTable') {
       return deserialize<_ixxyfkud.SchemaTable>(data['data']);

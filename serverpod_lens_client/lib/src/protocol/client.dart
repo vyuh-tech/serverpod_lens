@@ -17,6 +17,8 @@ import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
     as _iaic;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
+import 'package:serverpod_lens_client/src/protocol/schema/schema_snapshot.dart'
+    as _in3x5uil;
 import 'protocol.dart' as _il2as5qe;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
@@ -244,6 +246,27 @@ class EndpointJwtRefresh extends _iacc.EndpointRefreshJwtTokens {
       );
 }
 
+/// Authenticated, read-only access to this host's resolved target schema.
+/// {@category Endpoint}
+class EndpointSchema extends _isc.EndpointRef {
+  EndpointSchema(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'schema';
+
+  _ida.Future<_in3x5uil.SchemaSnapshot> snapshot({
+    required String projectId,
+    String? knownRevision,
+  }) => caller.callServerEndpoint<_in3x5uil.SchemaSnapshot>(
+    'schema',
+    'snapshot',
+    {
+      'projectId': projectId,
+      'knownRevision': knownRevision,
+    },
+  );
+}
+
 class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _iaic.Caller(client);
@@ -284,6 +307,7 @@ class Client extends _isc.ServerpodClientShared {
        ) {
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
+    schema = EndpointSchema(this);
     modules = Modules(this);
   }
 
@@ -291,12 +315,15 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointJwtRefresh jwtRefresh;
 
+  late final EndpointSchema schema;
+
   late final Modules modules;
 
   @override
   Map<String, _isc.EndpointRef> get endpointRefLookup => {
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
+    'schema': schema,
   };
 
   @override

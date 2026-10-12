@@ -2,13 +2,53 @@
 
 Checked 12 October 2026 against the supplied Official Rules, the captured
 participant overview, the current working tree and the latest verification
-results. The entry has a useful, tested schema viewer, but it is not ready to
-submit: Serverpod does not yet power its application flow, and the required
-demonstration and submission materials are incomplete.
+results. The connected app now uses real Serverpod authentication and a protected
+schema endpoint. Local API and automated checks pass. Submission is still pending
+working judge access, the public video and final
+BuilderBase submission. See the dated follow-up below; historical findings remain
+for traceability.
 
 The user confirms registration and a one-person team, and confirms there is no
 current demo or walkthrough video. Registration and team size are therefore
 recorded as confirmed by the entrant, not independently checked in BuilderBase.
+
+## Connected-host follow-up — 12 October 2026
+
+The principal product gap is now implemented: `serverpod_lens_host_flutter`
+uses built-in email/JWT auth, a project-specific read scope and `schema.snapshot`.
+It receives 156 unique resolved target tables from the real host. The browser
+check uncovered repeated auth-module tables in Serverpod's generated target list;
+the adapter now deduplicates identical definitions and rejects conflicts. Both
+the minimal reproduction and actual endpoint regression failed before the fix
+and pass afterward. The offline demo remains separate and unchanged.
+
+- Backend: **12 passing tests**, including unauthenticated denial, wrong-project
+  scope, arbitrary project/path rejection, revision refresh and duplicate targets.
+- Connected Flutter host: **11 passing tests**, including overlapping requests,
+  late responses after disposal, 401/403 graph removal, malformed snapshots,
+  network recovery and 320px layouts with doubled text.
+- Actual local HTTP: separate reader and denied accounts sign in through the
+  built-in email endpoint. Unauthenticated schema access is 401, denied account
+  access is 403, authorized access succeeds, and unchanged refresh omits the graph.
+- Release JavaScript web bundle builds successfully. Cloud packaging dry run
+  includes the frontend and pure Dart schema dependency, excludes local passwords,
+  and requires no private Vyuh registry access for the backend Cloud build.
+- Cloud account login succeeded, but project creation was rejected with
+  `A payment method is required to procure Starter.` No Cloud project or public
+  URL was created. Account setup is required before deploy and remote verification.
+  Cloud is optional under the rules; another host or functioning test build can
+  provide judge access without procuring a Cloud plan.
+- [Submission copy and demo script](SUBMISSION.md) and
+  [deployment/judge instructions](DEPLOYMENT.md) are prepared. A captioned local release walkthrough is also recorded; its
+  public YouTube/Vimeo upload and the actual submission remain.
+
+An unchanged refresh retains the current graph and exploration state. A changed
+schema replaces the map and resets exploration context. This reads the generated
+current target; it does not introspect the database or detect drift. Upstream
+Serverpod-tool installation and migration comparison remain future work.
+
+The tables and assessment below describe the initial audit where they differ
+from this follow-up. Current verification detail is in [VERIFICATION.md](VERIFICATION.md).
 
 ## Governing requirements and deadline
 
@@ -243,11 +283,10 @@ pp.3, 6–8; captured participant overview]
 
 ## Final assessment
 
-**Useful and technically credible offline viewer; incomplete full-stack
-hackathon entry.** The biggest risk is failing the baseline Serverpod-use and
-submission-completeness checks, not losing points for missing optional features.
-Registration and solo team size are established; the application flow,
-judge-accessible build, mandatory video/description, final source access verification and
-entrant-specific confirmations are still pending. Eligibility and prize awards
+**The full-stack flow is implemented; submission completeness is now the main
+risk.** Registration and solo team size are established. Public judge access,
+the mandatory public video, final source revision and entrant-specific rights/
+eligibility confirmations remain pending. The project description is drafted,
+but it has not been submitted to BuilderBase. Eligibility and prize awards
 remain decisions for the organizer, not conclusions that automated tests can
 certify.

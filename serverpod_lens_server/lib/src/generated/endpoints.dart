@@ -17,6 +17,7 @@ import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _iais;
 import '../auth/email_idp_endpoint.dart' as _iuc1hd5t;
 import '../auth/jwt_refresh_endpoint.dart' as _inwq3ztq;
+import '../endpoints/schema_endpoint.dart' as _iflhlxji;
 
 class Endpoints extends _is.EndpointDispatch {
   @override
@@ -32,6 +33,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'jwtRefresh',
+          null,
+        ),
+      'schema': _iflhlxji.SchemaEndpoint()
+        ..initialize(
+          server,
+          'schema',
           null,
         ),
     };
@@ -238,6 +245,37 @@ class Endpoints extends _is.EndpointDispatch {
                         session,
                         refreshToken: params['refreshToken'],
                       ),
+        ),
+      },
+    );
+    connectors['schema'] = _is.EndpointConnector(
+      name: 'schema',
+      endpoint: endpoints['schema']!,
+      methodConnectors: {
+        'snapshot': _is.MethodConnector(
+          name: 'snapshot',
+          params: {
+            'projectId': _is.ParameterDescription(
+              name: 'projectId',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'knownRevision': _is.ParameterDescription(
+              name: 'knownRevision',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['schema'] as _iflhlxji.SchemaEndpoint).snapshot(
+                    session,
+                    projectId: params['projectId'],
+                    knownRevision: params['knownRevision'],
+                  ),
         ),
       },
     );

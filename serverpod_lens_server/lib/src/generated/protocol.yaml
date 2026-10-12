@@ -9,3 +9,5 @@ emailIdp:
   - hasAccount:
 jwtRefresh:
   - refreshAccessToken:
+schema:
+  - snapshot:
