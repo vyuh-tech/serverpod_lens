@@ -1,5 +1,23 @@
 # Verification
 
+## Tagged migration follow-up — 2026-10-12
+
+The migration ZIP filter now accepts Serverpod's lowercase alphanumeric/dash
+tags. Three regression tests failed before the fix and pass afterward: newer
+tagged complete definitions, newer tagged project-only definitions, and malformed
+newest tagged definitions that must reject the import rather than load stale tables.
+The full demo suite passes all 30 tests. Targeted Dart analysis reports no issues;
+both changed Dart files are formatted.
+
+`serverpod start` was launched with explicit user authorization. The Serverpod
+MCP reports the server running, migrations applied, Flutter serving on
+`http://localhost:45855`. The first Flutter hot restart timed out even though the
+MCP tool reported completion. After opening the app in the browser, a retry
+logged `Restarted application in 11,877ms.` The app URL also returns HTTP 200.
+This verifies startup and
+restart; it does not establish the pending authenticated schema delivery flow or
+a judge-accessible deployment.
+
 ## Settings and connection hardening — 2026-10-12
 
 Relationship labels are hidden by default. The setting restores the original

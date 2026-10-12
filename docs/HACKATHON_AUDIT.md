@@ -113,28 +113,25 @@ Verify that unauthorized users cannot fetch a protected schema and that requests
 cannot choose arbitrary filesystem paths. The current Serverpod test checks
 schema conversion; it does not test a working schema API or access isolation.
 
-### Tagged migrations can produce a silently stale import
+### Tagged migrations could produce a silently stale import — fixed
 
-[ProjectAnalyzer](../serverpod_lens/lib/src/schema/project_analyzer.dart) matches
+[ProjectAnalyzer](../serverpod_lens/lib/src/schema/project_analyzer.dart) previously matched
 only `migrations/\d+/definition.json` and `definition_project.json`. Serverpod
 documents supported tagged names such as `<timestamp>-v1-0-0`.
 [Serverpod migration documentation](https://docs.serverpod.dev/concepts/data-and-the-database/database/migrations)
 
-A synthetic ZIP probe against the current code reproduced both failures:
+A synthetic ZIP probe against the pre-fix code reproduced both failures:
 
 | Archive contents | Actual result |
 | --- | --- |
 | Only `20261009120000000-v1-0-0/definition.json` defining `new_schema` | Invalid; no schema found |
 | Older `20261008120000000/definition.json` defining `old_schema`, plus the newer tagged definition | Valid; renders `public.old_schema` with no warning |
 
-The second failure is more serious because it presents stale schema as a successful
-import. Add regression cases for tagged-only definitions, mixed tagged/untagged
-versions, invalid newest tagged definitions and multiple server roots containing
-tagged definitions. Use Serverpod-compatible migration ordering and preserve the
-existing rule that an invalid newest snapshot must not silently fall back.
-
-This probe is additional audit evidence; the existing 62 passing tests do not
-cover it. No product fix was made during this audit.
+The follow-up fix accepts supported migration tags. Three new regression tests
+cover newer tagged complete/project-only definitions and an invalid newest tagged
+definition; all failed before the fix and pass afterward. The full demo suite now
+passes 30 tests. Tagged-only and tagged multiple-server-root cases have not yet
+been added to the automated suite.
 
 ### Graph replacement does not preserve exploration context
 
@@ -199,7 +196,7 @@ presentation improvements, not substitutes for the mandatory backend and demo.
 | Optimized JavaScript compilation | Passed | Updated application compiles |
 | Full current release packaging and live driver | Blocked/unverified | Environment access, not a demonstrated product-code failure |
 | Python offline importer regression | Blocked | Missing `sqlglot`; pinned dependency download fails under restricted network |
-| Tagged-migration probe | Failed both expected behaviours | Confirmed import correctness gap, outside the current passing suite |
+| Tagged-migration regression follow-up | Fixed; 3 new regressions pass | Full demo suite: 30 tests pass; see verification follow-up |
 
 [VERIFICATION.md](VERIFICATION.md) records the commands, results and distinctions.
 
@@ -208,8 +205,8 @@ presentation improvements, not substitutes for the mandatory backend and demo.
 1. **Complete the Serverpod flow.** A host resolves its schema, applies built-in
    auth and project authorization, serves it through an endpoint, and a host UI
    displays it through the reusable viewer. Prove a refresh and a denial case.
-2. **Fix tagged migration imports.** Reproduce the two failures above, add the
-   boundary regressions and verify latest-snapshot correctness.
+2. **Tagged migration imports: fixed.** New regressions verify tagged selection
+   and rejection of malformed newest definitions; additional boundary cases remain useful.
 3. **Provide a working judge build.** Finish release packaging, run the deployed
    flow, supply judge instructions/credentials if needed and keep it available
    until judging ends.

@@ -7,6 +7,51 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:serverpod_lens/serverpod_lens.dart';
 
 void main() {
+  for (final latest in ['definition.json', 'definition_project.json']) {
+    test('recognizes tagged migrations with $latest', () {
+      final archive = Archive();
+      for (final entry in {
+        'server/migrations/20261008120000000/definition.json':
+            '{"tables":[{"name":"old"}]}',
+        'server/migrations/20261009120000000-v1-0-0/$latest':
+            '{"tables":[{"name":"current"}]}',
+      }.entries) {
+        final content = utf8.encode(entry.value);
+        archive.addFile(ArchiveFile(entry.key, content.length, content));
+      }
+      final result = ProjectAnalyzer.analyzeZip(
+        Uint8List.fromList(ZipEncoder().encode(archive)),
+        name: 'tagged.zip',
+      );
+      expect(result.isValid, isTrue);
+      expect(result.graph.tables.map((table) => table.name), [
+        'public.current',
+      ]);
+    });
+  }
+
+  test('rejects malformed tagged latest snapshots without stale fallback', () {
+    final archive = Archive();
+    for (final entry in {
+      'server/migrations/20261008120000000/definition.json':
+          '{"tables":[{"name":"old"}]}',
+      'server/migrations/20261009120000000-release/definition.json': '{broken',
+    }.entries) {
+      final content = utf8.encode(entry.value);
+      archive.addFile(ArchiveFile(entry.key, content.length, content));
+    }
+    final result = ProjectAnalyzer.analyzeZip(
+      Uint8List.fromList(ZipEncoder().encode(archive)),
+      name: 'broken-tagged.zip',
+    );
+    expect(result.isValid, isFalse);
+    expect(result.graph.tables, isEmpty);
+    expect(
+      result.warnings.single,
+      contains('newest migration definition is invalid'),
+    );
+  });
+
   test('rejects ambiguous archives containing multiple server packages', () {
     final archive = Archive();
     for (final server in ['first', 'second']) {

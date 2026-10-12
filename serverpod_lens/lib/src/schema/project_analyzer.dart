@@ -43,9 +43,11 @@ class ProjectAnalysis {
 ///  3. `.spy.yaml` models as a fallback (tables, columns, `relation(parent=…)`).
 abstract final class ProjectAnalyzer {
   static final _projectDef = RegExp(
-    r'(^|/)migrations/\d+/definition_project\.json$',
+    r'(^|/)migrations/\d+(?:-[a-z0-9-]+)?/definition_project\.json$',
   );
-  static final _fullDef = RegExp(r'(^|/)migrations/\d+/definition\.json$');
+  static final _fullDef = RegExp(
+    r'(^|/)migrations/\d+(?:-[a-z0-9-]+)?/definition\.json$',
+  );
 
   static ProjectAnalysis analyzeZip(Uint8List bytes, {required String name}) {
     final Archive archive;
