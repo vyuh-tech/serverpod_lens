@@ -103,6 +103,9 @@ void main() {
         await tester.pumpAndSettle();
       }
 
+      // Rapid changes in one turn must decorate only the final selection.
+      controller.select(['catalog.products']);
+      controller.select(['sales.payments']);
       controller.select(['sales.orders']);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 50));

@@ -1,5 +1,44 @@
 # Verification
 
+## Node focus latency — 2026-10-12
+
+Focus previously called the native opacity verb separately for every changed
+element. An outer batch grouped publication but still prepared and checked each
+intermediate document. The 506-table regression fixture required 505 admission
+checks. Focus now submits all opacity replacements in one native transaction
+(two admission phases), preserves the read-only rules, and skips unchanged
+elements. Selection notifications and browser/group clicks share one queued
+context refresh per controller and turn.
+
+On the actual 396-table, 536-relationship asset, a same-process native-engine
+comparison measured a median broad focus update of **725.769 ms before** and
+**307.930 ms after** (five samples each). A subsequent sequence selecting the
+first 25 tables measured **4.090 ms median**, with a 296.017 ms maximum including
+the initial broad update. These measure context decoration only, excluding
+browser painting, camera animation and selection effects. Initial broad focus
+still has a noticeable processing cost; these are not end-to-end browser timing
+claims. Removing import history in a diagnostic probe did not materially improve
+the broad update, so import history was left intact.
+
+Repeat current measurements from `serverpod_lens_flutter` with:
+
+```sh
+flutter test --no-pub tool/benchmark_focus_test.dart
+```
+
+Validation: 24 viewer tests and 34 distinct demo tests pass (the 33-test demo
+suite plus the final four-test focus run, including one added undo case).
+Regressions cover bulk admission, unchanged focus, denied preview/commit with
+complete rollback, movement undo retaining current decoration, and rapid
+selection changes using the final selection. Dart analysis passes for both
+Flutter packages and the added undo test; changed Dart files are formatted.
+
+Serverpod MCP hot restart completed. Dart MCP connected through the app's DTD,
+but live driver verification timed out in DWDS while the inspected app showed
+its loading screen. Dart MCP reported no runtime errors. Live browser click
+latency therefore remains unverified; automated widget and native-engine tests
+are the evidence for this change.
+
 ## Tagged migration follow-up — 2026-10-12
 
 The migration ZIP filter now accepts Serverpod's lowercase alphanumeric/dash

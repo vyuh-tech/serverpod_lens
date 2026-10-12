@@ -1,5 +1,7 @@
 import 'package:serverpod_lens_schema/serverpod_lens_schema.dart';
 import 'package:vyuh_diagram_core/vyuh_diagram_core.dart';
+import 'package:vyuh_diagram_core/adapter.dart'
+    show DiagramTransaction, ReplaceElementStep;
 
 enum RelationDirection {
   both('Both directions'),
@@ -130,33 +132,45 @@ void applySchemaContext(
   SchemaNeighborhood? neighborhood,
 ) {
   final distances = neighborhood?.distances;
-  controller.edits.batch('Focus related tables', () {
-    for (final element in controller.document.elements) {
-      var opacity = 1.0;
-      if (distances != null && distances.isNotEmpty) {
-        if (element is ShapeElement) {
-          opacity = switch (distances[element.id]) {
-            null => .18,
-            2 => .65,
-            _ => 1,
-          };
-        } else if (element is ConnectorElement) {
-          final start = element.start;
-          final end = element.end;
-          final from = start is BoundEndpoint
-              ? distances[start.elementId]
-              : null;
-          final to = end is BoundEndpoint ? distances[end.elementId] : null;
-          opacity = from == null || to == null
-              ? .08
-              : (from == 2 || to == 2 ? .55 : 1);
-        }
-      }
-      if (element.opacity != opacity) {
-        controller.edits
-            .setOpacity(opacity, ids: [element.id])
-            .requireAllowed();
+  final document = controller.document;
+  final steps = <ReplaceElementStep>[];
+  for (final element in document.elements) {
+    var opacity = 1.0;
+    if (distances != null && distances.isNotEmpty) {
+      if (element is ShapeElement) {
+        opacity = switch (distances[element.id]) {
+          null => .18,
+          2 => .65,
+          _ => 1,
+        };
+      } else if (element is ConnectorElement) {
+        final start = element.start;
+        final end = element.end;
+        final from = start is BoundEndpoint ? distances[start.elementId] : null;
+        final to = end is BoundEndpoint ? distances[end.elementId] : null;
+        opacity = from == null || to == null
+            ? .08
+            : (from == 2 || to == 2 ? .55 : 1);
       }
     }
+    if (element.opacity != opacity) {
+      steps.add(
+        ReplaceElementStep(
+          before: element,
+          after: element.copyWith(opacity: opacity),
+        ),
+      );
+    }
+  }
+  if (steps.isEmpty) return;
+  // Submit one native transaction. Calling setOpacity for each element inside
+  // a batch still rebuilds and validates an intermediate document per element.
+  controller.edits.batch('Focus related tables', () {
+    controller.edits
+        .dispatch(
+          DiagramTransaction(steps: steps, label: 'Focus related tables'),
+          expectedRevision: document.revision,
+        )
+        .requireAllowed();
   }, history: false).requireAllowed();
 }

@@ -45,6 +45,7 @@ class _SchemaViewerState extends State<SchemaViewer> {
   final _searchController = TextEditingController();
   ReactionDisposer? _selectionWatcher;
   ReactionDisposer? _contextWatcher;
+  DiagramController? _queuedContextController;
   SchemaContext? _contextGraph;
   SchemaNeighborhood? _neighborhood;
   final _groups = <SchemaGroup>[];
@@ -168,18 +169,7 @@ class _SchemaViewerState extends State<SchemaViewer> {
     _contextWatcher = reaction((_) => controller.selection, (_) {
       // Native selection publishes inside an engine transaction. Decoration
       // edits must wait until that transaction has finished.
-      scheduleMicrotask(() {
-        if (!mounted ||
-            !identical(controller, _controller) ||
-            _selectingGroup) {
-          return;
-        }
-        final ids = _selectedTables;
-        if (_activeGroup != null && !setEquals(ids, _activeGroup!.members)) {
-          _activeGroup = null;
-        }
-        _refreshContext();
-      });
+      _queueContextRefresh(controller);
     });
     if (previous != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => previous.dispose());
@@ -204,6 +194,23 @@ class _SchemaViewerState extends State<SchemaViewer> {
   }
 
   Set<String> get _contextMembers => _activeGroup?.members ?? _selectedTables;
+
+  void _queueContextRefresh(DiagramController controller) {
+    if (identical(_queuedContextController, controller)) return;
+    _queuedContextController = controller;
+    scheduleMicrotask(() {
+      if (!identical(_queuedContextController, controller)) return;
+      _queuedContextController = null;
+      if (!mounted || !identical(controller, _controller) || _selectingGroup) {
+        return;
+      }
+      final ids = _selectedTables;
+      if (_activeGroup != null && !setEquals(ids, _activeGroup!.members)) {
+        _activeGroup = null;
+      }
+      _refreshContext();
+    });
+  }
 
   void _refreshContext() {
     final controller = _controller;
@@ -261,7 +268,7 @@ class _SchemaViewerState extends State<SchemaViewer> {
     FocusManager.instance.primaryFocus?.unfocus();
     _activeGroup = null;
     _controller!.select([id]);
-    _refreshContext();
+    _queueContextRefresh(_controller!);
     unawaited(
       _controller!.view.show(ViewTarget.element(id), motion: Motion.smooth),
     );
@@ -275,7 +282,7 @@ class _SchemaViewerState extends State<SchemaViewer> {
     } finally {
       _selectingGroup = false;
     }
-    _refreshContext();
+    _queueContextRefresh(_controller!);
     if (closeBrowser) _scaffoldKey.currentState?.closeDrawer();
   }
 
