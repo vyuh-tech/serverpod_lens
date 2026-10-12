@@ -132,6 +132,7 @@ void main() {
       expect(moved.frame, isNot(shape.frame));
       expect(moved.copyWith(frame: shape.frame), shape);
       controller.effects.stopAll();
+      setSchemaRelationshipLabels(controller, preferences, true);
       final edgeBefore = controller.document.elements
           .whereType<ConnectorElement>()
           .first;

@@ -24,10 +24,11 @@ class SqlImportTest(unittest.TestCase):
                 ALTER TABLE sso.members ADD COLUMN label text DEFAULT 'member';
             ''')
             out = root / 'graph.json'
-            subprocess.run([
+            result = subprocess.run([
                 sys.executable, str(Path(__file__).with_name('import_elog_schema.py')),
                 str(root), '--out', str(out),
-            ], check=True, capture_output=True)
+            ], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, msg=f'Importer failed:\n{result.stderr}')
             graph = json.loads(out.read_text())
             table = next(t for t in graph['tables'] if t['name'] == 'sso.members')
             self.assertEqual(table['schema'], 'sso')

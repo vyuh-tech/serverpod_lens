@@ -84,6 +84,8 @@ void main() {
       expect(find.text('No matching tables'), findsOneWidget);
       await tester.tap(find.byTooltip('Schema view settings'));
       await tester.pumpAndSettle();
+      await tester.tap(find.text('Animation'));
+      await tester.pumpAndSettle();
       expect(find.text('Dash length'), findsOneWidget);
       expect(find.text('Animation stroke width'), findsOneWidget);
       expect(find.text('Animation opacity'), findsOneWidget);

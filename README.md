@@ -99,7 +99,12 @@ tables outside the current filter. Named groups can overlap and carry colors
 and notes. Groups belong to the opened dataset's session.
 
 The canvas supports selection, dragging, pan, zoom and minimap navigation.
-Connections use orthogonal routing by default. View settings expose Vyuh's
+Connections use orthogonal routing by default. View settings are grouped into
+Connections, Animation and Canvas. Relationship labels are hidden initially;
+enable **Show relationship labels** for cardinality and composite column mappings.
+Canvas settings include **Snap to nearby tables** and its screen-pixel snap
+distance, separate grid snapping, minimap visibility and edge panning.
+The settings expose Vyuh's
 straight, Bézier, quadratic and rounded orthogonal alternatives, native layouts,
 alignment guides, grid snapping and edge panning. Connection effects include
 marching dashes, particles, arrows, pulse and blink, with speed, size, density,
@@ -110,8 +115,9 @@ shows a collapsible browser beside the canvas. The app uses neutral Material
 colors in light and dark modes. There are no drawing tools or editable table
 cells: dragging and layout change the view, never the schema or database.
 
-Composite foreign keys use one connector labelled with their column pairs and
-attach at the first pair. Missing targets cannot be drawn. Enum values and
+Composite foreign keys use one connector, attach at the first pair, and show
+their column pairs when relationship labels are enabled. Missing targets cannot
+be drawn. Enum values and
 partial-index predicates remain in the graph; vector dimensions and some
 compiler metadata are not represented. The viewer does not introspect a running
 database or detect drift.

@@ -1,4 +1,6 @@
 import 'package:mobx/mobx.dart';
+import 'package:vyuh_diagram_core/adapter.dart'
+    show DiagramTransaction, ReplaceElementStep;
 import 'package:vyuh_diagram_extension_connectors/vyuh_diagram_extension_connectors.dart';
 import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
 import 'package:vyuh_diagram_flutter/extension_api.dart';
@@ -121,6 +123,7 @@ final class SchemaViewPreferences {
   double cornerRadius = 8;
   double portExtension = 24;
   bool dashedConnections = false;
+  bool showRelationshipLabels = false;
   bool grid = false;
   bool snap = false;
   bool snapGuides = true;
@@ -167,41 +170,157 @@ final class SchemaViewPreferences {
   }
 }
 
-/// Native route/style updates leave column bindings and relation labels intact.
+final _relationshipLabels = Expando<Map<String, List<ConnectorLabel>>>(
+  'Schema relationship labels',
+);
+
+typedef _ConnectionSettings = ({
+  SchemaConnectionStyle style,
+  double width,
+  double radius,
+  double extension,
+  bool dashed,
+  bool labels,
+});
+
+_ConnectionSettings _connectionSettings(SchemaViewPreferences preferences) => (
+  style: preferences.connectionStyle,
+  width: preferences.strokeWidth,
+  radius: preferences.cornerRadius,
+  extension: preferences.portExtension,
+  dashed: preferences.dashedConnections,
+  labels: preferences.showRelationshipLabels,
+);
+
+final _appliedConnections =
+    Expando<({DiagramDocument document, _ConnectionSettings settings})>();
+
+/// Hide native labels without losing their identities, content or placement.
+void _applyRelationshipLabels(DiagramController controller, bool visible) {
+  final document = controller.document;
+  final originals = _relationshipLabels[controller] ??= {
+    for (final edge in document.elements.whereType<ConnectorElement>())
+      edge.id: List.unmodifiable(edge.labels),
+  };
+  final steps = <ReplaceElementStep>[];
+  for (final edge in document.elements.whereType<ConnectorElement>()) {
+    final labels = visible
+        ? originals[edge.id] ?? const <ConnectorLabel>[]
+        : const <ConnectorLabel>[];
+    final after = edge.copyWith(labels: labels);
+    if (after != edge) {
+      steps.add(ReplaceElementStep(before: edge, after: after));
+    }
+  }
+  if (steps.isEmpty) return;
+  final rules = controller.diagram.configuration.rules;
+  // Admit only the prepared label replacements during this synchronous update.
+  // User gestures remain subject to the original read-only rules afterward.
+  final replacements = {for (final step in steps) step.before.id: step};
+  controller.diagram.setRules(
+    DiagramRules(
+      canCreate: rules.canCreate,
+      canConnect: rules.canConnect,
+      beforeChange: (proposal) {
+        final changes = proposal.elements;
+        if (changes.insertedIds.isEmpty &&
+            changes.removedIds.isEmpty &&
+            changes.reparentedIds.isEmpty &&
+            changes.updatedIds.every((id) {
+              final step = replacements[id];
+              return step != null &&
+                  proposal.before.elementById(id) == step.before &&
+                  proposal.after.elementById(id) == step.after;
+            })) {
+          return const EditResult.allow();
+        }
+        return const EditResult.denied(reason: 'Schema content is read-only');
+      },
+    ),
+  );
+  try {
+    controller.edits.batch('Relationship label visibility', () {
+      controller.edits
+          .dispatch(
+            DiagramTransaction(
+              steps: steps,
+              label: 'Relationship label visibility',
+            ),
+            expectedRevision: document.revision,
+          )
+          .requireAllowed();
+    }, history: false).requireAllowed();
+  } finally {
+    controller.diagram.setRules(rules);
+  }
+}
+
+/// Commit the preference only after the native label transaction succeeds.
+/// This path never changes routes, styles, node positions or undo history.
+void setSchemaRelationshipLabels(
+  DiagramController controller,
+  SchemaViewPreferences preferences,
+  bool visible,
+) {
+  final previous = _appliedConnections[controller];
+  final document = controller.document;
+  final settingsBefore = _connectionSettings(preferences);
+  _applyRelationshipLabels(controller, visible);
+  preferences.showRelationshipLabels = visible;
+  if (previous != null &&
+      identical(previous.document, document) &&
+      previous.settings == settingsBefore) {
+    _appliedConnections[controller] = (
+      document: controller.document,
+      settings: _connectionSettings(preferences),
+    );
+  }
+}
+
+/// Native appearance updates preserve column bindings and schema semantics.
 void applySchemaConnections(
   DiagramController controller,
   SchemaViewPreferences preferences,
 ) {
+  final settings = _connectionSettings(preferences);
+  final applied = _appliedConnections[controller];
+  if (applied != null &&
+      identical(applied.document, controller.document) &&
+      applied.settings == settings) {
+    return;
+  }
   final style = preferences.connectionStyle;
-  controller.edits.batch('Connection appearance', () {
-    for (final edge
-        in controller.document.elements.whereType<ConnectorElement>()) {
-      controller.edits
-          .setConnectorRoute(
-            edge.id,
-            route: style.route,
-            portSpacing: 0,
-            options: style.hasCorners
-                ? {
-                    'cornerRadius': style == SchemaConnectionStyle.rounded
-                        ? preferences.cornerRadius
-                        : 0.0,
-                    'terminalExtension': preferences.portExtension,
-                  }
-                : const {},
-          )
-          .requireAllowed();
-      controller.edits
-          .setConnectorStyle(
-            edge.id,
-            strokeWidth: preferences.strokeWidth,
-            strokeStyle: preferences.dashedConnections
-                ? StrokeStyle.dashed
-                : StrokeStyle.solid,
-          )
-          .requireAllowed();
-    }
-  }).requireAllowed();
+  final ids = controller.document.elements
+      .whereType<ConnectorElement>()
+      .map((edge) => edge.id)
+      .toList();
+  if (ids.isNotEmpty) {
+    controller.edits.batch('Connection appearance', () {
+      controller.edits.perform(ids, 'setConnectorRoute', {
+        'route': style.route,
+        'portSpacing': 0.0,
+        'options': style.hasCorners
+            ? {
+                'cornerRadius': style == SchemaConnectionStyle.rounded
+                    ? preferences.cornerRadius
+                    : 0.0,
+                'terminalExtension': preferences.portExtension,
+              }
+            : const <String, Object?>{},
+      }).requireAllowed();
+      controller.edits.perform(ids, 'setConnectorStyle', {
+        'strokeWidth': preferences.strokeWidth,
+        'strokeStyle': preferences.dashedConnections
+            ? StrokeStyle.dashed
+            : StrokeStyle.solid,
+      }).requireAllowed();
+    }).requireAllowed();
+  }
+  _applyRelationshipLabels(controller, preferences.showRelationshipLabels);
+  _appliedConnections[controller] = (
+    document: controller.document,
+    settings: settings,
+  );
 }
 
 /// Play native effects on visible relationships touching selected tables.

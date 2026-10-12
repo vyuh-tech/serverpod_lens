@@ -1,4 +1,76 @@
-# Verification — 9 October 2026
+# Verification
+
+## Settings and connection hardening — 2026-10-12
+
+Relationship labels are hidden by default. The setting restores the original
+native label objects in one transaction, retaining IDs, text, column mappings,
+positions and badge styling. Label-only changes do not update routes or styles
+and do not enter undo history. Failed label updates leave their preference alone;
+failed connection appearance updates restore the last successful controls.
+
+Settings now have Connections, Animation and Canvas categories. Small screens
+and larger text use a category dropdown. Nearby-table snapping has an enable
+switch and screen-pixel distance; the distance control disables when snapping
+is off. Grid snapping remains a separate option.
+
+Eleven connection hardening checks cover empty graphs, repeated toggles, stable
+label IDs, composite and multilingual text, cache isolation across controllers,
+external document changes, uncommitted preferences, denied updates, read-only
+admission, all route styles and undo history, including 100 deterministic mixed
+settings operations with a pinned random seed. Seven settings widget checks
+exercise 320px and 1000px widths, doubled text, light/dark themes, RTL, snapping
+disabled, independent grid snapping, distance endpoints and rejected style
+updates. Test screenshots check geometry only: the test font uses placeholder
+glyphs and cannot establish production typography quality.
+
+On the same synthetic Linux Flutter engine fixture, showing 3,000 labels on
+1,000 connections improved from 4,145 ms to 75 ms (about 55 times faster).
+Reapplying unchanged settings improved from 6.2 ms to 0.003 ms per call over five
+iterations. These are diagnostic timings, not release-browser frame-time or
+physical-device measurements. The native route/style updates are also bulked;
+this benchmark does not isolate routing speed.
+
+The final runner repeat measured 66 ms to restore labels at the same scale.
+Workspace analysis and changed-file formatting pass. All 57 Dart/Flutter tests pass:
+24 viewer-package tests, 27 demo tests, 5 shared-reader tests and 1 Serverpod
+schema bridge test. Existing demo regressions were updated to enter Animation
+settings explicitly and enable labels when checking their preservation.
+
+Five real PostgreSQL parser tests pass, including a broken trailing declaration
+and 100 self-referencing tables. The parser regression now compares its AST
+against the committed fixture instead of rewriting that fixture during a test.
+On Node 26.8.2, `node --test parser.test.cjs` only reported the file as passing;
+`node parser.test.cjs` executes and reports all five individual `node:test`
+checks, so the npm test command now uses that path.
+
+The Python SQL importer regression is blocked: `sqlglot` is absent and an isolated
+attempt to obtain pinned version 30.21.0 failed because PyPI DNS/network access
+is unavailable. The test now includes the importer's stderr in its failure
+message. This is a dependency failure, not evidence of an importer regression.
+
+Reproduce the socket-free checks and benchmark with an existing Flutter SDK:
+
+```sh
+bash serverpod_lens/tool/run_connection_hardening.sh /path/to/flutter
+```
+
+The runner is Linux-only and writes temporary compilation artifacts under `/tmp`.
+The same correctness checks are registered in the regular Flutter test suite.
+In this restricted environment, the suites run using Flutter's
+`test --no-pub --experimental-faster-testing` runner. Serverpod/Dart MCP tools
+are unavailable, so this pass does not establish hot-restart or live-driver
+verification of the updated application.
+
+Git staging was initially blocked by the read-only `.git` mount. Session
+permissions were restored before publication; repository history records the
+final published revision. The standard release build encountered a read-only
+Dart telemetry file outside the workspace; full release packaging remains to
+verify in an unrestricted environment.
+
+Optimized JavaScript compilation of Flutter's generated web entry point passes
+when the Dart compiler is invoked directly with global analytics suppression.
+This compiles the updated application; it does not replace Flutter's full asset
+packaging or a live release-browser check.
 
 ## Package and SQL import checks — 2026-10-09
 
