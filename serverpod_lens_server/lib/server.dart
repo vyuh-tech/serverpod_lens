@@ -45,6 +45,7 @@ void run(List<String> args) async {
 
   // Checks if the flutter web app has been built and serves it if it has.
   pod.webServer.addRoute(RuntimeConfigRoute());
+  pod.webServer.addRoute(RuntimeConfigRoute(path: '/assets/config.json'));
   final appDir = Directory(Uri(path: 'web/app').toFilePath());
   if (appDir.existsSync()) {
     // Serve the flutter web app under /.

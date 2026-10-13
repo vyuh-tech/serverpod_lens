@@ -2,7 +2,9 @@ import 'package:serverpod/serverpod.dart';
 
 /// Supplies deployment-specific client configuration without rebuilding Flutter.
 class RuntimeConfigRoute extends WidgetRoute {
-  RuntimeConfigRoute() : super(path: '/assets/config.json');
+  // Flutter prefixes its asset base to the key `assets/config.json`.
+  RuntimeConfigRoute({String path = '/assets/assets/config.json'})
+    : super(path: path);
 
   @override
   Future<WebWidget> build(Session session, Request request) async {
