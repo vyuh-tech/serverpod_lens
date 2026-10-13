@@ -27,7 +27,7 @@ flowchart TB
 
     subgraph shared["Shared contract · serverpod_lens_schema"]
         reader["SchemaDefinitionReader<br/>Resolved definition → graph data"]
-        graph["SchemaGraph<br/>Plain Dart tables, columns and foreign keys"]
+        schemaGraph["SchemaGraph<br/>Plain Dart tables, columns and foreign keys"]
     end
 
     subgraph host["Connected Flutter host · serverpod_lens_host_flutter"]
@@ -52,12 +52,12 @@ flowchart TB
     source -->|"resolved definition"| reader
     reader -->|"backend DTO bridge"| endpoint
     endpoint -->|"snapshot or unchanged revision"| client
-    connection -->|"DTO → plain model"| graph
+    connection -->|"DTO → plain model"| schemaGraph
     inputs --> imports
     imports -->|"migration definition"| reader
-    reader -->|"offline model bridge"| graph
-    imports -->|"YAML / SQL graph"| graph
-    graph --> queries
+    reader -->|"offline model bridge"| schemaGraph
+    imports -->|"YAML / SQL graph"| schemaGraph
+    schemaGraph --> queries
 
     classDef server fill:#e8f0fe,stroke:#4285f4,color:#15345b
     classDef model fill:#e8f5e9,stroke:#43a047,color:#173d20
@@ -65,7 +65,7 @@ flowchart TB
     classDef demo fill:#fff3e0,stroke:#fb8c00,color:#663c00
     classDef diagram fill:#f3e5f5,stroke:#8e24aa,color:#49205a
     class target,source,endpoint server
-    class reader,graph model
+    class reader,schemaGraph model
     class client,connection,queries,screen flutter
     class inputs,imports demo
     class mapping,canvas diagram
