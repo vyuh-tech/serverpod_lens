@@ -15,6 +15,7 @@ class _DemoSignInState extends State<DemoSignIn> {
   final _username = TextEditingController(text: 'test');
   final _password = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final _registrationKey = GlobalKey<FormState>();
   late final _emailAuth = EmailAuthController(client: widget.client)
     ..addListener(_authChanged);
   EmailFlowScreen? _flow;
@@ -70,6 +71,92 @@ class _DemoSignInState extends State<DemoSignIn> {
     super.dispose();
   }
 
+  Widget _registrationForm(BuildContext context) {
+    final theme = Theme.of(context);
+    return Form(
+      key: _registrationKey,
+      child: AutofillGroup(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Create your account',
+              style: theme.textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                letterSpacing: -.7,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Start with your email. We’ll send a code to verify it.',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 32),
+            TextFormField(
+              controller: _emailAuth.emailController,
+              enabled: !_emailAuth.isLoading,
+              keyboardType: TextInputType.emailAddress,
+              autofillHints: const [AutofillHints.email],
+              textInputAction: TextInputAction.done,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (value) {
+                try {
+                  _emailAuth.emailValidation(value?.trim() ?? '');
+                  return null;
+                } catch (_) {
+                  return 'Enter a valid email address.';
+                }
+              },
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                hintText: 'you@example.com',
+              ),
+              onFieldSubmitted: (_) => _startRegistration(),
+            ),
+            if (_emailAuth.state == EmailAuthState.error) ...[
+              const SizedBox(height: 16),
+              Semantics(
+                liveRegion: true,
+                child: Text(
+                  'Could not continue. Check your email and try again.',
+                  style: TextStyle(color: theme.colorScheme.error),
+                ),
+              ),
+            ],
+            const SizedBox(height: 24),
+            FilledButton(
+              onPressed: _emailAuth.isLoading ? null : _startRegistration,
+              child: Text(
+                _emailAuth.isLoading ? 'Sending code…' : 'Continue with email',
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Already have an account?'),
+                TextButton(
+                  onPressed: _emailAuth.isLoading
+                      ? null
+                      : () => setState(() => _flow = null),
+                  child: const Text('Sign in'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _startRegistration() {
+    if (!_emailAuth.isLoading && _registrationKey.currentState!.validate()) {
+      _emailAuth.startRegistration();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -88,7 +175,10 @@ class _DemoSignInState extends State<DemoSignIn> {
             ),
           ),
           const SizedBox(height: 16),
-          EmailSignInWidget(controller: _emailAuth),
+          if (_emailAuth.currentScreen == EmailFlowScreen.startRegistration)
+            _registrationForm(context)
+          else
+            EmailSignInWidget(controller: _emailAuth),
           if (_emailAuth.currentScreen ==
               EmailFlowScreen.startRegistration) ...[
             const SizedBox(height: 20),
