@@ -10,5 +10,6 @@
 project:
   projectId: "serverpod-lens"
   scripts:
-    pre_deploy: []
+    pre_deploy:
+      - dart tool/write_flutter_config.dart https://serverpod-lens.api.serverpod.space/
     post_deploy: []
