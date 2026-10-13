@@ -13,8 +13,8 @@ the entrant chooses that hosting option.
 ## Current status
 
 13 October 2026: deployed on Serverpod Cloud in Europe with managed PostgreSQL.
-Cloud reports 1/1 instances ready. Source revision: `a167107`; deployment:
-`94a6c66c-0255-4d5d-aade-f3546ed98322`.
+Cloud reports 1/1 instances ready. Source revision: `ef75cb9`; deployment:
+`e0d97d7c-ec9e-477f-b1f8-c49fd0cd235f`.
 
 - Web app: https://serverpod-lens.serverpod.space/
 - API: https://serverpod-lens.api.serverpod.space/

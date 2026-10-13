@@ -79,7 +79,7 @@ A replacement recording and public YouTube/Vimeo upload are pending.
 
 - Title: Serverpod Lens
 - Repository: https://github.com/vyuh-tech/serverpod_lens
-- Deployed source revision: `a167107` (pushed to main)
+- Deployed source revision: `ef75cb9` (pushed to main)
 - Judge-accessible URL: https://serverpod-lens.serverpod.space/
 - Judge account instructions: sign in as `test`; deliver the password separately; see DEPLOYMENT.md
 - Public YouTube/Vimeo URL: replacement recording and public upload pending

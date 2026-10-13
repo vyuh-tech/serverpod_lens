@@ -1,6 +1,21 @@
 # Verification
 
-## Serverpod Cloud release — 2026-10-13
+## Responsive UI release — 2026-10-13
+
+Source `ef75cb9` adds a desktop relationships inspector and redesigned
+Serverpod authentication screens.
+
+- Dart analysis passes for the viewer and connected host; changed files are formatted.
+- The Flutter JavaScript release builds and the deployment archive includes the correct HTTPS API config.
+- Desktop relationships render in a 400 px right panel; at phone width the same
+  content opens in a bottom sheet. Both were inspected at the public URL after demo sign-in.
+- Login and account creation were inspected at 1440 px and 390 px. The sign-up
+  form survives resizing and uses Serverpod's email registration controller;
+  verification and password creation use its built-in flow.
+- Browser layout checks reported no uncaught errors. No new accounts were created
+  and no automated test suites were run for this UI change.
+
+## Initial Serverpod Cloud release — 2026-10-13
 
 Deployed source `a167107`, attempt `94a6c66c-0255-4d5d-aade-f3546ed98322`.
 Cloud reports 1/1 instances ready at https://serverpod-lens.serverpod.space/.
