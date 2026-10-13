@@ -7,6 +7,7 @@ import 'package:serverpod_cloud_storage/serverpod_cloud_storage.dart';
 import 'src/cache_busting.dart';
 import 'src/auth/demo_account.dart';
 import 'src/generated/serverpod.dart';
+import 'src/web/runtime_config_route.dart';
 
 /// The starting point of the Serverpod server.
 void run(List<String> args) async {
@@ -43,6 +44,7 @@ void run(List<String> args) async {
   );
 
   // Checks if the flutter web app has been built and serves it if it has.
+  pod.webServer.addRoute(RuntimeConfigRoute());
   final appDir = Directory(Uri(path: 'web/app').toFilePath());
   if (appDir.existsSync()) {
     // Serve the flutter web app under /.
