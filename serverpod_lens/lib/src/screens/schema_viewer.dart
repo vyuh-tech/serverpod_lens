@@ -653,7 +653,10 @@ class _SchemaViewerState extends State<SchemaViewer> {
                               SizedBox(width: 280, child: sidebar),
                               const VerticalDivider(width: 1),
                             ],
-                            Expanded(child: canvas),
+                            Expanded(
+                              key: const ValueKey('schemaCanvas'),
+                              child: canvas,
+                            ),
                             if (_relationshipsVisible &&
                                 _contextMembers.isNotEmpty) ...[
                               const VerticalDivider(width: 1),

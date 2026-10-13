@@ -4,9 +4,16 @@ import 'package:serverpod_lens_client/serverpod_lens_client.dart' as api;
 import 'demo_sign_in.dart';
 
 /// Responsive presentation around Serverpod's authentication flows.
-class AuthScreen extends StatelessWidget {
+class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key, required this.client});
   final api.Client client;
+
+  @override
+  State<AuthScreen> createState() => _AuthScreenState();
+}
+
+class _AuthScreenState extends State<AuthScreen> {
+  final _loginKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +77,7 @@ class AuthScreen extends StatelessWidget {
                         children: [
                           const _Brand(),
                           const SizedBox(height: 48),
-                          DemoSignIn(client: client),
+                          DemoSignIn(key: _loginKey, client: widget.client),
                           const SizedBox(height: 40),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
