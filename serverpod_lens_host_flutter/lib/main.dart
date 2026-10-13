@@ -7,7 +7,7 @@ import 'package:serverpod_flutter/serverpod_flutter.dart';
 import 'package:serverpod_lens_client/serverpod_lens_client.dart' as api;
 
 import 'connected_schema_screen.dart';
-import 'demo_sign_in.dart';
+import 'auth_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,7 +62,7 @@ class _HostAppState extends State<HostApp> {
         return ValueListenableBuilder(
           valueListenable: client.auth.authInfoListenable,
           builder: (context, auth, _) => auth == null
-              ? _SignInScreen(client: client)
+              ? AuthScreen(client: client)
               : ConnectedSchemaScreen(
                   key: ValueKey(auth.authUserId.toString()),
                   client: client,
@@ -70,40 +70,6 @@ class _HostAppState extends State<HostApp> {
                 ),
         );
       },
-    ),
-  );
-}
-
-class _SignInScreen extends StatelessWidget {
-  const _SignInScreen({required this.client});
-  final api.Client client;
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Serverpod Lens')),
-    body: Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 440),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Explore your Serverpod schema',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Sign in to open the host’s current schema, follow relationships, and check for updates. Your project owner controls access.',
-              ),
-              const SizedBox(height: 32),
-              DemoSignIn(client: client),
-            ],
-          ),
-        ),
-      ),
     ),
   );
 }

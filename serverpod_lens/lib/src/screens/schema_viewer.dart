@@ -22,6 +22,7 @@ import '../schema/schema_view_interactions.dart';
 import 'schema_view_settings.dart';
 import 'schema_group_editor.dart';
 import 'schema_context_controls.dart';
+import 'schema_relationships_panel.dart';
 
 /// Schema search and filtering around Vyuh's native read-only canvas.
 class SchemaViewer extends StatefulWidget {
@@ -42,6 +43,7 @@ class _SchemaViewerState extends State<SchemaViewer> {
   final _preferences = SchemaViewPreferences();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _browserVisible = true;
+  bool _relationshipsVisible = false;
   final _searchController = TextEditingController();
   ReactionDisposer? _selectionWatcher;
   ReactionDisposer? _contextWatcher;
@@ -157,6 +159,7 @@ class _SchemaViewerState extends State<SchemaViewer> {
       _graph = graph;
       _contextGraph = SchemaContext(graph);
       _neighborhood = null;
+      _relationshipsVisible = false;
       _groups.clear();
       _activeGroup = null;
       _previousCamera = null;
@@ -222,6 +225,7 @@ class _SchemaViewerState extends State<SchemaViewer> {
       hops: _hops,
       direction: _direction,
     );
+    if (_contextMembers.isEmpty) _relationshipsVisible = false;
     applySchemaContext(controller, _focusRelated ? _neighborhood : null);
     setState(() {});
   }
@@ -397,20 +401,19 @@ class _SchemaViewerState extends State<SchemaViewer> {
     );
   }
 
+  void _selectRelationship(String destination) {
+    if (_schema != null &&
+        _contextGraph!.tables[destination]?.schema != _schema) {
+      _filter(null, preserveContext: true, fit: false);
+    }
+    _selectTable(destination);
+  }
+
   Future<void> _relationships() async {
-    final graph = _contextGraph!;
-    final members = _contextMembers;
-    final internal = graph.internal(members);
-    final incoming = graph.external(
-      members,
-      direction: RelationDirection.incoming,
-    );
-    final outgoing = graph.external(
-      members,
-      direction: RelationDirection.outgoing,
-    );
-    final relations = [...internal, ...incoming, ...outgoing];
-    final group = _activeGroup;
+    if (MediaQuery.sizeOf(context).width >= 700) {
+      setState(() => _relationshipsVisible = !_relationshipsVisible);
+      return;
+    }
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -418,89 +421,15 @@ class _SchemaViewerState extends State<SchemaViewer> {
       builder: (sheetContext) => SafeArea(
         child: SizedBox(
           height: MediaQuery.sizeOf(sheetContext).height * .7,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              ListTile(
-                title: Text(
-                  group == null
-                      ? 'Table relationships'
-                      : '${group.name} relationships',
-                ),
-                subtitle: Text(
-                  '${internal.length} internal · ${incoming.length} incoming · ${outgoing.length} outgoing',
-                ),
-                trailing: IconButton(
-                  tooltip: 'Close relationships',
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.of(sheetContext).pop(),
-                ),
-              ),
-              if (group != null && group.note.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  child: Text(group.note),
-                ),
-              const Divider(height: 1),
-              Expanded(
-                child: relations.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'No foreign-key relationships in this snapshot.',
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: relations.length,
-                        itemBuilder: (_, i) {
-                          final relation = relations[i];
-                          final key = relation.foreignKey;
-                          final destination = members.contains(relation.table)
-                              ? key.refTable
-                              : relation.table;
-                          final missing = !graph.tables.containsKey(
-                            destination,
-                          );
-                          final kind =
-                              members.contains(relation.table) &&
-                                  members.contains(key.refTable)
-                              ? 'Internal'
-                              : members.contains(relation.table)
-                              ? 'Outgoing'
-                              : 'Incoming';
-                          return ListTile(
-                            leading: Icon(
-                              missing
-                                  ? Icons.link_off
-                                  : Icons.account_tree_outlined,
-                            ),
-                            title: Text('${relation.table} → ${key.refTable}'),
-                            subtitle: Text(
-                              '${key.columns.join(', ')} → ${key.refColumns.join(', ')}\n$kind${missing ? ' · Target absent from snapshot' : ''}',
-                            ),
-                            isThreeLine: true,
-                            onTap: missing
-                                ? null
-                                : () {
-                                    Navigator.of(sheetContext).pop();
-                                    if (_schema != null &&
-                                        graph.tables[destination]?.schema !=
-                                            _schema) {
-                                      _filter(
-                                        null,
-                                        preserveContext: true,
-                                        fit: false,
-                                      );
-                                    }
-                                    _selectTable(destination);
-                                  },
-                          );
-                        },
-                      ),
-              ),
-            ],
+          child: SchemaRelationshipsPanel(
+            graph: _contextGraph!,
+            members: _contextMembers,
+            group: _activeGroup,
+            onClose: () => Navigator.of(sheetContext).pop(),
+            onSelect: (destination) {
+              Navigator.of(sheetContext).pop();
+              _selectRelationship(destination);
+            },
           ),
         ),
       ),
@@ -718,11 +647,29 @@ class _SchemaViewerState extends State<SchemaViewer> {
                         }
                         return Row(
                           children: [
-                            if (_browserVisible) ...[
+                            if (_browserVisible &&
+                                (!_relationshipsVisible ||
+                                    constraints.maxWidth >= 1100)) ...[
                               SizedBox(width: 280, child: sidebar),
                               const VerticalDivider(width: 1),
                             ],
                             Expanded(child: canvas),
+                            if (_relationshipsVisible &&
+                                _contextMembers.isNotEmpty) ...[
+                              const VerticalDivider(width: 1),
+                              SizedBox(
+                                width: constraints.maxWidth < 1100 ? 320 : 400,
+                                child: SchemaRelationshipsPanel(
+                                  graph: _contextGraph!,
+                                  members: _contextMembers,
+                                  group: _activeGroup,
+                                  onClose: () => setState(
+                                    () => _relationshipsVisible = false,
+                                  ),
+                                  onSelect: _selectRelationship,
+                                ),
+                              ),
+                            ],
                           ],
                         );
                       },
