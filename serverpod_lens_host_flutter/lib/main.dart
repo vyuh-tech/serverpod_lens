@@ -7,6 +7,7 @@ import 'package:serverpod_flutter/serverpod_flutter.dart';
 import 'package:serverpod_lens_client/serverpod_lens_client.dart' as api;
 
 import 'connected_schema_screen.dart';
+import 'demo_sign_in.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -98,7 +99,7 @@ class _SignInScreen extends StatelessWidget {
                 'Sign in to open the host’s current schema, follow relationships, and check for updates. Your project owner controls access.',
               ),
               const SizedBox(height: 32),
-              SignInWidget(client: client),
+              DemoSignIn(client: client),
             ],
           ),
         ),

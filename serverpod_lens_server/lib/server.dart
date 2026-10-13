@@ -5,6 +5,7 @@ import 'package:serverpod_auth_idp_server/providers/email.dart';
 import 'package:serverpod_cloud_storage/serverpod_cloud_storage.dart';
 
 import 'src/cache_busting.dart';
+import 'src/auth/demo_account.dart';
 import 'src/generated/serverpod.dart';
 
 /// The starting point of the Serverpod server.
@@ -93,4 +94,5 @@ void run(List<String> args) async {
 
   // Start the server.
   await pod.start();
+  await provisionDemoAccount(pod);
 }
