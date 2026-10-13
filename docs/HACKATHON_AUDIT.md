@@ -39,8 +39,9 @@ and pass afterward. The offline demo remains separate and unchanged.
   Cloud is optional under the rules; another host or functioning test build can
   provide judge access without procuring a Cloud plan.
 - [Submission copy and demo script](SUBMISSION.md) and
-  [deployment/judge instructions](DEPLOYMENT.md) are prepared. A captioned local release walkthrough is also recorded; its
-  public YouTube/Vimeo upload and the actual submission remain.
+  [deployment/judge instructions](DEPLOYMENT.md) are prepared. The previous local
+  walkthrough recordings and editing assets were deleted at the entrant's request
+  on 13 October 2026. A replacement public video and the actual submission remain.
 
 An unchanged refresh retains the current graph and exploration state. A changed
 schema replaces the map and resets exploration context. This reads the generated

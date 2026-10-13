@@ -71,18 +71,18 @@ credentials and verification codes out of the recording.
 
 The supplied Official Rules require a publicly visible YouTube/Vimeo video under
 two minutes. The participant overview allows three minutes; staying under two
-satisfies both captured descriptions. A captioned local release walkthrough has now been recorded and exported as
-`serverpod-lens-demo.mp4` in the local submission artifacts directory. It still
-needs review and a public YouTube/Vimeo upload; no public video URL exists yet.
+satisfies both captured descriptions. On 13 October 2026, all previous local Lens
+recordings and their editing assets were deleted at the entrant's request.
+A replacement recording and public YouTube/Vimeo upload are pending.
 
 ## Final submission fields
 
 - Title: Serverpod Lens
 - Repository: https://github.com/vyuh-tech/serverpod_lens
 - Tested commit: fill with the final pushed revision
-- Deployed web URL: pending Cloud project setup and verification
+- Judge-accessible URL or runnable test build: pending hosting choice and verification; Cloud is optional
 - Judge account instructions: follow DEPLOYMENT.md; deliver credentials separately
-- Public YouTube/Vimeo URL: local captioned recording prepared; public upload pending
+- Public YouTube/Vimeo URL: replacement recording and public upload pending
 - Description/AI disclosure: review the copy above
 - Deadline: 14 October 2026, 23:59 CEST / 15 October, 03:29 IST
 - After submitting: verify receipt/status and preserve the exact submitted materials
