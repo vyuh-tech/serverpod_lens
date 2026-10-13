@@ -3,14 +3,25 @@
 Checked 12 October 2026 against the supplied Official Rules, the captured
 participant overview, the current working tree and the latest verification
 results. The connected app now uses real Serverpod authentication and a protected
-schema endpoint. Local API and automated checks pass. Submission is still pending
-working judge access, the public video and final
+schema endpoint. Local API and automated checks pass. Cloud hosting and the demo
+account are now available. Submission is still pending
+delivery of judge credentials, the public video and final
 BuilderBase submission. See the dated follow-up below; historical findings remain
 for traceability.
 
 The user confirms registration and a one-person team, and confirms there is no
 current demo or walkthrough video. Registration and team size are therefore
 recorded as confirmed by the entrant, not independently checked in BuilderBase.
+
+## Cloud-host follow-up — 13 October 2026
+
+The connected app is deployed at https://serverpod-lens.serverpod.space/ with
+managed PostgreSQL and a read-only demo account, username `test`. The password is
+stored as a Cloud secret and supplied separately. The deployed source revision
+is `a167107`. Production API checks confirm 156 target tables, signed-out denial,
+project restriction and unchanged refresh. See DEPLOYMENT.md and VERIFICATION.md
+for the configuration and browser evidence. Public video upload and BuilderBase
+submission remain pending.
 
 ## Connected-host follow-up — 12 October 2026
 

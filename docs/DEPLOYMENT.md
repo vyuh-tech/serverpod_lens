@@ -12,10 +12,13 @@ the entrant chooses that hosting option.
 
 ## Current status
 
-13 October 2026: Cloud project `serverpod-lens` now exists in Europe with a
-Starter trial and managed PostgreSQL. The backend is linked via `scloud.yaml`.
-The connected release build and package inspection pass. The first upload failed
-with a network error; deployment and the public login are not yet verified.
+13 October 2026: deployed on Serverpod Cloud in Europe with managed PostgreSQL.
+Cloud reports 1/1 instances ready. Source revision: `a167107`; deployment:
+`94a6c66c-0255-4d5d-aade-f3546ed98322`.
+
+- Web app: https://serverpod-lens.serverpod.space/
+- API: https://serverpod-lens.api.serverpod.space/
+- Demo username: `test`; supply the password separately.
 
 The host accepts the demo username `test` as an alias for the operator-provisioned
 identity `test@serverpod-lens.invalid`. It still authenticates through Serverpod's
@@ -24,18 +27,8 @@ enables account creation at startup with only the project's schema-read scope.
 The password is not in source or the Flutter build. Existing accounts are neither
 reset nor regranted on restart. The reserved email is a demo identity, not a
 mailbox; normal email signup and password reset remain available for real users.
-After verifying the account, unset the bootstrap secret so subsequent deployments
-do not provision it. Deliver the demo password separately to judges.
-
-Historical setup result:
-
-12 October 2026: local authenticated API checks, 12 backend tests, 11 host Flutter
-tests and the JavaScript release build pass. A Cloud packaging dry run succeeds.
-Cloud account login is complete, but project creation failed with `A payment
-method is required to procure Starter.` There is no deployed Cloud URL yet.
-To continue specifically with Cloud, the account owner would complete project/plan setup in the
-[Serverpod Console](https://console.serverpod.dev/project). The attempted ID was
-`serverpod-lens`, with database enabled. Do not assume this name is reserved.
+The bootstrap secret remains configured for this demonstration deployment.
+Startup preserves the existing identity. Deliver the demo password separately to judges.
 
 ## Local connected app
 
@@ -71,8 +64,13 @@ uploads its static output plus the server and pure Dart schema package. Inspect
 `serverpod_lens_server/web/app` inside the archive. Do not upload development
 passwords, pub registry credentials, embedded databases, or test account secrets.
 The deployment CLI creates `.scloudignore` and supplies production configuration.
-Use the runtime `assets/config.json` served by `RuntimeConfigRoute`; a localhost
-API address must never be baked into the production build.
+The `scloud.yaml` pre-deploy hook writes the public API address with
+`tool/write_flutter_config.dart` to `web/app/assets/assets/config.json`. This is
+where Flutter loads the asset key `assets/config.json`. It runs after your web
+build and before uploading. Update the hook URL if deploying another project.
+The file contains only the public API address. Never package a localhost address
+in a production build. `RuntimeConfigRoute` also exposes configuration at
+`/assets/config.json` for direct consumers; the Flutter demo uses its packaged asset.
 
 Cloud currently provisions fresh platform-managed values for these authentication
 passwords; verify their status with `serverpod cloud password list`. Do not copy

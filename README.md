@@ -3,6 +3,9 @@
 A read-only schema explorer for Serverpod. Find tables and columns, follow foreign
 keys, and focus on the relationships that matter in a large project.
 
+[Hosted demo](https://serverpod-lens.serverpod.space/) · Read-only demo username: `test`
+(password supplied separately).
+
 Lens works alongside Serverpod infrastructure: the backend supplies its resolved
 schema and enforces access; the Flutter host manages sessions and refresh; the
 reusable viewer displays a plain Dart graph using Vyuh Diagram.

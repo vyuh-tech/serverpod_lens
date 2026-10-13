@@ -79,9 +79,9 @@ A replacement recording and public YouTube/Vimeo upload are pending.
 
 - Title: Serverpod Lens
 - Repository: https://github.com/vyuh-tech/serverpod_lens
-- Tested commit: fill with the final pushed revision
-- Judge-accessible URL or runnable test build: pending hosting choice and verification; Cloud is optional
-- Judge account instructions: follow DEPLOYMENT.md; deliver credentials separately
+- Deployed source revision: `a167107` (pushed to main)
+- Judge-accessible URL: https://serverpod-lens.serverpod.space/
+- Judge account instructions: sign in as `test`; deliver the password separately; see DEPLOYMENT.md
 - Public YouTube/Vimeo URL: replacement recording and public upload pending
 - Description/AI disclosure: review the copy above
 - Deadline: 14 October 2026, 23:59 CEST / 15 October, 03:29 IST

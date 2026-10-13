@@ -12,13 +12,12 @@ the construction plan, delivery sequence, and verification criteria.
 
 ## Submission priorities — 13 October 2026
 
-1. Provide working judge access to the connected Serverpod app: a deployed build
-   or a reproducible runnable test build, with a read-only account and verified
-   instructions. Cloud setup previously required a payment method; Cloud is
-   optional. Check the event resources for available Cloud credits.
-2. Verify the chosen build's complete flow: sign in, load the host schema, search
-   and follow relationships, refresh, and sign out. Check denied access separately.
-   The recorded local results in VERIFICATION.md do not establish production access.
+1. Hosting is complete: https://serverpod-lens.serverpod.space/ runs on Serverpod
+   Cloud with a read-only demo account, username `test`. Deliver its password and
+   testing instructions to judges separately. Deployment details are in DEPLOYMENT.md.
+2. Production API checks confirm authenticated schema delivery, signed-out denial,
+   project restriction and revision-based refresh. See VERIFICATION.md for browser
+   checks and remaining device/accessibility work.
 3. Record and publicly upload a replacement walkthrough under two minutes. Previous
    recordings and their editing assets were removed on 13 October at the entrant's
    request. No public video URL is recorded.

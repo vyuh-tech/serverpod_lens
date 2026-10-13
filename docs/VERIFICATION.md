@@ -1,5 +1,42 @@
 # Verification
 
+## Serverpod Cloud release — 2026-10-13
+
+Deployed source `a167107`, attempt `94a6c66c-0255-4d5d-aade-f3546ed98322`.
+Cloud reports 1/1 instances ready at https://serverpod-lens.serverpod.space/.
+The managed PostgreSQL database retains the authenticated demo account across
+deployments. Username `test` maps to an operator-created email identity with only
+`schema:read:serverpod_lens`; its password is supplied separately.
+
+- Workspace Dart analysis passes and changed Dart files are formatted.
+- The connected JavaScript release builds. The extracted backend package resolves
+  with `dart pub get --enforce-lockfile` and builds with `dart build cli` using no
+  Flutter SDK or private Vyuh registry credentials. Cloud build and rollout pass.
+- The deployment archive contains the frontend, shared schema package and Flutter
+  API config asset; development passwords, database directories and caches are
+  excluded. The demo password is absent from the compiled frontend.
+- Production HTTP checks: signed-out schema requests return 401; demo login returns
+  200 with only the read scope; authorized delivery contains 156 target tables;
+  unchanged refresh omits the graph; another project is rejected with 400.
+- Chromium at the actual public URL, without request overrides: demo username
+  sign-in, native map rendering, `elog_areas` search, completed unchanged refresh
+  retaining the query, and sign-out returning to login all pass. Uncaught browser
+  error count is zero. The authenticated screenshot was inspected.
+
+Cloud packaging now excludes the viewer's Flutter-only `base_menu` override by
+keeping it in the viewer pubspec. A pre-deploy hook writes the public API URL at
+`web/app/assets/assets/config.json`, matching Flutter's request for the asset key
+`assets/config.json`. Serverpod 4.0.4's `FlutterRoute` does not generate this file.
+The host's ordinary config route remains at `/assets/config.json`. A duplicate
+route registration reproduced Relic's `Conflicting children` error locally and
+was removed. The final backend library code matches the earlier successful
+release; the upload adds the packaged config asset. Experimental pool settings
+were reverted to the platform default.
+
+The automated regression suites below were not rerun for this deployment. These
+are build, packaging and production checks; physical-device and screen-reader
+verification remain open. Public demo video and BuilderBase submission are pending.
+
 ## Connected host and release — 2026-10-12
 
 Current automated suite: **92 passing checks** across seven suites:
