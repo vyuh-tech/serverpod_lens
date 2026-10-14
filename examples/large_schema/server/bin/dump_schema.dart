@@ -6,12 +6,12 @@ import 'package:serverpod_lens_server/src/schema/schema_extractor.dart';
 /// Exports this Serverpod project's resolved schema for adapter verification.
 /// This does not overwrite the separately imported flutter_elog SQL asset.
 ///
-/// Run from the `serverpod_lens_server` directory:
+/// Run from the `examples/large_schema/server` directory:
 ///   dart run bin/dump_schema.dart
 Future<void> main() async {
   final outPath =
       Platform.environment['POD_LENS_GRAPH_OUT'] ??
-      '../docs/serverpod-schema.json';
+      '../../../docs/serverpod-schema.json';
 
   final migrationsDir = Directory('migrations');
   final versions =

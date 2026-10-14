@@ -43,7 +43,7 @@ no undiscovered vulnerabilities exist. No external scanner report was supplied.
 
 `python tool/audit_dependencies.py` queries the locked public versions using the
 [OSV batch API](https://google.github.io/osv.dev/post-v1-querybatch/).
-239 Pub and 29 npm queries returned no advisories. Private Vyuh packages, SDK
+The latest workspace scan queried 268 locked public package versions and returned no advisories. Private Vyuh packages, SDK
 components, OS/browser packages and libraries outside these lockfiles are not
 covered. A zero-result advisory lookup does not prove absence of vulnerabilities.
 
@@ -54,3 +54,14 @@ of this release await an authorized deployment. Browser/device coverage beyond
 local Chromium and widget checks remains open. The demo account is deliberately
 shared and read-only; it is not a personal production account. Backend target
 integration is tested against Serverpod 4.0.4; newer contracts need the same tests.
+
+## Local CLI review
+
+The local viewer has no authentication by design and binds only to IPv4 loopback.
+HTTP clients cannot select another project or a filesystem path. Tests reject
+cross-origin requests, forged Host headers, write methods and static symlinks
+outside the web root. The CLI reads generated metadata without starting Serverpod
+or connecting to its database. Source indexing prunes generated folders, recognizes
+Serverpod's three model filename forms and never follows link entries. Only an
+operator-selected project is compiled; the CLI is not a remote project executor.
+The optional Cloud demonstration retains Serverpod login and project scopes.

@@ -111,16 +111,15 @@ Future<DiagramController> buildSchemaCanvas(
       controller.camera.copyWith(minZoom: .000001, maxZoom: 1),
     );
     applySchemaConnections(controller, preferences);
-    controller.edits.batch('Read-only connection presentation', () {
-      controller.edits
-          .setLocked(
-            true,
-            ids: controller.document.elements.whereType<ConnectorElement>().map(
-              (edge) => edge.id,
-            ),
-          )
-          .requireAllowed();
-    }, history: false).requireAllowed();
+    final connections = controller.document.elements
+        .whereType<ConnectorElement>()
+        .map((edge) => edge.id)
+        .toList();
+    if (connections.isNotEmpty) {
+      controller.edits.batch('Read-only connection presentation', () {
+        controller.edits.setLocked(true, ids: connections).requireAllowed();
+      }, history: false).requireAllowed();
+    }
     controller.diagram.setRules(schemaViewRules);
     return controller;
   } catch (_) {

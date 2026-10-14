@@ -75,4 +75,48 @@ void main() {
       );
     },
   );
+  test(
+    'unchanged generation reuses target but source edits invalidate snapshots',
+    () async {
+      var runs = 0;
+      final table = TableDefinition(
+        name: 'customers',
+        schema: 'public',
+        module: 'shop',
+        columns: [],
+        foreignKeys: [],
+        indexes: [],
+      );
+      final loader = ProjectSnapshotLoader(
+        project,
+        runner: (executable, arguments, {workingDirectory}) async {
+          runs++;
+          return ProcessResult(
+            0,
+            0,
+            'LENS_TARGET_JSON=${jsonEncode({
+              'tables': [table],
+            })}',
+            '',
+          );
+        },
+      );
+      final first = await loader.read();
+      final second = await loader.read(knownRevision: first.revision);
+      expect(second.graph, isNull);
+      expect(runs, 1);
+      File('${project.path}/lib/src/models/customer.spy.yaml')
+          .writeAsStringSync(
+            'class: Customer\ntable: customers\nfields:\n  name: String\n  email: String\n',
+          );
+      final changed = await loader.read(knownRevision: first.revision);
+      expect(changed.graph, isNotNull);
+      expect(changed.revision, isNot(first.revision));
+      expect(runs, 1);
+      File('${project.path}/lib/src/generated/protocol.dart')
+          .writeAsStringSync('// changed generated target');
+      await loader.read();
+      expect(runs, 2);
+    },
+  );
 }

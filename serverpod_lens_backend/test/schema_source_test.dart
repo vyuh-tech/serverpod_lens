@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:serverpod/protocol.dart';
 import 'package:serverpod_lens_backend/serverpod_lens_backend.dart';
 import 'package:test/test.dart';
@@ -69,4 +71,31 @@ void main() {
     expect(result.sourcePaths, isEmpty);
     expect(result.modelSources, isEmpty);
   });
+  test(
+    'source index supports models outside src and prunes generated files',
+    () {
+      final root = Directory.systemTemp.createTempSync('lens-index-');
+      addTearDown(() => root.deleteSync(recursive: true));
+      File('${root.path}/lib/models/customer.spy.yaml')
+        ..parent.createSync(recursive: true)
+        ..writeAsStringSync('class: Customer\ntable: customers\n');
+      File('${root.path}/lib/src/generated/private.spy.yaml')
+        ..parent.createSync(recursive: true)
+        ..writeAsStringSync('class: Customer\ntable: customers\n');
+      final models = ModelSourceIndex(projectDirectory: root.path).read();
+      expect(models.paths['public.customers'], 'lib/models/customer.spy.yaml');
+      expect(models.sources.length, 1);
+      for (final (extension, tableName) in [
+        ('spy.yml', 'alias_yml'),
+        ('spy', 'alias_spy'),
+      ]) {
+        File('${root.path}/lib/models/$tableName.$extension')
+            .writeAsStringSync('class: Alias\ntable: $tableName\n');
+      }
+      final aliases = ModelSourceIndex(projectDirectory: root.path).read();
+      expect(aliases.sources.length, 3);
+      expect(aliases.paths['public.alias_yml'], endsWith('.spy.yml'));
+      expect(aliases.paths['public.alias_spy'], endsWith('.spy'));
+    },
+  );
 }

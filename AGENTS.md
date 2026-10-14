@@ -6,7 +6,7 @@ serverpod_lens is a **schema visualizer for Serverpod**. It reads a Serverpod
 project's schema and renders it as an interactive map (tables as nodes, columns
 as rows, foreign keys as edges) using [Vyuh Diagram](https://diagram.vyuh.tech).
 The goal is a read-only feature for Serverpod's development tools. See `docs/PLAN.md`
-for architecture and `docs/elog-schema.md` for the initial SQL dataset.
+for package interfaces, examples and local/Cloud responsibilities.
 
 Current pipeline:
 
@@ -18,22 +18,26 @@ Serverpod migration definition
                  └─ DiagramCanvas (native movement/effects; schema edits blocked)
 ```
 
-- `serverpod_lens_flutter/tool/import_elog_schema.py` reads the external flutter_elog
-  SQL directories and writes the viewer asset plus an import report. Do not modify
-  that source project. The asset contains database schema identities, not modules.
-- `serverpod_lens_server/bin/dump_schema.dart` writes a separate Serverpod graph to
-  `docs/serverpod-schema.json`; it must not overwrite the SQL graph.
-- The 122 recreated models under `serverpod_lens_server/lib/src/elog_schema/` remain
-  backend fixtures; they are not the default viewer dataset or hand-authored models.
+- Reusable package code stays at the repository root: `serverpod_lens`,
+  `serverpod_lens_schema`, `serverpod_lens_backend`, and `serverpod_lens_cli`.
+- `examples/shop/` and `examples/large_schema/` are real Serverpod projects. Their
+  generated server/client code belongs to those projects. The large fixture's 122
+  recreated models are examples, not the viewer's source of truth.
+- The CLI reads a configured project's current generated target and prints a
+  loopback URL. It never starts the project server or connects to its database.
 - Vyuh supplies native table rendering, layout, minimap and read-only gestures.
   Do not install editable extensions, editor toolbars, property panels or custom
   diagram renderers. Keep source reading, semantic mapping and screen UI separate.
 
-The reusable `serverpod_lens` viewer accepts a graph from its host. The
-`serverpod_lens_flutter` demo handles local imports and has no backend dependency.
-The retained server/client packages are Serverpod integration fixtures. Build any
-host backend with Serverpod.
-Build for multiple users, use Serverpod's built-in authentication, which is already set up in `lib/server.dart`.
+The reusable viewer accepts a plain graph from its host. Shared Serverpod
+extraction belongs to `serverpod_lens_backend`; CLI and screen logic stay separate.
+Local Lens uses `serverpod run lens` and has no authentication or Cloud requirement.
+The optional connected Cloud example uses built-in Serverpod authentication and
+project read scopes. Build shared/multiuser host backends with Serverpod.
+
+An authorized local Lens CLI verification may launch its loopback HTTP viewer.
+This does not start the application server; the Serverpod runtime restrictions
+below still apply to the example application's server process.
 
 The user starts the server and Flutter app with `serverpod start`. There is no need to check if the server is running: make the changes and call the `serverpod` MCP tools as needed. If the server is not running, an informative error message will be received from the MCP server. Then STOP and ask the user to start it. NEVER start the server yourself. The Flutter app is started along with it, or can be launched from the MCP tool `spawn_flutter_app`.
 
@@ -51,7 +55,7 @@ ALWAYS use the MCP server instead of the command line. Use the MCP server to:
 - `spawn_flutter_app` to start a Flutter app declared under `serverpod: flutter_apps:` in the server `pubspec.yaml`.
 - `get_flutter_app_dtd` (Dart tooling daemon) for connecting to the app through the `dart` MCP.
 
-NEVER edit generated code. The server's `lib/src/generated/` directory and the whole `serverpod_lens_client` package are rewritten by the code generator. Change the `.spy.yaml` models, the endpoints, or `lib/server.dart` instead.
+NEVER edit generated code. Each example server's `lib/src/generated/` directory and its entire generated client package are rewritten by the code generator. Change the `.spy.yaml` models, the endpoints, or `lib/server.dart` instead.
 
 Migrations are a narrow exception: the `migration.sql` of a generated migration MAY be edited by hand when the generated SQL would lose data — to add a data transformation, or to reach a destructive change through non-destructive steps. Never touch the other files in the migration directory, and keep the schema the SQL ends up with identical to `definition.sql` — new databases are created from that file and never run `migration.sql`.
 
@@ -77,4 +81,4 @@ If the user asks you to test the app:
 2. Pass the DTD to `connect_dart_tooling_daemon` (`dart` MCP) to connect to the app
 3. Use `flutter_driver` (`dart` MCP) to navigate through the app
 
-The app is launched from `serverpod_lens_flutter/lib/driver.dart`, which starts the Flutter driver extension with text entry emulation turned off so the app stays usable by hand. To let the driver type, set `enableTextEntryEmulation: true` there and `hot_restart` the app.
+The app is launched from `examples/large_schema/flutter/lib/driver.dart`, which starts the Flutter driver extension with text entry emulation turned off so the app stays usable by hand. To let the driver type, set `enableTextEntryEmulation: true` there and `hot_restart` the app.

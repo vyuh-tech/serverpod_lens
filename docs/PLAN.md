@@ -1,91 +1,85 @@
 # Architecture
 
-Lens visualizes the database schema produced by the user's Serverpod project.
-The bundled SQL dataset and recreated backend models are demonstration fixtures.
+Lens is a local development tool built from reusable packages. Cloud is an
+optional demonstration, not a requirement for using the viewer.
 
-## Data and ownership
+## Package interfaces
 
-- `serverpod_lens_schema`: plain Dart graph and resolved-definition reader.
-- `serverpod_lens_server`: sample host target, built-in auth and project read scope.
-- `serverpod_lens_client`: generated transport, kept outside the reusable viewer.
-- `serverpod_lens_host_flutter`: sessions, initial/manual refresh and DTO conversion.
-- `serverpod_lens`: indexed navigation, saved view geometry, inspector and mapping.
-- `serverpod_lens_flutter`: optional offline imports and sample app.
-
-The host supplies a graph; the viewer never reads an arbitrary server path or
-queries application records. Complete target metadata remains available in the
-inspector. Source adapters disclose partial YAML/SQL inference.
-
-## UX audit and implementation plan — 14 October 2026
-
-The previous viewer mixed a schema scope, a bounded table neighborhood and a
-visit-history stack. It exposed those implementation choices through Back,
-References, detail-level menus, an inspector Explore action and a footer. This
-made selecting the same table behave differently in the tree and canvas.
-The inspector also mixed table metadata with field search, and the Relationships
-tab supplied another close action. The native minimap started collapsed; camera
-fit was requested before the final viewport was reliably available.
-
-The replacement plan is:
-
-1. Keep one navigation hierarchy: All schemas → actual database schemas → tables.
-   Schema selection defines the diagram scope; table selection inspects within it.
-2. Remove Back/history, neighborhood expansion controls, detail selection, the
-   footer, Explore table, the overflow menu and the obsolete group model.
-3. Reuse native selection outlines, fade and flow effects. Keep the selected
-   table and its immediate neighbors readable; dim unrelated elements. Dashes
-   flow from the selected table toward each connected neighbor. Selection does
-   not edit metadata, relayout or change canvas-click zoom.
-4. Reuse native layout, movement, snapping, minimap and camera fit. Show the
-   minimap expanded when enabled, and fit after measuring the canvas viewport.
-5. Use the same inspector in the desktop panel and mobile sheet: Details,
-   Fields, Relationships, Indexes and Source. Search and field badges live in
-   Fields; Source has its filename, path, open action and a formatted code card.
-   Closing the inspector clears selection and releases its space. Edge handles
-   collapse either panel while preserving state, and drag to resize within limits.
-6. Offer System, Light and Dark through one persisted app theme controller in
-   both hosts. Settings and authentication share the active app theme.
-7. Verify removal of old controls, independent schema expansion, scope filtering,
-   selection restoration, related-node effects/direction, camera stability,
-   maximum fit, minimap toggle, inspector tabs/source and both color schemes.
-
-### Native reuse and Lens ownership
-
-| Behavior | Existing Vyuh capability | Lens responsibility |
+| Package | Small interface | Implementation |
 | --- | --- | --- |
-| Table cards and key connections | `ShapeTable`, native ports and connectors | Map resolved Serverpod metadata to table rows and bindings |
-| Selection border | Native canvas selection chrome | Keep tree selection and the inspector synchronized |
-| Dim unrelated nodes | Transient `Effect.fade` | Determine immediate neighbors; clear emphasis with selection |
-| Moving connection dashes | `Effect.flow` with `EffectParticle.dash` | Select incident edges and orient flow toward the other node |
-| Automatic layout and dragging | Native grid, layered, tree, force and circular layouts; native movement and snapping | Layout menu with directional variants; choose schema scope and persist account-specific positions |
-| Maximum fit and zoom | `DiagramCamera`, `ViewTarget` | Measure the viewport; set native limits from full-schema fit to 100% node size |
-| Minimap | `MinimapExtension` and runtime options | Start expanded when enabled and preserve the choice across scopes |
-| Inspector, source and themes | Flutter Material widgets | Shared responsive presentation, metadata search and host theme state |
+| `serverpod_lens_schema` | `SchemaDefinitionReader.read`, `SchemaGraph` | Resolved definition mapping; preserve fields, keys, indexes and complete metadata |
+| `serverpod_lens_backend` | `LensSchemaSource.read`, `ModelSourceIndex.read` | Native target deduplication, safe source indexing, revision hashing and transport-neutral snapshots |
+| `serverpod_lens` | `SchemaViewer(graph: graph)` | Schema/table browsing, native diagram mapping, inspector, saved geometry and themes |
+| `serverpod_lens_cli` | Local command → browser URL | Read a fixed project's generated target; build/serve the tooling viewer on loopback |
 
-The obsolete bounded-slice navigation module and group type are removed. Native
-effects remain transient: selecting a table does not rewrite document opacity or
-produce undo entries. Tree and relationship navigation use native view targets;
-canvas clicks keep the current camera. Rendering remains entirely native.
+Generated transport and application authentication stay in the examples. The
+viewer has no dependency on either generated example client. It receives a plain
+graph from its host. Both examples and the CLI use the shared backend adapter.
 
-## Navigation and rendering
+## Local workflow
 
-All schemas opens the complete graph; selecting a schema shows all its tables.
-The tree and inspector relationship links select tables using the same behavior.
-Canvas selection inspects and emphasizes immediate connections without changing
-pan or zoom. View geometry is scoped by host/account.
+1. The project already has Serverpod-generated models and `Protocol`.
+2. `serverpod run lens` invokes the independent Lens executable through a supported
+   named script. A literal `serverpod lens` command is not provided by Serverpod.
+3. A local utility imports the project's generated `Protocol` and obtains its
+   current target. It does not start Serverpod or connect to the database.
+4. Lens indexes authored models anywhere under `lib`, pruning generated folders,
+   and maps the target with the shared reader.
+5. The CLI prints a loopback browser URL. The same reusable viewer presents the map.
+6. Manual Refresh rechecks sources and generated-target metadata. Unchanged targets
+   reuse the native read; unchanged snapshots omit heavy bodies and preserve the view.
 
-Vyuh owns native table rendering, row ports, connectors, layout, pan/zoom, snapping
-and minimap. Lens supplies semantic mapping and screen UI. Native admission rules
-block schema editing while allowing view movement and appearance changes.
+The tooling viewer is part of the CLI implementation, not another standalone demo.
+No login or Cloud account is needed for local use. An operator can stop Lens
+without stopping the application server.
 
-## Boundaries
+## Two complete Serverpod examples
 
-Generated definitions are authoritative; the live database catalog and migration
-comparison are outside this release. Compatibility is checked against Serverpod
-4.0.4. Installation inside upstream Serverpod development tools remains future work.
+- `examples/shop/server` and `client`: four authored commerce models, generated
+  protocol/client and native initial migration. The CLI reads the actual target,
+  including Serverpod framework tables; no hand-authored snapshot substitutes for it.
+- `examples/large_schema/server`, `client` and `flutter`: retained 156-table target.
+  Its optional connected demo uses built-in Serverpod email/JWT authentication and
+  project read scopes. Existing generated code is relocated intact.
 
-See the [README](../README.md), [verification](VERIFICATION.md) and
-[security review](SECURITY_REVIEW.md) for current behavior and evidence.
+The old offline demo and its platform scaffolding are removed. Useful importer,
+source mapping and read-only regressions now belong to the reusable viewer tests.
 
-Table cards show every column. Panel resizing uses Flutter gestures around the
-native canvas; it never replaces Vyuh pan/zoom, table rendering or minimap.
+## Native Vyuh ownership
+
+| Behavior | Native implementation | Lens responsibility |
+| --- | --- | --- |
+| Tables and field connections | Table shapes, row ports and connectors | Map Serverpod metadata |
+| Selection, fading and marching dashes | Selection chrome and transient effects | Find immediate neighbors and orient outward flow |
+| Layout and dragging | Grid, layered, tree, force and circular layouts; movement | Scope selection, work budgets and persisted positions |
+| Camera and minimap | Native fit, zoom limits and minimap | Measure the viewport; keep native bounds from overview fit to 100% |
+| Read-only connections | Native locks and connection admission | Preserve table inspection; deny creation/rebinding |
+| Inspector and panels | Flutter Material widgets around the native canvas | Consistent tabs, constrained resizing and edge collapse controls |
+
+All schemas shows the complete graph; selecting a schema shows all its tables.
+Selecting a table emphasizes neighbors without narrowing scope, relayout or
+changing canvas-click zoom. Cards show every column. Closing the inspector removes
+its space; edge collapse preserves its selection/tab. The header sidebar icon,
+Back/history, grouping, References/detail menus, Explore action and footer are removed.
+
+System/Light/Dark is shared and persisted. Source provides authored code where
+available and resolved metadata otherwise. Reduced motion retains static emphasis.
+Snapping is off by default; generic connector hover chrome is still controlled by
+Vyuh 3.5.1 and has no per-connector disable switch in that SDK.
+
+## Performance and release limits
+
+The web layered engine stalled on the measured 156-table connected fixture, so
+layered options are disabled for web scopes of 100 or more tables. Native force
+iterations are bounded by scope size. Large full maps still need realistic GPU
+profiling; software-rendered headless measurements are diagnostics, not a
+smooth-frame-rate claim. See verification for measured data.
+
+Resolved targets are authoritative. YAML-only inference remains partial and does
+not invent non-persisted database columns. Compatibility is checked against
+Serverpod 4.0.4, not every future release. Runtime database introspection and
+migration comparison are outside this release.
+
+The CLI works from this checkout. Standalone installation, registry publication
+and integration into upstream Serverpod tooling remain release work. No packages
+are published and no Cloud deployment is authorized by this restructure.

@@ -72,10 +72,10 @@ credentials and verification codes out of the recording.
 | 0–12s | Connected schema overview | “Serverpod projects can grow into hundreds of related tables. Lens helps developers understand those relationships without opening every model file.” |
 | 12–28s | Sign in and browse schemas | “This Flutter app signs in through Serverpod. The backend checks project access and returns its resolved schema, including framework and auth modules.” |
 | 28–53s | Search, select a table, follow relationships | “Search a table or column, focus its incoming and outgoing links, and inspect its immediate connections to answer which tables depend on it.” |
-| 53–70s | Right inspector and field detail | “Inspect fields, relationships, indexes and YAML in the side panel. Switch from keys to all fields, and explore only the connections needed for your question.” |
+| 53–70s | Right inspector and field detail | “Inspect fields, relationships, indexes and YAML in the side panel. Every column is shown; choose a table to emphasize its immediate connections.” |
 | 70–87s | Refresh while focused | “Refresh checks the generated target. When the schema is unchanged, Lens keeps the current map and avoids rebuilding it.” |
 | 87–100s | Ungranted account/access screen | “Authentication alone does not expose the schema. A separate account without the project scope is denied access.” |
-| 100–110s | Return to overview | “Lens combines Serverpod's schema and authorization with a reusable Flutter viewer. The goal is to make schema exploration a useful part of Serverpod development tooling.” |
+| 100–110s | Return to overview | “Lens reads Serverpod's generated schema through reusable packages; local use needs no login. The goal is to make schema exploration a useful part of Serverpod development tooling.” |
 
 The supplied Official Rules require a publicly visible YouTube/Vimeo video under
 two minutes. The participant overview allows three minutes; staying under two
@@ -98,3 +98,8 @@ A replacement recording and public YouTube/Vimeo upload are pending.
 Use [Project description](PROJECT_DESCRIPTION.md) for the submission copy and
 [Submission requirements](SUBMISSION_REQUIREMENTS.md) for the verified rules.
 Complete the final dashboard submission and confirm its receipt.
+
+The current architecture is local first: use `serverpod run lens` from either
+example server folder. Cloud and its authentication are optional demo delivery.
+The public demo still runs the earlier release; do not claim this restructure is
+already deployed. A literal `serverpod lens` command remains upstream work.

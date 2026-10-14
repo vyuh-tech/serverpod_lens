@@ -400,6 +400,7 @@ ReactionDisposer watchSchemaSelection(
   bool disableAnimations = false,
 }) {
   final settings = preferences ?? SchemaViewPreferences();
+  (String, Effect?)? lastPresentation;
   return reaction(
     (_) => (controller.selection, settings.effect, controller.isAttached),
     (state) {
@@ -411,7 +412,6 @@ ReactionDisposer watchSchemaSelection(
             controller.selection != selection) {
           return;
         }
-        controller.effects.stopAll();
         final ids = switch (selection) {
           ElementSelection(:final elementIds) => elementIds,
           StorySelection(:final elementId) => {elementId},
@@ -420,6 +420,14 @@ ReactionDisposer watchSchemaSelection(
         final roots = ids
             .where((id) => controller.document.elementById(id) is ShapeElement)
             .toSet();
+        final ordered = roots.toList()..sort();
+        final presentation = (ordered.join('\u0000'), effect);
+        if (lastPresentation == presentation &&
+            (roots.isEmpty || controller.effects.playing.isNotEmpty)) {
+          return;
+        }
+        lastPresentation = presentation;
+        controller.effects.stopAll();
         if (roots.isEmpty) return;
         final related = {...roots};
         final touching = <ConnectorElement>[];

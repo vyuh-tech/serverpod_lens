@@ -11,6 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/navigation_fixture.dart';
 
+import 'package:serverpod_lens/src/schema/schema_canvas.dart';
+
 Future<void> ready(WidgetTester tester) async {
   await tester.runAsync(
     () => Future<void>.delayed(const Duration(milliseconds: 200)),
@@ -21,6 +23,14 @@ Future<void> ready(WidgetTester tester) async {
 }
 
 void main() {
+  test('native layout budgets keep large web schemas responsive', () {
+    expect(SchemaLayout.grid.availableFor(1000, web: true), isTrue);
+    expect(SchemaLayout.layeredDown.availableFor(156, web: true), isFalse);
+    expect(SchemaLayout.layeredRight.availableFor(99, web: true), isTrue);
+    expect(SchemaLayout.layeredDown.availableFor(156, web: false), isTrue);
+    expect((SchemaLayout.force.resolve(1000) as ForceLayout).iterations, 30);
+    expect((SchemaLayout.force.resolve(10) as ForceLayout).iterations, 300);
+  });
   setUp(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
@@ -102,6 +112,20 @@ void main() {
     await ready(tester);
     expect(tester.takeException(), isNull);
   }
+
+  testWidgets(
+    'reselecting the same table keeps native effects instead of replaying them',
+    (tester) async {
+      final controller = await workspace(tester);
+      controller.select(['public.orders']);
+      await ready(tester);
+      final handles = controller.effects.playing;
+      controller.select(['public.orders']);
+      await ready(tester);
+      expect(controller.effects.playing, handles);
+      await close(tester);
+    },
+  );
 
   testWidgets(
     'connections cannot replace table inspection or expose editing handles',

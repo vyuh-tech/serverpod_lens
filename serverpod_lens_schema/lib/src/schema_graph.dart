@@ -337,4 +337,4 @@ bool isSafeModelPath(String path) =>
     !path
         .split('/')
         .any((part) => part == '..' || part == '.' || part.isEmpty) &&
-    path.endsWith('.spy.yaml');
+    ['.spy.yaml', '.spy.yml', '.spy'].any(path.endsWith);

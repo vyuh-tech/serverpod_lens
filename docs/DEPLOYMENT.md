@@ -1,4 +1,4 @@
-# Deployment and judge access
+# Optional Cloud demo and judge access
 
 ## Current hosted demo
 
@@ -13,7 +13,7 @@ required.
 
 ## Development and access
 
-Run `serverpod start` from `serverpod_lens_server`. The connected app uses
+Run `serverpod start` from `examples/large_schema/server` for the optional connected demo. The connected app uses
 `http://localhost:8092`, the API uses 8080, and the packaged web app uses 8082.
 Built-in email/JWT authentication manages registration, login and password reset.
 Development verification codes appear in server logs.
@@ -35,7 +35,7 @@ access. Keep all credentials out of source, videos and deployment archives.
 2. Build the connected frontend using the entitled Vyuh registry account and the
    server's `flutter_build` script.
 3. Inspect the Cloud upload archive and confirm it includes `web/app` and the pure
-   Dart schema package, with no local database, password files or registry tokens.
+   Dart schema and backend packages, with no local database, password files or registry tokens.
 4. The configured `scloud.yaml` pre-deploy hook writes the public API URL through
    `tool/write_flutter_config.dart` into `web/app/assets/assets/config.json`.
 5. Deploy only after authorization, then check app and API at the public URLs.
@@ -54,3 +54,7 @@ browser errors at the actual hosted URL.
 
 Record the public demo, pin the submitted source revision and supply judge access
 with the final submission. Keep the tested build available during judging.
+
+Local Lens uses `serverpod run lens` and has no authentication or Cloud dependency.
+The relocated Docker build context must include its shared Dart packages; do not
+upload the entire Flutter workspace or local CLI build caches.

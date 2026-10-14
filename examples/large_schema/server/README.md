@@ -13,7 +13,7 @@ workspace dependencies from the repository root:
 ```sh
 dart pub token add https://pub.vyuh.tech
 flutter pub get
-cd serverpod_lens_server
+cd examples/large_schema/server
 serverpod start
 ```
 
@@ -56,7 +56,7 @@ only this host's target; importing a ZIP opens an offline snapshot.
 
 The connected app loads once after sign-in and refreshes manually. Valid search,
 selection and positions survive updates; access denial clears protected content.
-See the [architecture](../docs/PLAN.md) for responsibilities and native Vyuh reuse.
+See the [architecture](../../../docs/PLAN.md) for responsibilities and native Vyuh reuse.
 
 ## Offline demo and verification
 
@@ -71,9 +71,9 @@ tool/verify.sh
 ```
 
 Set `FLUTTER_BIN` and `DART_BIN` if the SDK is outside PATH. Tests use managed
-embedded PostgreSQL and need no Docker. [Verification](../docs/VERIFICATION.md).
+embedded PostgreSQL and need no Docker. [Verification](../../../docs/VERIFICATION.md).
 
 The packages are not yet published on pub.dev. Vyuh extensions require their own
 license/entitlement. PostgreSQL parser notices ship in `serverpod_lens/assets/sql/`.
 Lens code is licensed under MIT. Third-party dependencies retain their licenses.
-[Workspace overview](../README.md).
+[Workspace overview](../../../README.md).

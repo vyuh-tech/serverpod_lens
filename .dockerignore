@@ -1,0 +1,9 @@
+.git
+**/.dart_tool
+**/.serverpod
+**/.scloud
+**/config/passwords.yaml
+**/config/firebase_service_account_key.json
+**/node_modules
+**/build
+serverpod_lens_cli/viewer

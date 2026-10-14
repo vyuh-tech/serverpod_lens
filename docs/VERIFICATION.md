@@ -1,105 +1,98 @@
 # Verification — 2026-10-14
 
-This report covers the local release. No deployment was performed; the public demo
-still runs the earlier release.
+This report covers the local monorepo. No Cloud deployment or package publication
+was performed. The public demo still runs an earlier release.
 
 ## Automated checks
 
-`tool/verify.sh` checks fatal-info analysis, formatting and all package suites.
+`tool/verify.sh` passes fatal-info analysis, formatting and all suites.
 
 | Suite | Passed |
 | --- | ---: |
-| Shared schema reader | 5 |
-| Serverpod backend with embedded PostgreSQL | 21 |
-| Reusable viewer | 67 |
-| Connected Flutter host | 14 |
-| Offline demo | 34 |
-| **Total** | **141** |
+| Plain Dart schema reader | 5 |
+| Shared Serverpod extraction adapter | 5 |
+| Local launcher and HTTP safety | 7 |
+| Large-example backend, including embedded PostgreSQL | 21 |
+| Shop generated-target integration | 1 |
+| Reusable Flutter viewer | 104 |
+| Optional connected Flutter demo | 15 |
+| **Total** | **158** |
 
-The connected JavaScript web release builds successfully. Backend tests need no
-Docker. Generated files were produced by Serverpod from the authored DTO models;
-no database migration is required for the optional transport metadata.
+The shared local Flutter viewer builds successfully for release web. Both actual
+Serverpod examples use the shared packages. The Shop protocol and initial migration
+were produced by the native Serverpod generator; generated code was not hand edited.
+Its four authored tables have three foreign keys and four indexes. The complete
+resolved target includes Serverpod framework tables (19 tables total). The large
+example contains 156 target tables and 122 authored source mappings.
 
-## Navigation acceptance
+## Local workflow
 
-- Schema → table tree, independent expand/collapse and browser hide/show.
-- All schemas contains the complete graph; schema selection contains all matching
-  tables. Table selection preserves the scope and emphasizes immediate connections.
-- Native fades dim unrelated nodes and edges; the solid relationship line stays
-  visible beneath native marching dashes that flow from the
-  selected node toward its neighbors. These effects do not mutate document opacity,
-  schema metadata, positions, camera or undo history. Reduced motion keeps emphasis
-  without continuous flow.
-- Back/history, neighborhood/detail menus, Explore table, overflow actions and the
-  status footer are removed. Clearing selection restores context and keeps the
-  desktop inspector completely closed, with no placeholder. Edge collapse preserves
-  the selection and inspector tab; both panels can be resized within limits.
-- Every column appears in its native table card, with field-to-field key bindings.
-- Native camera limits allow zooming below 25% down to the full-schema fit and cap
-  zoom at natural node size (100%). The native label reports actual scale; Fit is
-  the overview action, rather than a literal zero-scale camera.
-- Fit uses the final measured viewport and the largest fit containing the current
-  scope. The native minimap starts expanded and returns after toggling off/on.
-- The inspector separates Details, Fields, Relationships, Indexes and Source;
-  field search/type/key badges and a filename/path/open/code presentation are tested.
-- System/Light/Dark is one persisted host-level theme, applied to both apps and
-  authentication. Theme changes preserve the current diagram and selection.
-- Inspector tab continuity across tables; tablet/phone sheets preserve browser
-  access. Responsive checks cover small screens, landscape, RTL and larger text.
-- Search, selection and positions survive valid graph updates and account-scoped
-  persistence; removed models and corrupt saved views are handled explicitly.
-- Schema updates occur only on initial load and manual Refresh. Idle controller
-  tests confirm no background schema requests. Auth token refresh stays enabled.
+`serverpod run lens` was exercised in the Shop server folder and printed a working
+loopback browser URL. Both examples also run through the package executable:
 
-## Serverpod contract
+```sh
+dart run serverpod_lens_cli:serverpod_lens --project examples/shop/server
+dart run serverpod_lens_cli:serverpod_lens --project examples/large_schema/server
+```
 
-Tests use every column type and foreign-key action in the installed Serverpod
-4.0.4 SDK. They cover qualified schemas, modules, vector dimensions, composite
-keys, partial uniqueness, self-relations and future metadata retention.
+Local viewing needs no login, running application server or database. The launcher
+reads the generated target in a Dart subprocess, then serves the shared viewer.
+Unchanged generated targets reuse extracted definitions; manual refresh still
+checks authored source changes. There is no background schema polling.
 
-Complete resolved table definitions survive generated transport and plain-model
-round trips. Advanced index/constraint attributes remain inspectable. Contract
-versioning invalidates snapshots when the reader changes. The sample models are
-fixtures; a real host supplies its own generated target.
+Launcher tests cover initial snapshot reuse, explicit refresh, source and generated
+target cache invalidation, revision-based payload omission, cross-origin/Host
+rejection, unsupported writes and static-file path/link containment. Source indexing
+accepts `.spy.yaml`, `.spy.yml` and `.spy`, prunes generated folders and rejects
+ambiguous ownership. Serverpod generation remains responsible for model validity.
 
-The resolved database target is authoritative. YAML-only inference remains partial;
-non-persisted fields are visible in authored source, not invented as database
-columns. This is coverage of the tested database contract, not a claim of universal
-compatibility with all future Serverpod versions.
+## Viewer acceptance
 
-## Authentication and security
+- All schemas → schema → tables; selecting a table preserves the current scope.
+- Every column appears in its native card with field-to-field key bindings.
+- Selected tables and neighbors are emphasized; unrelated items dim. Solid lines
+  remain visible beneath outward native marching dashes. Repeated selection reuses
+  running effects, while explicitly stopped effects can restart.
+- Details, searchable Fields, Relationships, Indexes and organized Source tabs.
+- Closed desktop inspectors leave no placeholder. Both panels collapse and resize;
+  compact screens retain access through an edge handle. The header menu is removed.
+- Native minimap, measured fit below 25%, manual positioning and layout choices.
+- Persisted System/Light/Dark theme and manual refresh.
+- Contract tests cover installed Serverpod 4.0.4 column types and foreign-key
+  actions, qualified schemas, module duplication, vectors, composite keys, indexes,
+  self-relations and preservation of additional resolved metadata.
 
-Actual local HTTP passes registration/verification, login, wrong-password rejection,
-password reset, old-password rejection, JWT refresh, sign-out and refresh revocation.
-Anonymous schema access returns 401. New accounts receive no project read scope and
-schema access returns 403. The temporary audit account was removed.
+The database target is authoritative. Non-persisted model fields remain in source;
+they are not invented as database columns. These tests cover the installed SDK,
+not every future Serverpod version.
 
-The designated demo signs in with only the project read scope. Delivery returns
-156 target tables and 122 authored source mappings; unchanged revisions omit graph
-and source bodies. Endpoint tests reject other project IDs and filesystem paths.
+## Performance diagnostics
 
-Four import regressions cover input/expansion limits, ZIP traversal and forged
-expansion headers. The dependency audit queried 239 public Pub and 29 npm packages;
-no OSV advisories were returned. See [Security review](SECURITY_REVIEW.md) for
-fixes, exclusions and remaining verification limits.
+One synthetic Chromium run used software rendering, 12 columns per table and
+approximately two relationships per table. Measurements are diagnostic elapsed
+times, not hardware GPU frame timings or a smooth-interaction guarantee.
 
-## Local browser check
+| Tables | Relationships | Ready | Selection | Pan/zoom median interval |
+| ---: | ---: | ---: | ---: | ---: |
+| 156 | 300 | 3.66 s | 582 ms | 319 ms |
+| 500 | 988 | 7.22 s | 1.96 s | 1.05 s |
+| 1,000 | 1,988 | 12.13 s | 6.15 s | 3.01 s |
 
-Chromium checks against the local connected build pass sign-in, absence of schema
-polling, one manual refresh, tree selection, removal of old controls, Fields,
-Source/open-action availability and clearing selection without hiding the browser.
-No uncaught browser errors were recorded in that flow.
+Native Grid, Tree, Force and Circular completed without browser errors. Native
+Layered layout stalled on the large web graph; it is disabled on web scopes of
+100 or more tables. Native Force uses a bounded iteration budget. Large full maps
+still need SDK rendering/effect improvements; schema selection reduces the visible
+scope. No custom renderer or vendored SDK modification was introduced.
 
-Browser accessibility actions and keyboard navigation also exercise Settings,
-Dark theme selection, minimap off/on, dialog dismissal and returning to Fields.
-The dark-mode screenshot was inspected. Popup pointer automation is limited by
-Flutter's accessibility overlay; the successful flow uses semantic activation and
-keyboard selection. Mounted-widget tests separately verify the actual toggle
-state, System/Light/Dark persistence and mobile inspector behavior.
+## Security and remaining scope
 
-## Remaining verification
+The dependency audit queried 268 locked public packages and returned no OSV
+advisories. This excludes private SDK dependencies and does not prove absence of
+all vulnerabilities. Optional Cloud authentication retains its existing built-in
+Serverpod/project-scope tests. Local Lens is intentionally loopback only.
 
-Cloud email delivery and production checks for this release await deployment
-approval. Physical devices, Safari/Firefox, screen readers and browser profiling
-of very large full maps remain outside this pass. Upstream Serverpod development-tool
-installation and package publication remain future work.
+Vyuh 3.5.1 still exposes its generic connection hover decoration; admission rules
+prevent connection editing. Cloud packaging was updated but has not been deployed
+or production verified. Physical devices, other browser engines and screen readers
+remain outside this pass. Standalone CLI distribution and upstream `serverpod lens`
+integration remain future work; the supported command today is `serverpod run lens`.

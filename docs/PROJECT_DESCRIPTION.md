@@ -26,9 +26,11 @@ other records, which tables reference an important entity, and how a backend is
 organized. It supports design reviews, onboarding and everyday development by
 making the application's data foundation easier to understand and explain.
 
-The working application uses **Serverpod for authentication, project access and
-schema delivery**, **Flutter for the interface**, and **Vyuh Diagram for native
-rendering and navigation**. The viewer is a reusable package: a host supplies its
+The primary workflow is local: run **`serverpod run lens`** and open the browser
+link. No login, Cloud account or running application server is required. **Serverpod
+provides the generated schema**, **Flutter provides the interface**, and **Vyuh
+Diagram provides native rendering and navigation**. The optional Cloud demo adds
+Serverpod authentication for shared access. The viewer is a reusable package: a host supplies its
 resolved schema graph and optional model-source links. Moving tables changes the
 view; Lens remains read-only for model definitions and database contents.
 
@@ -50,29 +52,34 @@ application and brings visual schema exploration into their existing workflow.
 
 ## How it fits into a project
 
-1. The Serverpod host supplies its generated database schema through an authorized
-   endpoint; the shared reader converts it into a plain Dart graph.
-2. A Flutter host embeds `SchemaViewer(graph: graph)`, adding its own authentication,
-   refresh controls and optional model-source action.
-3. Developers browse the project schema, inspect a table and follow the connections
-   relevant to their task.
+1. Serverpod resolves the project's `.spy.yaml` models into its generated target.
+2. `serverpod run lens` reads that target through the reusable adapter and prints a
+   loopback browser link. Developers can refresh manually after generation.
+3. A Flutter host can also embed `SchemaViewer(graph: graph)` directly. A shared
+   hosted integration supplies its own authenticated transport and project scopes.
 
-The included connected host demonstrates this integration. The sample data is a
-fixture; Lens's viewer and reader are built to accept another host project's graph.
-The packages are currently in the repository, not published on pub.dev or installed
-inside official Serverpod development tools.
+Two complete Serverpod projects demonstrate the same packages: a small shop and
+an existing large schema. Generated server/client code lives in the examples.
+The reader, backend adapter, viewer and CLI remain reusable repository packages.
+They are not yet published or installed as an official Serverpod CLI command.
 
 ## Verified evidence
 
-- **141 automated tests** cover extraction, native rendering, navigation,
+- **Automated package and example tests** cover extraction, native rendering, navigation,
   persistence, authorization, manual refresh and import protections.
 - Contract checks exercise **all 19 database column types** and every foreign-key
   action in the installed **Serverpod 4.0.4** SDK. Complete resolved table metadata
   is retained, including advanced index/constraint attributes and vector dimensions.
 - Large-schema regressions use a **396-table sample** and a synthetic table with
   **1,000 neighbors** to check indexed traversal and focus behavior.
-- Local checks exercise registration, login, password reset, JWT refresh and
-  sign-out, plus denial of schema access without the project read scope.
+- The local CLI serves both projects without login or database startup. Its tests
+  cover fixed-project delivery, manual refresh, source indexing and loopback safety.
+- The optional connected demo retains tests for project authorization, session
+  handling and manual refresh. Earlier local lifecycle checks covered registration,
+  password reset, JWT refresh and sign-out.
+- Release-web profiling exercises 156, 500 and 1,000 tables. It identifies software
+  rendering limits and guards an expensive web layout; it does not claim universal
+  smooth performance.
 
 These are implementation checks, not measured user time savings or a guarantee
 of compatibility with every future Serverpod version. See

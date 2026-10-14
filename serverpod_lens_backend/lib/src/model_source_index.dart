@@ -5,7 +5,7 @@ import 'package:yaml/yaml.dart';
 
 /// Indexes only this host's authored models. Never accepts a client file path.
 final class ModelSourceIndex {
-  ModelSourceIndex({this.root = 'lib/src', this.projectDirectory});
+  ModelSourceIndex({this.root = 'lib', this.projectDirectory});
   final String? projectDirectory;
   final String root;
   final _cache = <String, (DateTime, int, String, String?)>{};
@@ -19,10 +19,11 @@ final class ModelSourceIndex {
     if (!directory.existsSync()) return (paths: paths, sources: sources);
     final present = <String>{};
     final files =
-        directory
-            .listSync(recursive: true, followLinks: false)
-            .whereType<File>()
-            .where((file) => file.path.endsWith('.spy.yaml'))
+        _authoredFiles(directory)
+            .where(
+              (file) =>
+                  ['.spy.yaml', '.spy.yml', '.spy'].any(file.path.endsWith),
+            )
             .toList()
           ..sort((a, b) => a.path.compareTo(b.path));
     for (final file in files) {
@@ -64,5 +65,18 @@ final class ModelSourceIndex {
     }
     _cache.removeWhere((path, _) => !present.contains(path));
     return (paths: paths, sources: sources);
+  }
+}
+
+/// Prune generated code before traversing it; authored models may live anywhere
+/// under lib. Link entries are never followed.
+Iterable<File> _authoredFiles(Directory directory) sync* {
+  for (final entity in directory.listSync(followLinks: false)) {
+    if (entity is File) {
+      yield entity;
+    } else if (entity is Directory &&
+        path.basename(entity.path) != 'generated') {
+      yield* _authoredFiles(entity);
+    }
   }
 }

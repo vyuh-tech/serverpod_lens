@@ -19,10 +19,9 @@ let a host add source controls. No asset or generated client is required.
 imports SQL on web or PostgreSQL 17 ASTs on any platform. Import results retain
 warnings so the host can disclose partial results before rendering them.
 
-The sibling `serverpod_lens_flutter` app demonstrates file picking and pasted
-SQL. See the [workspace README](../README.md) for installation, supported inputs,
-view settings, limits and checks. This private workspace package is not yet
-published or integrated upstream into Serverpod tooling.
+The CLI's shared local viewer and two Serverpod projects under `examples/`
+demonstrate the package. The host owns schema delivery and manual refresh.
+The optional connected Cloud demo owns authentication; local CLI usage has no login.
 
 ## Install from Git
 
@@ -50,12 +49,12 @@ is currently needed for an upstream package archive issue. Dependency overrides
 in this package are not inherited by consumers.
 
 Authenticate with Vyuh's licensed extension registry before `flutter pub get`.
-The example in `example/` runs independently of the sample Serverpod backend.
+The projects in `../examples/` use the shared extraction and viewer packages.
 
 ## Package release status
 
-There are two reusable release units: `serverpod_lens_schema` (plain Dart) and
-`serverpod_lens` (Flutter). Server/client fixtures and demo apps stay unpublished.
+The root packages are the schema reader, Serverpod adapter, Flutter viewer and
+local CLI. Generated Serverpod clients and demo applications stay unpublished.
 
 The schema package has version, README, changelog, example and MIT license files.
 `publish_to: none` remains a deliberate safeguard until an actual release is

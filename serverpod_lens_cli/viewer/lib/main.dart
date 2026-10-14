@@ -44,11 +44,7 @@ class _LocalLensAppState extends State<LocalLensApp> {
     try {
       final endpoint = Uri.base
           .resolve('/lens/schema')
-          .replace(
-            queryParameters: {
-              'knownRevision': ?_revision,
-            },
-          );
+          .replace(queryParameters: {'knownRevision': ?_revision});
       final response = await _http
           .get(endpoint)
           .timeout(const Duration(seconds: 60));
