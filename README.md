@@ -6,16 +6,17 @@ Lens turns Serverpod's generated schema into an interactive, read-only map.
 Browse schemas and tables, inspect fields and keys, and follow relationships.
 It reads model definitions, never application records.
 
-![Serverpod Lens schema explorer](docs/schema-map.png)
-
 ## Try the demo
 
 [Open Serverpod Lens](https://serverpod-lens.serverpod.space/) — explore a
-156-table example hosted on Serverpod Cloud. Use the demo account shared in the
-hackathon submission.
+156-table example hosted on Serverpod Cloud.
+
+**Demo login:** username `test`, password `test123!`.
 
 This URL stays the same when we deploy updates to the same Cloud project.
 Cloud and authentication are only needed for the shared demo.
+
+![Serverpod Lens schema explorer](docs/schema-map.png)
 
 ## Run locally
 
