@@ -78,6 +78,11 @@ All schemas → schema → tables is the navigation hierarchy. Selection emphasi
 the table and its immediate connections; solid lines remain beneath outward
 marching dashes. One native effect path owns emphasis. Closing/collapsing/resizing
 panels, searchable fields, source display and System/Light/Dark remain shared UI.
+
+`SchemaBrowser` owns tree expansion, search and scroll independently of the canvas.
+Every level uses `SchemaTreeRow` with one full-width hover/selection surface.
+Chevrons fold branches; row labels choose schema scope or inspect a table. Search
+temporarily reveals matching branches and restores the previous tree when cleared.
 Moving shapes changes view geometry, never the project's models or records.
 
 ## Optional imports and Cloud

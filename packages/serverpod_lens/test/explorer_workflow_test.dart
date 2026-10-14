@@ -149,7 +149,7 @@ void main() {
       final graph = fixture(neighbors: 30);
       await tester.pumpWidget(host(graph, MemorySchemaViewStore()));
       await settle(tester);
-      await tester.tap(find.widgetWithText(ListTile, 'All schemas'));
+      await tester.tap(find.byKey(const ValueKey('all-schemas')));
       await settle(tester);
       expect(
         canvas(tester).document.elements.whereType<ShapeElement>(),

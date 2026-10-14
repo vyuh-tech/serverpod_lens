@@ -12,6 +12,7 @@ import '../schema/schema_catalog.dart';
 import '../schema/schema_canvas.dart';
 import '../schema/schema_view_store.dart';
 import '../schema/schema_view_interactions.dart';
+import 'schema_browser.dart';
 import 'schema_table_inspector.dart';
 import 'schema_view_settings.dart';
 
@@ -45,8 +46,6 @@ class _SchemaViewerState extends State<SchemaViewer> {
   final _preferences = SchemaViewPreferences();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _canvasKey = GlobalKey();
-  final _search = TextEditingController();
-  final _expandedSchemas = <String>{};
   final _inspected = ValueNotifier<String?>(null);
   final _savedViews = <String, Map<String, dynamic>>{};
   DiagramController? _controller;
@@ -54,10 +53,8 @@ class _SchemaViewerState extends State<SchemaViewer> {
   ReactionDisposer? _effectWatcher;
   ReactionDisposer? _positionWatcher;
   Timer? _saveDebounce;
-  Timer? _searchDebounce;
   String? _schema;
   String? _canvasSchema;
-  String _query = '';
   bool _browserVisible = true;
   bool _inspectorVisible = false;
   double _browserWidth = 280;
@@ -94,15 +91,11 @@ class _SchemaViewerState extends State<SchemaViewer> {
     _index();
     if (projectChanged) {
       _savedViews.clear();
-      _expandedSchemas.clear();
       _schema = null;
-      _query = '';
-      _search.clear();
       _inspected.value = null;
       _replaceController(null);
       unawaited(_initialize());
     } else {
-      _expandedSchemas.retainAll(_catalog.schemaCounts.keys);
       if (!_catalog.schemaCounts.containsKey(_schema)) _schema = null;
       final selected = _context.tables.containsKey(_inspected.value)
           ? _inspected.value
@@ -566,173 +559,19 @@ class _SchemaViewerState extends State<SchemaViewer> {
     if (mounted) _clearSelection();
   }
 
-  Widget _browser({bool closeOnSelect = false}) {
-    final matches = _catalog.tables(query: _query);
-    final counts = _catalog.schemaCounts;
-    final bySchema = <String, List<SchemaTable>>{};
-    for (final table in matches) {
-      bySchema.putIfAbsent(table.schema, () => []).add(table);
-    }
-    final schemas = counts.keys.toList()..sort();
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Schemas',
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: 'Collapse all schemas',
-                    onPressed: () => setState(_expandedSchemas.clear),
-                    icon: const Icon(Icons.unfold_less),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _search,
-                decoration: const InputDecoration(
-                  hintText: 'Find a table or column',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  _searchDebounce?.cancel();
-                  _searchDebounce = Timer(
-                    const Duration(milliseconds: 120),
-                    () {
-                      if (!mounted) return;
-                      setState(() {
-                        _query = value;
-                        if (value.isNotEmpty) {
-                          _expandedSchemas.addAll(
-                            _catalog
-                                .tables(query: value)
-                                .map((table) => table.schema),
-                          );
-                        }
-                      });
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: ListTile(
-                  selected: _schema == null,
-                  leading: const Icon(Icons.account_tree_outlined, size: 20),
-                  title: const Text('All schemas'),
-                  subtitle: Text('${widget.graph.tables.length} tables'),
-                  onTap: _loading ? null : () => _openSchema(null),
-                ),
-              ),
-              if (matches.isEmpty)
-                const SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(child: Text('No matching tables')),
-                ),
-              for (final schema in schemas)
-                if (bySchema.containsKey(schema)) ...[
-                  SliverToBoxAdapter(
-                    child: Row(
-                      key: ValueKey('schema:$schema'),
-                      children: [
-                        IconButton(
-                          key: ValueKey('toggle-schema:$schema'),
-                          tooltip:
-                              '${_expandedSchemas.contains(schema) ? 'Collapse' : 'Expand'} $schema',
-                          icon: Icon(
-                            _expandedSchemas.contains(schema)
-                                ? Icons.expand_more
-                                : Icons.chevron_right,
-                          ),
-                          onPressed: () => setState(() {
-                            if (!_expandedSchemas.remove(schema)) {
-                              _expandedSchemas.add(schema);
-                            }
-                          }),
-                        ),
-                        Expanded(
-                          child: ListTile(
-                            selected: _schema == schema,
-                            contentPadding: const EdgeInsets.only(
-                              left: 4,
-                              right: 12,
-                            ),
-                            title: Text(schema),
-                            subtitle: Text('${counts[schema]} tables'),
-                            onTap: _loading
-                                ? null
-                                : () {
-                                    _expandedSchemas.add(schema);
-                                    _openSchema(schema);
-                                    if (closeOnSelect) {
-                                      _scaffoldKey.currentState?.closeDrawer();
-                                    }
-                                  },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (_expandedSchemas.contains(schema))
-                    SliverList.builder(
-                      itemCount: bySchema[schema]!.length,
-                      itemBuilder: (_, index) {
-                        final table = bySchema[schema]![index];
-                        return ListTile(
-                          key: ValueKey('table:${table.name}'),
-                          contentPadding: const EdgeInsets.only(
-                            left: 48,
-                            right: 12,
-                          ),
-                          dense: true,
-                          selected: table.name == _inspected.value,
-                          leading: const Icon(
-                            Icons.table_chart_outlined,
-                            size: 18,
-                          ),
-                          title: Text(
-                            table.name.startsWith('$schema.')
-                                ? table.name.substring(schema.length + 1)
-                                : table.name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          subtitle: Text(
-                            '${table.columns.length} columns · ${table.foreignKeys.length} references',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          onTap: _loading
-                              ? null
-                              : () => _selectTable(
-                                  table.name,
-                                  closeBrowser: closeOnSelect,
-                                ),
-                        );
-                      },
-                    ),
-                ],
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+  Widget _browser({bool closeOnSelect = false}) => SchemaBrowser(
+    key: ValueKey('browser:$_storageKey'),
+    catalog: _catalog,
+    selectedSchema: _schema,
+    selectedTable: _inspected.value,
+    enabled: !_loading,
+    onSelectSchema: (schema) {
+      unawaited(_openSchema(schema));
+      if (closeOnSelect) _scaffoldKey.currentState?.closeDrawer();
+    },
+    onSelectTable: (id) =>
+        unawaited(_selectTable(id, closeBrowser: closeOnSelect)),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -925,8 +764,6 @@ class _SchemaViewerState extends State<SchemaViewer> {
     _saveDebounce?.cancel();
     unawaited(_persist());
     _positionWatcher?.call();
-    _searchDebounce?.cancel();
-    _search.dispose();
     _inspected.dispose();
     _selectionWatcher?.call();
     _effectWatcher?.call();

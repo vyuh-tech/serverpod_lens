@@ -5,7 +5,8 @@ was performed. The public demo still runs an earlier release.
 
 ## Automated checks
 
-`tool/verify.sh` passes fatal-info analysis, formatting and all suites.
+The full `tool/verify.sh` run passed fatal-info analysis, formatting and the 172
+tests below before the tree update. The subsequent tree checks are recorded at the end.
 
 | Suite | Passed |
 | --- | ---: |
@@ -144,3 +145,17 @@ files, including unused Docker configuration and schema export wrappers. Shared
 schema/transport regression assertions remain in place. This cleanup passes
 fatal-info analysis, all 21 backend tests, and live schema delivery from both
 local examples (19 and 156 tables). `tool/lens/` remains the local launcher.
+
+## Consistent schema tree
+
+The updated viewer passes fatal-info analysis, formatting, release web compilation
+and all 93 viewer tests, including nine new navigation tests. These cover independent
+schema/root expansion, retained selection, search/scroll restoration, refreshed
+field matches, disabled navigation, uniform hover in both themes, narrow RTL with
+large text, and keyboard activation with expansion semantics.
+
+Local Chromium acceptance passed against both examples (19 and 156 tables): schema
+and root collapse preserve the open inspector, search and table selection work,
+and no uncaught browser errors were recorded. The browser and shared row component
+own navigation state independently of the native Vyuh canvas. No Cloud deployment
+or package release is part of this UI update.

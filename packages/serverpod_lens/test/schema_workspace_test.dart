@@ -258,7 +258,7 @@ void main() {
     'schema scope contains all its tables and All schemas restores all connections',
     (tester) async {
       await workspace(tester);
-      await tester.tap(find.widgetWithText(ListTile, 'public'));
+      await tester.tap(find.byKey(const ValueKey('schema:public')));
       await ready(tester);
       var controller = tester
           .widget<DiagramCanvas>(find.byType(DiagramCanvas))
@@ -268,7 +268,7 @@ void main() {
         hasLength(5),
       );
       expect(controller.document.elementById('audit.log'), isNull);
-      await tester.tap(find.widgetWithText(ListTile, 'All schemas'));
+      await tester.tap(find.byKey(const ValueKey('all-schemas')));
       await ready(tester);
       controller = tester
           .widget<DiagramCanvas>(find.byType(DiagramCanvas))

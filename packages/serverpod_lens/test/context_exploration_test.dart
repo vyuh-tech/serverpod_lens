@@ -43,7 +43,7 @@ void main() {
         ),
       );
       await settle(tester);
-      await tester.tap(find.widgetWithText(ListTile, 'auth'));
+      await tester.tap(find.byKey(const ValueKey('schema:auth')));
       await settle(tester);
       var controller = tester
           .widget<DiagramCanvas>(find.byType(DiagramCanvas))
