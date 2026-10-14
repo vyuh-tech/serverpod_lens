@@ -11,10 +11,10 @@ still runs the earlier release.
 | --- | ---: |
 | Shared schema reader | 5 |
 | Serverpod backend with embedded PostgreSQL | 21 |
-| Reusable viewer | 64 |
+| Reusable viewer | 67 |
 | Connected Flutter host | 14 |
 | Offline demo | 34 |
-| **Total** | **138** |
+| **Total** | **141** |
 
 The connected JavaScript web release builds successfully. Backend tests need no
 Docker. Generated files were produced by Serverpod from the authored DTO models;
@@ -25,13 +25,19 @@ no database migration is required for the optional transport metadata.
 - Schema → table tree, independent expand/collapse and browser hide/show.
 - All schemas contains the complete graph; schema selection contains all matching
   tables. Table selection preserves the scope and emphasizes immediate connections.
-- Native fades dim unrelated nodes and edges; native marching dashes flow from the
+- Native fades dim unrelated nodes and edges; the solid relationship line stays
+  visible beneath native marching dashes that flow from the
   selected node toward its neighbors. These effects do not mutate document opacity,
   schema metadata, positions, camera or undo history. Reduced motion keeps emphasis
   without continuous flow.
 - Back/history, neighborhood/detail menus, Explore table, overflow actions and the
   status footer are removed. Clearing selection restores context and keeps the
-  desktop inspector width stable.
+  desktop inspector completely closed, with no placeholder. Edge collapse preserves
+  the selection and inspector tab; both panels can be resized within limits.
+- Every column appears in its native table card, with field-to-field key bindings.
+- Native camera limits allow zooming below 25% down to the full-schema fit and cap
+  zoom at natural node size (100%). The native label reports actual scale; Fit is
+  the overview action, rather than a literal zero-scale camera.
 - Fit uses the final measured viewport and the largest fit containing the current
   scope. The native minimap starts expanded and returns after toggling off/on.
 - The inspector separates Details, Fields, Relationships, Indexes and Source;

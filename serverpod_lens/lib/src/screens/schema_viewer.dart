@@ -59,6 +59,9 @@ class _SchemaViewerState extends State<SchemaViewer> {
   String? _canvasSchema;
   String _query = '';
   bool _browserVisible = true;
+  bool _inspectorVisible = false;
+  double _browserWidth = 280;
+  double _inspectorWidth = 380;
   bool _loading = false;
   bool _sheetOpen = false;
   bool _saveError = false;
@@ -211,7 +214,10 @@ class _SchemaViewerState extends State<SchemaViewer> {
             next.selection != selection) {
           return;
         }
-        setState(() => _inspected.value = id);
+        _updatePanels(() {
+          if (_inspected.value != id) _inspectorVisible = id != null;
+          _inspected.value = id;
+        });
         if (id != null &&
             MediaQuery.sizeOf(context).width < 1100 &&
             !_sheetOpen) {
@@ -223,7 +229,116 @@ class _SchemaViewerState extends State<SchemaViewer> {
 
   void _clearSelection() {
     _controller?.clearSelection();
-    setState(() => _inspected.value = null);
+    _updatePanels(() {
+      _inspected.value = null;
+      _inspectorVisible = false;
+    });
+  }
+
+  void _updatePanels(VoidCallback update) {
+    final controller = _controller;
+    final camera = controller?.camera;
+    final before = (
+      _browserVisible,
+      _inspected.value != null,
+      _inspectorVisible,
+      _browserWidth,
+      _inspectorWidth,
+    );
+    setState(update);
+    if (before ==
+        (
+          _browserVisible,
+          _inspected.value != null,
+          _inspectorVisible,
+          _browserWidth,
+          _inspectorWidth,
+        )) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted ||
+          controller == null ||
+          camera == null ||
+          !identical(controller, _controller)) {
+        return;
+      }
+      controller.setCamera(
+        controller.camera.copyWith(center: camera.center, zoom: camera.zoom),
+      );
+      updateSchemaZoomRange(controller);
+    });
+  }
+
+  Widget _panelHandle({
+    required String label,
+    required bool expanded,
+    required bool left,
+    required VoidCallback onPressed,
+    bool enabled = true,
+    ValueChanged<double>? onResize,
+  }) {
+    final colors = Theme.of(context).colorScheme;
+    return MouseRegion(
+      cursor: expanded
+          ? SystemMouseCursors.resizeColumn
+          : SystemMouseCursors.basic,
+      child: GestureDetector(
+        key: ValueKey('resize:$label'),
+        behavior: HitTestBehavior.opaque,
+        onHorizontalDragUpdate: expanded && onResize != null
+            ? (event) => onResize(event.delta.dx)
+            : null,
+        child: SizedBox(
+          width: 24,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Center(
+                child: VerticalDivider(width: 1, color: colors.outlineVariant),
+              ),
+              if (expanded)
+                Center(
+                  child: Icon(
+                    Icons.drag_indicator,
+                    size: 16,
+                    color: colors.outlineVariant,
+                  ),
+                ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: SizedBox(
+                    width: 24,
+                    height: 40,
+                    child: Material(
+                      color: colors.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(5),
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints.tightFor(
+                          width: 24,
+                          height: 40,
+                        ),
+                        tooltip: '${expanded ? 'Collapse' : 'Expand'} $label',
+                        onPressed: enabled ? onPressed : null,
+                        iconSize: 18,
+                        icon: Icon(
+                          (left == expanded)
+                              ? Icons.chevron_left
+                              : Icons.chevron_right,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _selectTable(String id, {bool closeBrowser = false}) async {
@@ -231,6 +346,7 @@ class _SchemaViewerState extends State<SchemaViewer> {
     if (table == null || _loading) return;
     if (closeBrowser) _scaffoldKey.currentState?.closeDrawer();
     FocusManager.instance.primaryFocus?.unfocus();
+    _updatePanels(() => _inspectorVisible = true);
     if (_controller?.document.elementById(id) == null) {
       await _openSchema(table.schema, selected: id);
     } else {
@@ -341,6 +457,7 @@ class _SchemaViewerState extends State<SchemaViewer> {
     if (box is RenderBox && box.hasSize && !box.size.isEmpty) {
       DiagramCamera(controller)
           .setViewport(DiagramSize(box.size.width, box.size.height));
+      updateSchemaZoomRange(controller);
     }
   }
 
@@ -602,6 +719,26 @@ class _SchemaViewerState extends State<SchemaViewer> {
   Widget build(BuildContext context) {
     final compact = MediaQuery.sizeOf(context).width < 700;
     final desktop = MediaQuery.sizeOf(context).width >= 1100;
+    final width = MediaQuery.sizeOf(context).width;
+    final inspectorMax = (width - (_browserVisible ? 220 : 0) - 48 - 360)
+        .clamp(320.0, 600.0)
+        .toDouble();
+    final inspectorWidth = _inspectorWidth
+        .clamp(320.0, inspectorMax)
+        .toDouble();
+    final browserMax =
+        (width -
+                (desktop && _inspected.value != null
+                    ? 24 + (_inspectorVisible ? inspectorWidth : 0)
+                    : 0) -
+                24 -
+                360)
+            .clamp(220.0, 420.0)
+            .toDouble();
+    final browserWidth = _browserWidth.clamp(220.0, browserMax).toDouble();
+    final resizeDirection = Directionality.of(context) == TextDirection.rtl
+        ? -1.0
+        : 1.0;
     final controller = _controller;
     final material = Theme.of(context);
     final diagram = material.brightness == Brightness.dark
@@ -642,7 +779,7 @@ class _SchemaViewerState extends State<SchemaViewer> {
               if (compact) {
                 _scaffoldKey.currentState?.openDrawer();
               } else {
-                setState(() => _browserVisible = !_browserVisible);
+                _updatePanels(() => _browserVisible = !_browserVisible);
               }
             },
           ),
@@ -687,20 +824,54 @@ class _SchemaViewerState extends State<SchemaViewer> {
             Expanded(
               child: Row(
                 children: [
-                  if (!compact && _browserVisible) ...[
-                    SizedBox(width: 280, child: _browser()),
-                    const VerticalDivider(width: 1),
+                  if (!compact) ...[
+                    Offstage(
+                      offstage: !_browserVisible,
+                      child: SizedBox(width: browserWidth, child: _browser()),
+                    ),
+                    _panelHandle(
+                      label: 'schema browser',
+                      onResize: (delta) => _updatePanels(
+                        () => _browserWidth =
+                            (browserWidth + delta * resizeDirection)
+                                .clamp(220.0, browserMax)
+                                .toDouble(),
+                      ),
+                      expanded: _browserVisible,
+                      left: true,
+                      onPressed: () => _updatePanels(
+                        () => _browserVisible = !_browserVisible,
+                      ),
+                    ),
                   ],
                   Expanded(
                     key: const ValueKey('schema-content'),
                     child: content,
                   ),
                   if (desktop) ...[
-                    const VerticalDivider(width: 1),
-                    SizedBox(
-                      width: 380,
-                      child: _inspector(_inspected.value, _clearSelection),
-                    ),
+                    if (_inspected.value != null)
+                      _panelHandle(
+                        label: 'table inspector',
+                        onResize: (delta) => _updatePanels(
+                          () => _inspectorWidth =
+                              (inspectorWidth - delta * resizeDirection)
+                                  .clamp(320.0, inspectorMax)
+                                  .toDouble(),
+                        ),
+                        expanded: _inspectorVisible,
+                        left: false,
+                        onPressed: () => _updatePanels(
+                          () => _inspectorVisible = !_inspectorVisible,
+                        ),
+                      ),
+                    if (_inspected.value != null)
+                      Offstage(
+                        offstage: !_inspectorVisible,
+                        child: SizedBox(
+                          width: inspectorWidth,
+                          child: _inspector(_inspected.value, _clearSelection),
+                        ),
+                      ),
                   ],
                 ],
               ),

@@ -8,7 +8,8 @@ import 'package:vyuh_diagram_extension_minimap/vyuh_diagram_extension_minimap.da
 import 'package:vyuh_diagram_extension_snap_guides/vyuh_diagram_extension_snap_guides.dart';
 import 'package:vyuh_diagram_extension_table_flutter/vyuh_diagram_extension_table_flutter.dart';
 import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
-import 'package:vyuh_diagram_core/extension_api.dart' show DiagramCamera;
+import 'package:vyuh_diagram_core/extension_api.dart'
+    show DiagramCamera, DiagramCameraGeometry;
 
 import 'schema_diagram.dart';
 import 'schema_view_interactions.dart';
@@ -30,7 +31,7 @@ Future<DiagramController> buildSchemaCanvas(
           enabled: preferences.snapGuides,
           tolerance: preferences.snapTolerance,
         ),
-        SchemaTableExtension(detailLevel: SchemaDetailLevel.keys),
+        SchemaTableExtension(detailLevel: SchemaDetailLevel.allFields),
         const LayoutExtension(),
         TableFlutterExtension(),
         MinimapExtension(
@@ -57,8 +58,11 @@ Future<DiagramController> buildSchemaCanvas(
     await SchemaDiagram.build(
       graph,
       controller: controller,
-      detailLevel: SchemaDetailLevel.keys,
+      detailLevel: SchemaDetailLevel.allFields,
       layout: schemaGridLayout(graph.tables.length),
+    );
+    controller.setCamera(
+      controller.camera.copyWith(minZoom: .000001, maxZoom: 1),
     );
     controller.diagram.setRules(schemaViewRules);
     applySchemaConnections(controller, preferences);
@@ -75,5 +79,23 @@ void fitSchemaCanvas(DiagramController controller) {
       controller.camera.viewportSize == DiagramSize.zero) {
     return;
   }
+  updateSchemaZoomRange(controller);
   DiagramCamera(controller).fitBounds(controller.scene.bounds, padding: 24);
+}
+
+/// Native zoom controls range from the full schema fit to natural node size.
+void updateSchemaZoomRange(DiagramController controller) {
+  if (controller.scene.elements.isEmpty ||
+      controller.camera.viewportSize == DiagramSize.zero) {
+    return;
+  }
+  final fit = controller.camera
+      .forBounds(controller.scene.bounds, padding: 48)
+      .zoom;
+  controller.setCamera(
+    controller.camera.copyWith(
+      minZoom: fit.clamp(.000001, 1).toDouble(),
+      maxZoom: 1,
+    ),
+  );
 }

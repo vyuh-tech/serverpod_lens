@@ -137,19 +137,22 @@ void main() {
     },
   );
   testWidgets(
-    'clear selection keeps the inspector space and schema browser stable',
+    'closing the inspector removes its space and placeholder while keeping the browser',
     (tester) async {
       final controller = await workspace(tester);
       controller.select(['public.orders']);
       await ready(tester);
       final size = tester.getSize(find.byType(DiagramCanvas));
-      await tester.tap(find.byTooltip('Clear selection'));
+      await tester.tap(find.byTooltip('Close inspector'));
       await ready(tester);
       expect(find.text('Schemas'), findsOneWidget);
-      expect(tester.getSize(find.byType(DiagramCanvas)), size);
+      expect(
+        tester.getSize(find.byType(DiagramCanvas)).width,
+        greaterThan(size.width + 380),
+      );
       expect(controller.selection, isA<EmptySelection>());
       expect(controller.effects.playing, isEmpty);
-      expect(find.textContaining('Select a table to see'), findsOneWidget);
+      expect(find.textContaining('Select a table to see'), findsNothing);
       await close(tester);
     },
   );
@@ -272,7 +275,7 @@ void main() {
       await ready(tester);
       expect(find.byType(BottomSheet), findsOneWidget);
       expect(find.widgetWithText(Tab, 'Fields'), findsOneWidget);
-      await tester.tap(find.byTooltip('Clear selection'));
+      await tester.tap(find.byTooltip('Close inspector'));
       await ready(tester);
       expect(find.byType(BottomSheet), findsNothing);
       expect(controller.selection, isA<EmptySelection>());
@@ -385,6 +388,144 @@ void main() {
       expect(
         controller.effects.playing.every((handle) => handle.effect!.isValid),
         isTrue,
+      );
+      await close(tester);
+    },
+  );
+  testWidgets(
+    'edge handles collapse each panel independently and preserve inspector state and selection',
+    (tester) async {
+      final controller = await workspace(tester);
+      final initial = tester.getSize(find.byType(DiagramCanvas));
+      expect(find.textContaining('Select a table to see'), findsNothing);
+      controller.select(['public.orders']);
+      await ready(tester);
+      final selectedSize = tester.getSize(find.byType(DiagramCanvas));
+      expect(selectedSize.width, lessThan(initial.width - 380));
+      final camera = controller.camera;
+      await tester.tap(find.widgetWithText(Tab, 'Fields'));
+      await ready(tester);
+      await tester.tap(find.byTooltip('Collapse table inspector'));
+      await ready(tester);
+      expect(find.widgetWithText(Tab, 'Fields'), findsNothing);
+      expect(
+        tester.getSize(find.byType(DiagramCanvas)).width,
+        greaterThan(selectedSize.width + 370),
+      );
+      expect((controller.selection as ElementSelection).elementIds, {
+        'public.orders',
+      });
+      expect(controller.camera.zoom, camera.zoom);
+      expect(controller.camera.center, camera.center);
+      await tester.tap(find.byTooltip('Expand table inspector'));
+      await ready(tester);
+      expect(find.widgetWithText(TextField, 'Search fields'), findsOneWidget);
+      await tester.tap(find.byTooltip('Collapse schema browser'));
+      await ready(tester);
+      expect(find.text('Schemas'), findsNothing);
+      expect(find.widgetWithText(TextField, 'Search fields'), findsOneWidget);
+      await tester.tap(find.byTooltip('Expand schema browser'));
+      await ready(tester);
+      expect(find.text('Schemas'), findsOneWidget);
+      expect(
+        controller.effects
+            .playingOn('public.orders::relation::0')
+            .single
+            .effect!
+            .baseOpacity,
+        1,
+      );
+      await close(tester);
+    },
+  );
+  testWidgets(
+    'resizing either panel respects width limits and leaves a usable canvas',
+    (tester) async {
+      final controller = await workspace(tester);
+      controller.select(['public.orders']);
+      await ready(tester);
+      final inspectorHandle = find.byKey(
+        const ValueKey('resize:table inspector'),
+      );
+      final initial = tester.getSize(find.byType(DiagramCanvas)).width;
+      await tester.drag(inspectorHandle, const Offset(-150, 0));
+      await ready(tester);
+      expect(
+        tester.getSize(find.byType(DiagramCanvas)).width,
+        lessThan(initial - 100),
+      );
+      await tester.drag(inspectorHandle, const Offset(-1500, 0));
+      await ready(tester);
+      expect(
+        tester.getSize(find.byType(DiagramCanvas)).width,
+        greaterThanOrEqualTo(360),
+      );
+      await tester.drag(inspectorHandle, const Offset(1500, 0));
+      await ready(tester);
+      final restored = tester.getSize(find.byType(DiagramCanvas)).width;
+      await tester.drag(
+        find.byKey(const ValueKey('resize:schema browser')),
+        const Offset(100, 0),
+      );
+      await ready(tester);
+      expect(
+        tester.getSize(find.byType(DiagramCanvas)).width,
+        lessThan(restored - 50),
+      );
+      tester.view.physicalSize = const Size(1100, 960);
+      await ready(tester);
+      expect(
+        tester.getSize(find.byType(DiagramCanvas)).width,
+        greaterThanOrEqualTo(360),
+      );
+      await close(tester);
+    },
+  );
+  testWidgets(
+    'native minimap zoom ranges from whole-schema fit below 25 percent to natural node size',
+    (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(1440, 960);
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          home: SchemaViewer(
+            graph: fixture(neighbors: 100),
+            viewStore: MemorySchemaViewStore(),
+          ),
+        ),
+      );
+      await ready(tester);
+      final controller = tester
+          .widget<DiagramCanvas>(find.byType(DiagramCanvas))
+          .controller;
+      expect(controller.camera.minZoom, lessThan(.25));
+      expect(controller.camera.maxZoom, 1);
+      controller.setCamera(controller.camera.copyWith(zoom: .25));
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('zoom-out')));
+      await ready(tester);
+      expect(controller.camera.zoom, lessThan(.25));
+      for (var i = 0; i < 25; i++) {
+        await tester.tap(find.byKey(const ValueKey('zoom-out')));
+        await tester.pump();
+      }
+      expect(
+        controller.camera.zoom,
+        closeTo(controller.camera.minZoom, .00001),
+      );
+      for (var i = 0; i < 40; i++) {
+        await tester.tap(find.byKey(const ValueKey('zoom-in')));
+        await tester.pump();
+      }
+      expect(controller.camera.zoom, 1);
+      await tester.tap(find.byKey(const ValueKey('zoom-fit')));
+      await ready(tester);
+      expect(
+        controller.camera.zoom,
+        closeTo(controller.camera.minZoom, .00001),
       );
       await close(tester);
     },

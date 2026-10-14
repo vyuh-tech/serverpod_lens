@@ -163,7 +163,7 @@ final class SchemaViewPreferences {
       size: particleSize,
       width: animationWidth,
       opacity: animationOpacity,
-      baseOpacity: kind == SchemaAnimation.dashes ? 0 : .2,
+      baseOpacity: kind == SchemaAnimation.dashes ? 1 : .2,
       particle: switch (kind) {
         SchemaAnimation.dashes => const EffectParticle.dash(),
         SchemaAnimation.arrows => const EffectParticle.arrow(),

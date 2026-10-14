@@ -348,33 +348,32 @@ void main() {
       await settle(tester);
     },
   );
-  testWidgets(
-    'compact cards retain full schema metadata while fields live in the inspector',
-    (tester) async {
-      wide(tester);
-      await tester.pumpWidget(host(fixture(), MemorySchemaViewStore()));
-      await settle(tester);
-      final controller = canvas(tester);
-      final shape =
-          controller.document.elementById('public.orders')! as ShapeElement;
-      expect((shape.values['schema'] as Map)['columns'], hasLength(3));
-      expect(
-        controller
-            .resolvedTable('public.orders', 'public.orders-columns')
-            ?.cells
-            .length,
-        6,
-      );
-      controller.select(['public.orders']);
-      await settle(tester);
-      await tester.tap(find.widgetWithText(Tab, 'Fields'));
-      await settle(tester);
-      expect(find.text('description'), findsOneWidget);
-      expect(find.byTooltip('Diagram detail level'), findsNothing);
-      await tester.pumpWidget(const SizedBox.shrink());
-      await settle(tester);
-    },
-  );
+  testWidgets('table cards show every field and retain full schema metadata', (
+    tester,
+  ) async {
+    wide(tester);
+    await tester.pumpWidget(host(fixture(), MemorySchemaViewStore()));
+    await settle(tester);
+    final controller = canvas(tester);
+    final shape =
+        controller.document.elementById('public.orders')! as ShapeElement;
+    expect((shape.values['schema'] as Map)['columns'], hasLength(3));
+    expect(
+      controller
+          .resolvedTable('public.orders', 'public.orders-columns')
+          ?.cells
+          .length,
+      9,
+    );
+    controller.select(['public.orders']);
+    await settle(tester);
+    await tester.tap(find.widgetWithText(Tab, 'Fields'));
+    await settle(tester);
+    expect(find.text('description'), findsOneWidget);
+    expect(find.byTooltip('Diagram detail level'), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await settle(tester);
+  });
   for (final size in [
     const Size(320, 568),
     const Size(390, 844),

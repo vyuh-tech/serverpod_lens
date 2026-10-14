@@ -94,7 +94,7 @@ class _SchemaTableInspectorState extends State<SchemaTableInspector> {
               ),
               subtitle: Text(table.schema),
               trailing: IconButton(
-                tooltip: 'Clear selection',
+                tooltip: 'Close inspector',
                 onPressed: widget.onClose,
                 icon: const Icon(Icons.close),
               ),

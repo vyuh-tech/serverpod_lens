@@ -64,7 +64,7 @@ inside official Serverpod development tools.
 
 ## Verified evidence
 
-- **138 automated tests** cover extraction, native rendering, navigation,
+- **141 automated tests** cover extraction, native rendering, navigation,
   persistence, authorization, manual refresh and import protections.
 - Contract checks exercise **all 19 database column types** and every foreign-key
   action in the installed **Serverpod 4.0.4** SDK. Complete resolved table metadata

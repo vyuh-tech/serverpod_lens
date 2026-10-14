@@ -18,7 +18,8 @@ currently runs an earlier release; the latest UI is available locally.
 - **Browse:** All schemas → schema → tables. Search by table, model or field.
 - **Follow connections:** select a table to highlight its neighbors and dim unrelated nodes.
 - **Inspect:** Details, searchable Fields, Relationships, Indexes and authored Source.
-- **Stay in control:** drag tables, fit the view, use the minimap and refresh manually.
+- **Stay in control:** resize or collapse either panel, drag tables, fit the view,
+  use the minimap and refresh manually. Table cards show every column.
   Choose System, Light or Dark appearance.
 
 ![Serverpod Lens: schema navigation and field inspector](docs/schema-map.png)
@@ -67,7 +68,7 @@ serverpod start
 
 Open **http://localhost:8092**. Verify with `tool/verify.sh` from the repository root.
 
-**Verified locally:** 138 tests pass; Dart analysis is clean. The reader is checked
+**Verified locally:** 141 tests pass; Dart analysis is clean. The reader is checked
 against all 19 database column types in Serverpod 4.0.4.
 [Results and limits](docs/VERIFICATION.md) · [Security review](docs/SECURITY_REVIEW.md)
 

@@ -41,7 +41,8 @@ The replacement plan is:
 5. Use the same inspector in the desktop panel and mobile sheet: Details,
    Fields, Relationships, Indexes and Source. Search and field badges live in
    Fields; Source has its filename, path, open action and a formatted code card.
-   Clear selection restores the overview without collapsing the desktop panel.
+   Closing the inspector clears selection and releases its space. Edge handles
+   collapse either panel while preserving state, and drag to resize within limits.
 6. Offer System, Light and Dark through one persisted app theme controller in
    both hosts. Settings and authentication share the active app theme.
 7. Verify removal of old controls, independent schema expansion, scope filtering,
@@ -57,7 +58,7 @@ The replacement plan is:
 | Dim unrelated nodes | Transient `Effect.fade` | Determine immediate neighbors; clear emphasis with selection |
 | Moving connection dashes | `Effect.flow` with `EffectParticle.dash` | Select incident edges and orient flow toward the other node |
 | Automatic layout and dragging | `Layout.grid`, native movement, snapping | Choose schema scope and persist account-specific positions |
-| Maximum fit and zoom | `DiagramCamera`, `ViewTarget` | Wait for mounting and measure the actual available viewport |
+| Maximum fit and zoom | `DiagramCamera`, `ViewTarget` | Measure the viewport; set native limits from full-schema fit to 100% node size |
 | Minimap | `MinimapExtension` and runtime options | Start expanded when enabled and preserve the choice across scopes |
 | Inspector, source and themes | Flutter Material widgets | Shared responsive presentation, metadata search and host theme state |
 
@@ -85,3 +86,6 @@ comparison are outside this release. Compatibility is checked against Serverpod
 
 See the [README](../README.md), [verification](VERIFICATION.md) and
 [security review](SECURITY_REVIEW.md) for current behavior and evidence.
+
+Table cards show every column. Panel resizing uses Flutter gestures around the
+native canvas; it never replaces Vyuh pan/zoom, table rendering or minimap.
