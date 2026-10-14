@@ -1,5 +1,6 @@
 # Include the prebuilt Flutter demo despite web/app being gitignored.
 !web/**
+!assets/lens-models/**
 
 # Serverpod Cloud provides runtime configuration and credentials.
 config/passwords.yaml

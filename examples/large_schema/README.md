@@ -30,7 +30,8 @@ serverpod run flutter_build
 serverpod cloud deploy
 ```
 
-The deployment hook writes the Cloud API address into the built app. Serverpod
+The deployment hooks package the authored models and write the Cloud API address
+into the built app. Serverpod
 Cloud packages the server and its schema dependency from the workspace; the
 Flutter viewer is served as prebuilt web assets. Authentication belongs to this
 shared demo, and the local `serverpod run lens` workflow remains login-free.

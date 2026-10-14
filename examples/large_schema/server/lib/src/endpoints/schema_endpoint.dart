@@ -6,7 +6,6 @@ import '../schema/model_source_index.dart';
 
 /// Authenticated, read-only access to this host's resolved target schema.
 class SchemaEndpoint extends Endpoint {
-  final _models = ModelSourceIndex();
   @override
   bool get requireLogin => true;
 
@@ -21,7 +20,7 @@ class SchemaEndpoint extends Endpoint {
     if (projectId != HostSchemaSource.projectId) {
       throw SchemaAccessException(message: 'Project access denied.');
     }
-    final models = _models.read();
+    final models = readHostModelSources();
     return HostSchemaSource.read(
       session.db.analyzer.getTargetTableDefinitions(),
       knownRevision: knownRevision,
