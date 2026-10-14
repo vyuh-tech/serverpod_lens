@@ -57,7 +57,7 @@ The replacement plan is:
 | Selection border | Native canvas selection chrome | Keep tree selection and the inspector synchronized |
 | Dim unrelated nodes | Transient `Effect.fade` | Determine immediate neighbors; clear emphasis with selection |
 | Moving connection dashes | `Effect.flow` with `EffectParticle.dash` | Select incident edges and orient flow toward the other node |
-| Automatic layout and dragging | `Layout.grid`, native movement, snapping | Choose schema scope and persist account-specific positions |
+| Automatic layout and dragging | Native grid, layered, tree, force and circular layouts; native movement and snapping | Layout menu with directional variants; choose schema scope and persist account-specific positions |
 | Maximum fit and zoom | `DiagramCamera`, `ViewTarget` | Measure the viewport; set native limits from full-schema fit to 100% node size |
 | Minimap | `MinimapExtension` and runtime options | Start expanded when enabled and preserve the choice across scopes |
 | Inspector, source and themes | Flutter Material widgets | Shared responsive presentation, metadata search and host theme state |

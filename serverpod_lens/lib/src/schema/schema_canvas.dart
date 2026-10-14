@@ -18,6 +18,44 @@ import 'schema_view_interactions.dart';
 Layout schemaGridLayout(int count) =>
     Layout.grid(columns: sqrt(count).ceil().clamp(1, 24).toInt(), gap: 100);
 
+/// Layout choices map directly to Vyuh's native layout engine.
+enum SchemaLayout {
+  grid('Grid'),
+  layeredDown('Layered · vertical'),
+  layeredRight('Layered · horizontal'),
+  treeDown('Tree · vertical'),
+  treeRight('Tree · horizontal'),
+  treeRadial('Tree · radial'),
+  force('Force directed'),
+  circular('Circular');
+
+  const SchemaLayout(this.label);
+  final String label;
+
+  Layout resolve(int count) => switch (this) {
+    grid => schemaGridLayout(count),
+    layeredDown => Layout.layered(gap: 100, layerGap: 160),
+    layeredRight => Layout.layered(
+      direction: LayoutDirection.right,
+      gap: 100,
+      layerGap: 160,
+    ),
+    treeDown => Layout.tree(gap: 100, levelGap: 160),
+    treeRight => Layout.tree(
+      direction: TreeDirection.right,
+      gap: 100,
+      levelGap: 160,
+    ),
+    treeRadial => Layout.tree(
+      direction: TreeDirection.radial,
+      gap: 100,
+      levelGap: 160,
+    ),
+    force => Layout.force(gap: 100),
+    circular => Layout.circular(gap: 100),
+  };
+}
+
 Future<DiagramController> buildSchemaCanvas(
   SchemaGraph graph,
   SchemaViewPreferences preferences,

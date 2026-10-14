@@ -96,6 +96,45 @@ void main() {
     expect(tester.takeException(), isNull);
   }
 
+  testWidgets('layout menu runs every native layout without changing schema', (
+    tester,
+  ) async {
+    final controller = await workspace(tester);
+    final ids = controller.document.elements.map((e) => e.id).toSet();
+    final bindings = controller.document.elements
+        .whereType<ConnectorElement>()
+        .map((edge) => (edge.id, edge.start, edge.end))
+        .toSet();
+    for (final label in [
+      'Grid',
+      'Layered · vertical',
+      'Layered · horizontal',
+      'Tree · vertical',
+      'Tree · horizontal',
+      'Tree · radial',
+      'Force directed',
+      'Circular',
+    ]) {
+      await tester.tap(find.byTooltip('Auto layout'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(label));
+      await ready(tester);
+      await tester.pumpAndSettle();
+      expect(controller.document.elements.map((e) => e.id).toSet(), ids);
+      expect(
+        controller.document.elements
+            .whereType<ConnectorElement>()
+            .map((edge) => (edge.id, edge.start, edge.end))
+            .toSet(),
+        bindings,
+      );
+      expect(find.textContaining('Could not open this view'), findsNothing);
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+      expect(tester.takeException(), isNull);
+    }
+    await close(tester);
+  });
+
   testWidgets(
     'selection uses native fades and directional flows without document or camera edits',
     (tester) async {

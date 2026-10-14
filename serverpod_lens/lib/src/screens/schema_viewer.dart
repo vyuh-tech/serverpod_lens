@@ -468,14 +468,13 @@ class _SchemaViewerState extends State<SchemaViewer> {
     fitSchemaCanvas(controller);
   }
 
-  Future<void> _autoLayout() async {
+  Future<void> _autoLayout(SchemaLayout layout) async {
     final controller = _controller;
     if (controller == null || _loading) return;
     setState(() => _loading = true);
     try {
-      // Native grid remains fast and predictable for a complete large schema.
       await controller.layout(
-        schemaGridLayout(_catalog.tables(schema: _schema).length),
+        layout.resolve(_catalog.tables(schema: _schema).length),
       );
       if (mounted && identical(controller, _controller)) {
         setState(() => _loading = false);
@@ -795,9 +794,14 @@ class _SchemaViewerState extends State<SchemaViewer> {
               onPressed: controller == null || _loading ? null : _fit,
               icon: const Icon(Icons.fit_screen),
             ),
-            IconButton(
+            PopupMenuButton<SchemaLayout>(
               tooltip: 'Auto layout',
-              onPressed: controller == null || _loading ? null : _autoLayout,
+              enabled: controller != null && !_loading,
+              onSelected: _autoLayout,
+              itemBuilder: (_) => [
+                for (final layout in SchemaLayout.values)
+                  PopupMenuItem(value: layout, child: Text(layout.label)),
+              ],
               icon: const Icon(Icons.auto_awesome_mosaic_outlined),
             ),
             IconButton(
