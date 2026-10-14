@@ -1,0 +1,10 @@
+class: Order
+table: shop_orders
+fields:
+  customerId: int, relation(parent=shop_customers)
+  placedAt: DateTime
+  status: String
+  total: double
+indexes:
+  shop_order_customer:
+    fields: customerId

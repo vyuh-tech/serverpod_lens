@@ -87,7 +87,7 @@ void main() {
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.resetPhysicalSize);
         addTearDown(tester.view.resetDevicePixelRatio);
-        final preferences = SchemaViewPreferences();
+        final preferences = SchemaViewPreferences()..snapGuides = true;
         final controller = await openSettings(
           tester,
           preferences,

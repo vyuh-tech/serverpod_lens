@@ -1,0 +1,9 @@
+class: Customer
+table: shop_customers
+fields:
+  name: String
+  email: String
+indexes:
+  shop_customer_email:
+    fields: email
+    unique: true

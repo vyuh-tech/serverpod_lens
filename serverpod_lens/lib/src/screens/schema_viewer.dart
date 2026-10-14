@@ -208,10 +208,24 @@ class _SchemaViewerState extends State<SchemaViewer> {
         _ => const <String>{},
       };
       final id = ids.where(_context.tables.containsKey).firstOrNull;
+      final connectionSelected =
+          selection is ConnectorLabelSelection ||
+          ids.any((id) => next.document.elementById(id) is ConnectorElement);
       scheduleMicrotask(() {
         if (!mounted ||
             !identical(next, _controller) ||
             next.selection != selection) {
+          return;
+        }
+        // Lines are context, not inspector targets. Preserve the table when a
+        // native hit test selects a connection or its label.
+        if (connectionSelected) {
+          final tables = ids.where(_context.tables.containsKey).toList();
+          final previous = _inspected.value;
+          if (tables.isEmpty && previous != null) {
+            tables.add(previous);
+          }
+          next.select(tables);
           return;
         }
         _updatePanels(() {

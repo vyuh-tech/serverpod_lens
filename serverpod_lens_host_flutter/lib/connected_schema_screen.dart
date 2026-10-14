@@ -13,9 +13,11 @@ class ConnectedSchemaScreen extends StatefulWidget {
     super.key,
     required this.client,
     required this.accountId,
+    this.projectId = 'serverpod_lens',
   });
   final api.Client client;
   final String accountId;
+  final String projectId;
 
   @override
   State<ConnectedSchemaScreen> createState() => _ConnectedSchemaScreenState();
@@ -29,9 +31,10 @@ class _ConnectedSchemaScreenState extends State<ConnectedSchemaScreen> {
     super.initState();
     _connection = ConnectedSchemaController(
       (revision) => widget.client.schema.snapshot(
-        projectId: 'serverpod_lens',
+        projectId: widget.projectId,
         knownRevision: revision,
       ),
+      projectId: widget.projectId,
     );
     unawaited(_connection.refresh());
   }
@@ -46,6 +49,7 @@ class _ConnectedSchemaScreenState extends State<ConnectedSchemaScreen> {
   Widget build(BuildContext context) => ConnectedSchemaView(
     connection: _connection,
     accountId: widget.accountId,
+    projectId: widget.projectId,
     onSignOut: () async {
       final success = await widget.client.auth.signOutDevice();
       if (!success && context.mounted) {
@@ -64,11 +68,13 @@ class ConnectedSchemaView extends StatelessWidget {
     super.key,
     required this.connection,
     required this.accountId,
+    this.projectId = 'serverpod_lens',
     required this.onSignOut,
   });
 
   final ConnectedSchemaController connection;
   final String accountId;
+  final String projectId;
   final VoidCallback onSignOut;
 
   @override
@@ -172,7 +178,7 @@ class ConnectedSchemaView extends StatelessWidget {
             child: SchemaViewer(
               graph: graph,
               importActions: actions,
-              storageKey: 'serverpod_lens/$accountId',
+              storageKey: '$projectId/$accountId',
               sourcePaths: connection.sourcePaths,
               modelSources: connection.modelSources,
               onOpenModel: (path) async {

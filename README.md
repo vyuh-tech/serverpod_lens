@@ -44,16 +44,22 @@ Embed **`SchemaViewer(graph: graph)`** in a Flutter host and supply your project
 schema graph. The included host demonstrates the connection; the offline demo
 also accepts Serverpod project files and PostgreSQL SQL.
 
-## Packages
+## Reusable packages
 
 | Package | Role |
 | --- | --- |
 | [serverpod_lens](serverpod_lens/) | Reusable Flutter viewer and import adapters |
 | [serverpod_lens_schema](serverpod_lens_schema/) | Plain Dart schema graph and definition reader |
-| [serverpod_lens_server](serverpod_lens_server/) | Sample backend, built-in auth and schema endpoint |
-| [serverpod_lens_client](serverpod_lens_client/) | Generated Serverpod transport |
-| [serverpod_lens_host_flutter](serverpod_lens_host_flutter/) | Connected app, sessions and manual refresh |
-| [serverpod_lens_flutter](serverpod_lens_flutter/) | Independent offline demo |
+
+The sample backend, generated client and connected/offline apps stay in this
+repository as integration examples; they do not need separate package releases.
+The [shop example](serverpod_lens/example/) shows four Serverpod models embedded
+in the viewer using a schema compiled by Serverpod itself.
+
+**Distribution:** both reusable packages are currently available from Git.
+The schema package can be released to pub.dev; the viewer requires a custom
+registry while its licensed Vyuh extensions remain on `pub.vyuh.tech`.
+Neither package has been published. See [installation](serverpod_lens/README.md).
 
 ## Try it locally
 
@@ -75,5 +81,8 @@ against all 19 database column types in Serverpod 4.0.4.
 **The goal:** make understanding a backend a natural part of writing Serverpod
 models. Lens is currently a repository package and sample integration; publication
 and integration into official Serverpod development tools are future steps.
+
+Lens source is licensed under [MIT](LICENSE). Vyuh extensions retain their own
+license and access requirements.
 
 [Architecture](docs/PLAN.md) · [Deployment](docs/DEPLOYMENT.md)

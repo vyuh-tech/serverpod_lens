@@ -6,9 +6,10 @@ typedef SnapshotLoader = Future<api.SchemaSnapshot> Function(String? revision);
 
 /// Owns refresh, stale data and request lifetime for one authenticated account.
 class ConnectedSchemaController extends ChangeNotifier {
-  ConnectedSchemaController(this._load);
+  ConnectedSchemaController(this._load, {this.projectId = 'serverpod_lens'});
 
   final SnapshotLoader _load;
+  final String projectId;
   SchemaGraph? graph;
   Map<String, String> sourcePaths = {};
   Map<String, String> modelSources = {};
@@ -27,7 +28,7 @@ class ConnectedSchemaController extends ChangeNotifier {
     try {
       final result = await _load(revision);
       if (_disposed) return;
-      if (result.projectId != 'serverpod_lens' ||
+      if (result.projectId != projectId ||
           result.sourceKind != 'currentTarget' ||
           result.revision.isEmpty ||
           (result.graph == null &&
@@ -35,7 +36,7 @@ class ConnectedSchemaController extends ChangeNotifier {
         throw const FormatException('Invalid schema snapshot');
       }
       // Keep the identical graph on unchanged refreshes: the viewer retains its
-      // camera, search, groups and positions instead of rebuilding the canvas.
+      // camera, search and positions instead of rebuilding the canvas.
       if (result.graph != null && revision != result.revision) {
         graph = SchemaGraph.fromJson(result.graph!.toJson());
         sourcePaths = Map.of(result.sourcePaths ?? {});

@@ -75,4 +75,5 @@ embedded PostgreSQL and need no Docker. [Verification](../docs/VERIFICATION.md).
 
 The packages are not yet published on pub.dev. Vyuh extensions require their own
 license/entitlement. PostgreSQL parser notices ship in `serverpod_lens/assets/sql/`.
-No project license has been declared. [Workspace overview](../README.md).
+Lens code is licensed under MIT. Third-party dependencies retain their licenses.
+[Workspace overview](../README.md).

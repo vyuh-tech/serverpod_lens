@@ -1,0 +1,10 @@
+class: Product
+table: shop_products
+fields:
+  name: String
+  sku: String
+  price: double
+indexes:
+  shop_product_sku:
+    fields: sku
+    unique: true

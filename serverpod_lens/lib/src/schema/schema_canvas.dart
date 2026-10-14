@@ -102,8 +102,18 @@ Future<DiagramController> buildSchemaCanvas(
     controller.setCamera(
       controller.camera.copyWith(minZoom: .000001, maxZoom: 1),
     );
-    controller.diagram.setRules(schemaViewRules);
     applySchemaConnections(controller, preferences);
+    controller.edits.batch('Read-only connection presentation', () {
+      controller.edits
+          .setLocked(
+            true,
+            ids: controller.document.elements.whereType<ConnectorElement>().map(
+              (edge) => edge.id,
+            ),
+          )
+          .requireAllowed();
+    }, history: false).requireAllowed();
+    controller.diagram.setRules(schemaViewRules);
     return controller;
   } catch (_) {
     controller.dispose();

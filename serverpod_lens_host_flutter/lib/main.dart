@@ -26,7 +26,14 @@ Future<api.Client> initializeClient() async {
 }
 
 class HostApp extends StatefulWidget {
-  const HostApp({super.key});
+  const HostApp({
+    super.key,
+    this.projectId = const String.fromEnvironment(
+      'LENS_PROJECT_ID',
+      defaultValue: 'serverpod_lens',
+    ),
+  });
+  final String projectId;
 
   @override
   State<HostApp> createState() => _HostAppState();
@@ -84,9 +91,13 @@ class _HostAppState extends State<HostApp> {
               builder: (context, auth, _) => auth == null
                   ? AuthScreen(client: client)
                   : ConnectedSchemaScreen(
-                      key: ValueKey(auth.authUserId.toString()),
+                      key: ValueKey((
+                        auth.authUserId.toString(),
+                        widget.projectId,
+                      )),
                       client: client,
                       accountId: auth.authUserId.toString(),
+                      projectId: widget.projectId,
                     ),
             );
           },

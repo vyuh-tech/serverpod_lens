@@ -6,6 +6,7 @@ environment:
 
 workspace:
   - serverpod_lens
+  - serverpod_lens/example
   - serverpod_lens_schema
   - serverpod_lens_client
   - serverpod_lens_server

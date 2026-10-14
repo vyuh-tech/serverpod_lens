@@ -87,6 +87,13 @@ void main() {
       ),
     );
     await ready(tester);
+    expect(
+      tester
+          .widgetList<Text>(find.byType(Text))
+          .map((text) => text.data)
+          .where((text) => text?.contains('Could not open this view') ?? false),
+      isEmpty,
+    );
     return tester.widget<DiagramCanvas>(find.byType(DiagramCanvas)).controller;
   }
 
@@ -95,6 +102,33 @@ void main() {
     await ready(tester);
     expect(tester.takeException(), isNull);
   }
+
+  testWidgets(
+    'connections cannot replace table inspection or expose editing handles',
+    (tester) async {
+      expect(SchemaViewPreferences().snapGuides, isFalse);
+      expect(SchemaViewPreferences().snap, isFalse);
+      final controller = await workspace(tester);
+      final edge = controller.document.elements
+          .whereType<ConnectorElement>()
+          .first;
+      expect(edge.isLocked, isTrue);
+      controller.select(['public.orders']);
+      await ready(tester);
+      controller.select([edge.id]);
+      await ready(tester);
+      expect((controller.selection as ElementSelection).elementIds, {
+        'public.orders',
+      });
+      expect(find.widgetWithText(Tab, 'Fields'), findsOneWidget);
+      controller.clearSelection();
+      await ready(tester);
+      controller.select([edge.id]);
+      await ready(tester);
+      expect(controller.selection, isA<EmptySelection>());
+      await close(tester);
+    },
+  );
 
   testWidgets('layout menu runs every native layout without changing schema', (
     tester,

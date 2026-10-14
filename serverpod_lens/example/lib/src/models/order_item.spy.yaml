@@ -1,0 +1,10 @@
+class: OrderItem
+table: shop_order_items
+fields:
+  orderId: int, relation(parent=shop_orders)
+  productId: int, relation(parent=shop_products)
+  quantity: int
+  unitPrice: double
+indexes:
+  shop_order_item_order:
+    fields: orderId

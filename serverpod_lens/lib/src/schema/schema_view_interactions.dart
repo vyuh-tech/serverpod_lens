@@ -15,6 +15,10 @@ const schemaViewInteractions = DiagramFlutterExtension(
 
 /// Keep schema content fixed while allowing positions and schema visibility.
 final schemaViewRules = DiagramRules(
+  canCreate: (_) =>
+      const EditResult.denied(reason: 'Schema content is read-only'),
+  canConnect: (_) =>
+      const EditResult.denied(reason: 'Schema connections are read-only'),
   beforeChange: (proposal) {
     const denied = EditResult.denied(reason: 'Schema content is read-only');
     final changes = proposal.elements;
@@ -129,7 +133,7 @@ final class SchemaViewPreferences {
   bool showRelationshipLabels = false;
   bool grid = false;
   bool snap = false;
-  bool snapGuides = true;
+  bool snapGuides = false;
   double snapTolerance = 6;
   double gridSize = 20;
   bool minimap = true;
@@ -197,6 +201,62 @@ _ConnectionSettings _connectionSettings(SchemaViewPreferences preferences) => (
 
 final _appliedConnections =
     Expando<({DiagramDocument document, _ConnectionSettings settings})>();
+
+/// Native locks prevent pointer manipulation. Only this synchronous appearance
+/// update may unlock them; gesture admission is restored before yielding.
+void _withUnlockedConnections(
+  DiagramController controller,
+  void Function() update,
+) {
+  final ids = controller.document.elements
+      .whereType<ConnectorElement>()
+      .where((edge) => edge.isLocked)
+      .map((edge) => edge.id)
+      .toSet();
+  if (ids.isEmpty) {
+    update();
+    return;
+  }
+  final rules = controller.diagram.configuration.rules;
+  void lock(bool locked) {
+    controller.diagram.setRules(
+      DiagramRules(
+        canCreate: rules.canCreate,
+        canConnect: rules.canConnect,
+        beforeChange: (proposal) {
+          final changes = proposal.elements;
+          if (changes.insertedIds.isEmpty &&
+              changes.removedIds.isEmpty &&
+              changes.reparentedIds.isEmpty &&
+              changes.updatedIds.every((id) {
+                final before = proposal.before.elementById(id);
+                return ids.contains(id) &&
+                    before is ConnectorElement &&
+                    before.copyWith(isLocked: locked) ==
+                        proposal.after.elementById(id);
+              })) {
+            return const EditResult.allow();
+          }
+          return const EditResult.denied(reason: 'Schema content is read-only');
+        },
+      ),
+    );
+    try {
+      controller.edits.batch('Connection presentation lock', () {
+        controller.edits.setLocked(locked, ids: ids).requireAllowed();
+      }, history: false).requireAllowed();
+    } finally {
+      controller.diagram.setRules(rules);
+    }
+  }
+
+  lock(false);
+  try {
+    update();
+  } finally {
+    lock(true);
+  }
+}
 
 /// Hide native labels without losing their identities, content or placement.
 void _applyRelationshipLabels(DiagramController controller, bool visible) {
@@ -268,7 +328,10 @@ void setSchemaRelationshipLabels(
   final previous = _appliedConnections[controller];
   final document = controller.document;
   final settingsBefore = _connectionSettings(preferences);
-  _applyRelationshipLabels(controller, visible);
+  _withUnlockedConnections(
+    controller,
+    () => _applyRelationshipLabels(controller, visible),
+  );
   preferences.showRelationshipLabels = visible;
   if (previous != null &&
       identical(previous.document, document) &&
@@ -298,28 +361,30 @@ void applySchemaConnections(
       .map((edge) => edge.id)
       .toList();
   if (ids.isNotEmpty) {
-    controller.edits.batch('Connection appearance', () {
-      controller.edits.perform(ids, 'setConnectorRoute', {
-        'route': style.route,
-        'portSpacing': 0.0,
-        'options': style.hasCorners
-            ? {
-                'cornerRadius': style == SchemaConnectionStyle.rounded
-                    ? preferences.cornerRadius
-                    : 0.0,
-                'terminalExtension': preferences.portExtension,
-              }
-            : const <String, Object?>{},
+    _withUnlockedConnections(controller, () {
+      controller.edits.batch('Connection appearance', () {
+        controller.edits.perform(ids, 'setConnectorRoute', {
+          'route': style.route,
+          'portSpacing': 0.0,
+          'options': style.hasCorners
+              ? {
+                  'cornerRadius': style == SchemaConnectionStyle.rounded
+                      ? preferences.cornerRadius
+                      : 0.0,
+                  'terminalExtension': preferences.portExtension,
+                }
+              : const <String, Object?>{},
+        }).requireAllowed();
+        controller.edits.perform(ids, 'setConnectorStyle', {
+          'strokeWidth': preferences.strokeWidth,
+          'strokeStyle': preferences.dashedConnections
+              ? StrokeStyle.dashed
+              : StrokeStyle.solid,
+        }).requireAllowed();
       }).requireAllowed();
-      controller.edits.perform(ids, 'setConnectorStyle', {
-        'strokeWidth': preferences.strokeWidth,
-        'strokeStyle': preferences.dashedConnections
-            ? StrokeStyle.dashed
-            : StrokeStyle.solid,
-      }).requireAllowed();
-    }).requireAllowed();
+      _applyRelationshipLabels(controller, preferences.showRelationshipLabels);
+    });
   }
-  _applyRelationshipLabels(controller, preferences.showRelationshipLabels);
   _appliedConnections[controller] = (
     document: controller.document,
     settings: settings,

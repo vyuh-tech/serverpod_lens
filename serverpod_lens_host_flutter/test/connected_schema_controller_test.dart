@@ -23,6 +23,24 @@ api.SchemaSnapshot snapshot(String revision, {bool unchanged = false}) =>
 
 void main() {
   test(
+    'another configured project is accepted and mismatched snapshots rejected',
+    () async {
+      var result = snapshot('first')..projectId = 'shop';
+      final controller = ConnectedSchemaController(
+        (_) async => result,
+        projectId: 'shop',
+      );
+      addTearDown(controller.dispose);
+      await controller.refresh();
+      expect(controller.graph, isNotNull);
+      expect(controller.error, isNull);
+      result = snapshot('second');
+      await controller.refresh();
+      expect(controller.revision, 'first');
+      expect(controller.error, isNotNull);
+    },
+  );
+  test(
     'unchanged refresh preserves the graph and changed revision replaces it',
     () async {
       var result = snapshot('first');
