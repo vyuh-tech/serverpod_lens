@@ -22,6 +22,8 @@ abstract class SchemaSnapshot
     required this.revision,
     required this.checkedAt,
     this.graph,
+    this.sourcePaths,
+    this.modelSources,
   });
 
   factory SchemaSnapshot({
@@ -30,6 +32,8 @@ abstract class SchemaSnapshot
     required String revision,
     required DateTime checkedAt,
     _i1epj4g7.SchemaGraph? graph,
+    Map<String, String>? sourcePaths,
+    Map<String, String>? modelSources,
   }) = _SchemaSnapshotImpl;
 
   factory SchemaSnapshot.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -45,6 +49,16 @@ abstract class SchemaSnapshot
           : _ioh8es0p.Protocol().deserialize<_i1epj4g7.SchemaGraph>(
               jsonSerialization['graph'],
             ),
+      sourcePaths: jsonSerialization['sourcePaths'] == null
+          ? null
+          : _ioh8es0p.Protocol().deserialize<Map<String, String>>(
+              jsonSerialization['sourcePaths'],
+            ),
+      modelSources: jsonSerialization['modelSources'] == null
+          ? null
+          : _ioh8es0p.Protocol().deserialize<Map<String, String>>(
+              jsonSerialization['modelSources'],
+            ),
     );
   }
 
@@ -58,6 +72,10 @@ abstract class SchemaSnapshot
 
   _i1epj4g7.SchemaGraph? graph;
 
+  Map<String, String>? sourcePaths;
+
+  Map<String, String>? modelSources;
+
   /// Returns a shallow copy of this [SchemaSnapshot]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
@@ -67,6 +85,8 @@ abstract class SchemaSnapshot
     String? revision,
     DateTime? checkedAt,
     _i1epj4g7.SchemaGraph? graph,
+    Map<String, String>? sourcePaths,
+    Map<String, String>? modelSources,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -77,6 +97,8 @@ abstract class SchemaSnapshot
       'revision': revision,
       'checkedAt': checkedAt.toJson(),
       if (graph != null) 'graph': graph?.toJson(),
+      if (sourcePaths != null) 'sourcePaths': sourcePaths?.toJson(),
+      if (modelSources != null) 'modelSources': modelSources?.toJson(),
     };
   }
 
@@ -89,6 +111,8 @@ abstract class SchemaSnapshot
       'revision': revision,
       'checkedAt': checkedAt.toJson(),
       if (graph != null) 'graph': graph?.toJsonForProtocol(),
+      if (sourcePaths != null) 'sourcePaths': sourcePaths?.toJson(),
+      if (modelSources != null) 'modelSources': modelSources?.toJson(),
     };
   }
 
@@ -107,12 +131,16 @@ class _SchemaSnapshotImpl extends SchemaSnapshot {
     required String revision,
     required DateTime checkedAt,
     _i1epj4g7.SchemaGraph? graph,
+    Map<String, String>? sourcePaths,
+    Map<String, String>? modelSources,
   }) : super._(
          projectId: projectId,
          sourceKind: sourceKind,
          revision: revision,
          checkedAt: checkedAt,
          graph: graph,
+         sourcePaths: sourcePaths,
+         modelSources: modelSources,
        );
 
   /// Returns a shallow copy of this [SchemaSnapshot]
@@ -125,6 +153,8 @@ class _SchemaSnapshotImpl extends SchemaSnapshot {
     String? revision,
     DateTime? checkedAt,
     Object? graph = _Undefined,
+    Object? sourcePaths = _Undefined,
+    Object? modelSources = _Undefined,
   }) {
     return SchemaSnapshot(
       projectId: projectId ?? this.projectId,
@@ -132,6 +162,28 @@ class _SchemaSnapshotImpl extends SchemaSnapshot {
       revision: revision ?? this.revision,
       checkedAt: checkedAt ?? this.checkedAt,
       graph: graph is _i1epj4g7.SchemaGraph? ? graph : this.graph?.copyWith(),
+      sourcePaths: sourcePaths is Map<String, String>?
+          ? sourcePaths
+          : this.sourcePaths?.map(
+              (
+                key0,
+                value0,
+              ) => MapEntry(
+                key0,
+                value0,
+              ),
+            ),
+      modelSources: modelSources is Map<String, String>?
+          ? modelSources
+          : this.modelSources?.map(
+              (
+                key0,
+                value0,
+              ) => MapEntry(
+                key0,
+                value0,
+              ),
+            ),
     );
   }
 }

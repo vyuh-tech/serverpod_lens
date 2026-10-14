@@ -1,103 +1,380 @@
 import 'dart:async';
+import 'dart:math' show sqrt;
 
-import 'package:flutter/foundation.dart';
-
-import 'package:vyuh_diagram_extension_snap_guides/vyuh_diagram_extension_snap_guides.dart';
-import 'package:vyuh_diagram_extension_connectors/vyuh_diagram_extension_connectors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show LogicalKeyboardKey;
-import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
-import 'package:serverpod_lens_schema/serverpod_lens_schema.dart'
-    show SchemaGraph, SchemaTable;
+import 'package:serverpod_lens_schema/serverpod_lens_schema.dart';
+import 'package:vyuh_diagram_extension_connectors/vyuh_diagram_extension_connectors.dart';
+import 'package:vyuh_diagram_extension_snap_guides/vyuh_diagram_extension_snap_guides.dart';
 import 'package:vyuh_diagram_extension_layout/vyuh_diagram_extension_layout.dart';
 import 'package:vyuh_diagram_extension_minimap/vyuh_diagram_extension_minimap.dart';
 import 'package:vyuh_diagram_extension_table_flutter/vyuh_diagram_extension_table_flutter.dart';
 import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
 
-import '../schema/schema_catalog.dart';
 import '../schema/schema_context.dart';
 import '../schema/schema_diagram.dart';
+import '../schema/schema_navigation.dart';
+import '../schema/schema_view_store.dart';
 import '../schema/schema_view_interactions.dart';
+import 'schema_table_inspector.dart';
 import 'schema_view_settings.dart';
-import 'schema_group_editor.dart';
-import 'schema_context_controls.dart';
-import 'schema_relationships_panel.dart';
 
-/// Schema search and filtering around Vyuh's native read-only canvas.
 class SchemaViewer extends StatefulWidget {
   const SchemaViewer({
     super.key,
     required this.graph,
     this.onImport,
     this.importActions = const [],
+    this.sourcePaths = const {},
+    this.modelSources = const {},
+    this.onOpenModel,
+    this.storageKey,
+    this.viewStore = const PreferencesSchemaViewStore(),
   });
   final SchemaGraph graph;
   final VoidCallback? onImport;
   final List<Widget> importActions;
+  final Map<String, String> sourcePaths;
+  final Map<String, String> modelSources;
+  final FutureOr<void> Function(String)? onOpenModel;
+  final String? storageKey;
+  final SchemaViewStore viewStore;
   @override
   State<SchemaViewer> createState() => _SchemaViewerState();
 }
 
+class _Visit {
+  _Visit({
+    required this.slice,
+    required this.query,
+    required this.schema,
+    required this.limit,
+    required this.direction,
+    required this.selected,
+    this.hops = 1,
+    this.detailLevel = SchemaDetailLevel.keys,
+  });
+  SchemaSlice slice;
+  String query;
+  String? schema;
+  final int limit;
+  final RelationDirection direction;
+  final int hops;
+  final SchemaDetailLevel detailLevel;
+  String? selected;
+  DiagramCameraState? camera;
+  Map<String, DiagramRect> frames = {};
+}
+
 class _SchemaViewerState extends State<SchemaViewer> {
+  late SchemaNavigation _navigation;
   final _preferences = SchemaViewPreferences();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  bool _browserVisible = true;
-  bool _relationshipsVisible = false;
-  final _searchController = TextEditingController();
-  ReactionDisposer? _selectionWatcher;
-  ReactionDisposer? _contextWatcher;
-  DiagramController? _queuedContextController;
-  SchemaContext? _contextGraph;
-  SchemaNeighborhood? _neighborhood;
-  final _groups = <SchemaGroup>[];
-  SchemaGroup? _activeGroup;
-  bool _groupsTab = false;
-  bool _focusRelated = true;
-  bool _selectingGroup = false;
-  int _hops = 1;
-  int _groupSequence = 0;
-  RelationDirection _direction = RelationDirection.both;
-  DiagramCameraState? _previousCamera;
-  SchemaGraph? _graph;
+  final _canvasKey = GlobalKey();
+  final _search = TextEditingController();
+  final _expandedSchemas = <String>{};
+  final _history = <_Visit>[];
   DiagramController? _controller;
+  ReactionDisposer? _selectionWatcher;
+  ReactionDisposer? _effectWatcher;
+  _Visit? _visit;
+  String? _selected;
   String? _schema;
   String _query = '';
-  String _source = '';
+  bool _browserVisible = true;
+  bool _detailsVisible = true;
+  bool _loading = false;
+  int _limit = 8;
+  int _hops = 1;
+  SchemaDetailLevel _detailLevel = SchemaDetailLevel.keys;
+  final _savedViews = <String, Map<String, dynamic>>{};
+  Timer? _saveDebounce;
+  ReactionDisposer? _positionWatcher;
+  bool _saveError = false;
+  int _generation = 0;
+  RelationDirection _direction = RelationDirection.both;
   Object? _error;
-  bool _loading = true;
-  int _loadGeneration = 0;
+  Timer? _searchDebounce;
 
   @override
   void initState() {
     super.initState();
-    unawaited(_loadSchema());
+    _navigation = SchemaNavigation(widget.graph);
+    unawaited(_initialize());
   }
 
   @override
   void didUpdateWidget(covariant SchemaViewer oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!identical(widget.graph, oldWidget.graph)) {
-      setState(() => _loading = true);
-      unawaited(_loadSchema());
+      _rememberView();
+      final previous = _visit;
+      final projectChanged =
+          oldWidget.storageKey != widget.storageKey ||
+          oldWidget.graph.source != widget.graph.source;
+      ++_generation;
+      _navigation = SchemaNavigation(widget.graph);
+      if (projectChanged) {
+        _history.clear();
+        _expandedSchemas.clear();
+        _savedViews.clear();
+        _selected = null;
+        _schema = null;
+        _query = '';
+        _search.clear();
+        _visit = null;
+        _replaceController(null);
+        unawaited(_initialize());
+        return;
+      }
+      _expandedSchemas.retainAll(_navigation.catalog.schemaCounts.keys);
+      if (_schema != null &&
+          !_navigation.catalog.schemaCounts.containsKey(_schema)) {
+        _schema = null;
+      }
+      _history.removeWhere(
+        (visit) => visit.slice.roots.any(
+          (id) => !_navigation.context.tables.containsKey(id),
+        ),
+      );
+      final roots =
+          previous?.slice.roots
+              .where(_navigation.context.tables.containsKey)
+              .toSet() ??
+          <String>{};
+      final slice = roots.isEmpty
+          ? _navigation.overview(
+              schema: _schema,
+              limit: previous?.slice.graph.tables.length ?? 24,
+              revealed: _selected == null ? {} : {_selected!},
+            )
+          : _navigation.around(
+              roots,
+              limit: _limit,
+              hops: _hops,
+              direction: _direction,
+            );
+      final selected = _navigation.context.tables.containsKey(_selected)
+          ? _selected
+          : roots.firstOrNull;
+      unawaited(_open(slice, selected: selected, record: false));
     }
   }
 
-  Future<void> _loadSchema() async {
+  String get _storageKey => widget.storageKey ?? widget.graph.source;
+  String _viewKey(SchemaSlice slice, {required String? schema}) =>
+      slice.roots.isEmpty
+      ? 'schema:${schema ?? '*'}'
+      : 'tables:${(slice.roots.toList()..sort()).join('|')}';
+
+  Future<void> _initialize() async {
+    final generation = ++_generation;
+    setState(() => _loading = true);
+    Map<String, dynamic>? saved;
     try {
-      await _setGraph(widget.graph, widget.graph.source);
-    } catch (error) {
-      if (mounted) {
-        setState(() {
-          _error = error;
-          _loading = false;
-        });
+      saved = await widget.viewStore.read(_storageKey);
+    } catch (_) {
+      /* An unavailable store must not block exploration. */
+    }
+    if (!mounted || generation != _generation) return;
+    try {
+      if (saved != null && saved['version'] == 1) {
+        _detailLevel = SchemaDetailLevel.values.firstWhere(
+          (level) => level.name == saved!['detailLevel'],
+          orElse: () => SchemaDetailLevel.keys,
+        );
+        final views = saved['views'];
+        if (views is Map) {
+          for (final entry in views.entries.take(100)) {
+            if (entry.key is String && entry.value is Map) {
+              _savedViews[entry.key] = Map<String, dynamic>.from(
+                entry.value as Map,
+              );
+            }
+          }
+        }
+      }
+    } catch (_) {
+      _savedViews.clear();
+      _savedViews.clear();
+    }
+    unawaited(_open(_navigation.overview(), record: false));
+  }
+
+  void _rememberView() {
+    final visit = _visit;
+    final controller = _controller;
+    if (visit == null || controller == null) return;
+    _capture(visit);
+    final camera = controller.camera;
+    _savedViews[_viewKey(visit.slice, schema: visit.schema)] = {
+      'positions': {
+        for (final shape
+            in controller.document.elements.whereType<ShapeElement>())
+          shape.id: [shape.frame.left, shape.frame.top],
+      },
+      'center': [camera.center.x, camera.center.y],
+      'zoom': camera.zoom,
+    };
+  }
+
+  Future<void> _persist() async {
+    _rememberView();
+    try {
+      await widget.viewStore.write(_storageKey, {
+        'version': 1,
+        'detailLevel': _detailLevel.name,
+        'views': _savedViews,
+      });
+      if (mounted && _saveError) setState(() => _saveError = false);
+    } catch (_) {
+      if (mounted) setState(() => _saveError = true);
+    }
+  }
+
+  void _queueSave() {
+    _saveDebounce?.cancel();
+    _saveDebounce = Timer(
+      const Duration(milliseconds: 400),
+      () => unawaited(_persist()),
+    );
+  }
+
+  DiagramPoint? _point(Object? value) {
+    if (value is! List ||
+        value.length != 2 ||
+        value[0] is! num ||
+        value[1] is! num) {
+      return null;
+    }
+    final x = (value[0] as num).toDouble(), y = (value[1] as num).toDouble();
+    if (!x.isFinite || !y.isFinite || x.abs() > 1e8 || y.abs() > 1e8) {
+      return null;
+    }
+    return DiagramPoint(x, y);
+  }
+
+  void _replaceController(DiagramController? next) {
+    _selectionWatcher?.call();
+    _effectWatcher?.call();
+    _positionWatcher?.call();
+    final old = _controller;
+    _controller = next;
+    if (old != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => old.dispose());
+    }
+    if (next == null) return;
+    _effectWatcher = watchSchemaSelection(next, preferences: _preferences);
+    _positionWatcher = reaction(
+      (_) => (next.document.revision, next.camera.center, next.camera.zoom),
+      (_) => _queueSave(),
+    );
+    _selectionWatcher = reaction((_) => next.selection, (selection) {
+      // Selection changes inspect a table. They never relayout or move the camera.
+      final id = selection is ElementSelection
+          ? selection.elementIds
+                .where(_navigation.context.tables.containsKey)
+                .firstOrNull
+          : null;
+      if (id == null || id == _selected) return;
+      scheduleMicrotask(() {
+        if (mounted && identical(next, _controller)) {
+          setState(() {
+            _selected = id;
+            _detailsVisible = true;
+          });
+        }
+      });
+    });
+  }
+
+  void _capture(_Visit visit) {
+    final controller = _controller;
+    if (controller == null) return;
+    visit.query = _query;
+    visit.schema = _schema;
+    visit.selected = _selected;
+    visit.camera = controller.camera;
+    visit.frames = {
+      for (final shape
+          in controller.document.elements.whereType<ShapeElement>())
+        shape.id: shape.frame,
+    };
+  }
+
+  Future<void> _explore(String id, {bool closeBrowser = false}) async {
+    if (!_navigation.context.tables.containsKey(id)) return;
+    if (closeBrowser) _scaffoldKey.currentState?.closeDrawer();
+    FocusManager.instance.primaryFocus?.unfocus();
+    _limit = 0;
+    await _open(
+      _navigation.around({id}, limit: 0, direction: _direction),
+      selected: id,
+      fitOverview: true,
+    );
+  }
+
+  void _references(String value) {
+    final id = _selected;
+    if (id == null || _loading) return;
+    if (value == 'only') {
+      _limit = 0;
+    } else if (value == 'all') {
+      _limit = _navigation.graph.tables.length;
+    } else {
+      if (value == 'show' || _limit == 0) _limit = 8;
+      if (value.startsWith('hops:')) _hops = int.parse(value.substring(5));
+      if (value.startsWith('direction:')) {
+        _direction = RelationDirection.values.byName(value.substring(10));
       }
     }
+    unawaited(
+      _open(
+        _navigation.around(
+          {id},
+          limit: _limit,
+          direction: _direction,
+          hops: _hops,
+        ),
+        selected: id,
+        fitOverview: true,
+      ),
+    );
   }
 
-  Future<void> _setGraph(SchemaGraph graph, String source) async {
-    final generation = ++_loadGeneration;
+  Future<void> _open(
+    SchemaSlice slice, {
+    String? selected,
+    _Visit? restore,
+    bool record = true,
+    bool fitOverview = false,
+  }) async {
+    if (selected != null) {
+      final table = _navigation.context.tables[selected];
+      if (table == null) {
+        selected = null;
+      } else if (!slice.graph.tables.any((value) => value.name == selected)) {
+        slice = SchemaSlice(
+          graph: slice.graph.copyWith(tables: [...slice.graph.tables, table]),
+          roots: slice.roots,
+          hiddenCount: slice.hiddenCount,
+        );
+      }
+    }
+    if (record && _visit != null) {
+      _capture(_visit!);
+      _history.add(_visit!);
+      if (_history.length > 30) _history.removeAt(0);
+    }
+    _rememberView();
+    final previousCamera = _controller?.camera;
+    final savedView = _savedViews[_viewKey(slice, schema: _schema)];
+    final generation = ++_generation;
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     final controller = DiagramController(
       configuration: DiagramConfiguration(
         extensions: [
@@ -107,19 +384,16 @@ class _SchemaViewerState extends State<SchemaViewer> {
             enabled: _preferences.snapGuides,
             tolerance: _preferences.snapTolerance,
           ),
-          SchemaTableExtension(),
+          SchemaTableExtension(detailLevel: _detailLevel),
           const LayoutExtension(),
           TableFlutterExtension(),
           MinimapExtension(
             visible: _preferences.minimap,
-            initiallyExpanded: true,
+            initiallyExpanded: false,
             alignment: Alignment.bottomRight,
-            policy: DiagramMinimapPolicy(
-              showConnections: _preferences.minimapConnections,
-            ),
           ),
           NavigationExtension(
-            fitOnAttach: true,
+            fitOnAttach: false,
             edgePanEnabled: _preferences.edgePan,
           ),
           GridExtension(
@@ -132,303 +406,271 @@ class _SchemaViewerState extends State<SchemaViewer> {
     );
     try {
       await SchemaDiagram.build(
-        graph,
+        slice.graph,
         controller: controller,
-        layout: Layout.grid(columns: 12, gap: 56),
+        detailLevel: _detailLevel,
+        layout: Layout.grid(
+          columns: slice.roots.isEmpty
+              ? sqrt(slice.graph.tables.length).ceil().clamp(3, 24).toInt()
+              : 3,
+          gap: 100,
+        ),
       );
+      if (slice.roots.length == 1) {
+        final root = slice.roots.single;
+        final incoming = _navigation.context
+            .external({root}, direction: RelationDirection.incoming)
+            .map((r) => r.table)
+            .toSet();
+        final outgoing = _navigation.context
+            .external({root}, direction: RelationDirection.outgoing)
+            .map((r) => r.foreignKey.refTable)
+            .toSet();
+        final bands = [
+          slice.graph.tables.where(
+            (t) =>
+                t.name != root &&
+                incoming.contains(t.name) &&
+                !outgoing.contains(t.name),
+          ),
+          slice.graph.tables.where((t) => t.name == root),
+          slice.graph.tables.where(
+            (t) =>
+                t.name != root &&
+                (outgoing.contains(t.name) || !incoming.contains(t.name)),
+          ),
+        ];
+        controller.edits.batch('Arrange neighborhood', () {
+          for (var band = 0; band < bands.length; band++) {
+            var y = 0.0;
+            for (final table in bands[band]) {
+              final frame = controller.scene
+                  .shapeById(table.name)!
+                  .source
+                  .frame;
+              controller.edits.move(
+                DiagramPoint(band * 480 - frame.left, y - frame.top),
+                ids: [table.name],
+              );
+              y += frame.height + 64;
+            }
+          }
+        }).requireAllowed();
+      }
+      if (restore != null) {
+        controller.edits.batch('Restore positions', () {
+          for (final entry in restore.frames.entries) {
+            final current = controller.scene.shapeById(entry.key)?.source.frame;
+            if (current != null) {
+              controller.edits.move(
+                DiagramPoint(
+                  entry.value.left - current.left,
+                  entry.value.top - current.top,
+                ),
+                ids: [entry.key],
+              );
+            }
+          }
+        }).requireAllowed();
+      }
+      final positions = savedView?['positions'];
+      if (restore == null && positions is Map) {
+        controller.edits.batch('Restore saved positions', () {
+          for (final entry in positions.entries) {
+            if (entry.key is! String) continue;
+            final point = _point(entry.value);
+            final frame = controller.scene
+                .shapeById(entry.key as String)
+                ?.source
+                .frame;
+            if (point != null && frame != null) {
+              controller.edits.move(
+                DiagramPoint(point.x - frame.left, point.y - frame.top),
+                ids: [entry.key as String],
+              );
+            }
+          }
+        }).requireAllowed();
+      }
       controller.diagram.setRules(schemaViewRules);
       applySchemaConnections(controller, _preferences);
-    } catch (_) {
-      controller.dispose();
-      rethrow;
-    }
-    if (!mounted || generation != _loadGeneration) {
-      controller.dispose();
-      return;
-    }
-    _selectionWatcher?.call();
-    _contextWatcher?.call();
-    _selectionWatcher = watchSchemaSelection(
-      controller,
-      preferences: _preferences,
-    );
-    final previous = _controller;
-    _searchController.clear();
-    setState(() {
-      _controller = controller;
-      _graph = graph;
-      _contextGraph = SchemaContext(graph);
-      _neighborhood = null;
-      _relationshipsVisible = false;
-      _groups.clear();
-      _activeGroup = null;
-      _previousCamera = null;
-      _source = source;
-      _schema = null;
-      _query = '';
-      _error = null;
-      _loading = false;
-    });
-    _contextWatcher = reaction((_) => controller.selection, (_) {
-      // Native selection publishes inside an engine transaction. Decoration
-      // edits must wait until that transaction has finished.
-      _queueContextRefresh(controller);
-    });
-    if (previous != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => previous.dispose());
-    }
-  }
-
-  void _message(String message) =>
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(message)));
-
-  List<SchemaTable> get _tables => _graph == null
-      ? []
-      : SchemaCatalog(_graph!).tables(schema: _schema, query: _query);
-
-  Set<String> get _selectedTables {
-    final selection = _controller?.selection;
-    return selection is ElementSelection
-        ? selection.elementIds
-              .where((id) => _contextGraph?.tables.containsKey(id) == true)
-              .toSet()
-        : {};
-  }
-
-  Set<String> get _contextMembers => _activeGroup?.members ?? _selectedTables;
-
-  void _queueContextRefresh(DiagramController controller) {
-    if (identical(_queuedContextController, controller)) return;
-    _queuedContextController = controller;
-    scheduleMicrotask(() {
-      if (!identical(_queuedContextController, controller)) return;
-      _queuedContextController = null;
-      if (!mounted || !identical(controller, _controller) || _selectingGroup) {
+      if (!mounted || generation != _generation) {
+        controller.dispose();
         return;
       }
-      final ids = _selectedTables;
-      if (_activeGroup != null && !setEquals(ids, _activeGroup!.members)) {
-        _activeGroup = null;
+      final visit =
+          restore ??
+          _Visit(
+            slice: slice,
+            query: _query,
+            schema: _schema,
+            limit: _limit,
+            direction: _direction,
+            selected: selected,
+            hops: _hops,
+            detailLevel: _detailLevel,
+          );
+      visit.slice = slice;
+      setState(() {
+        _replaceController(controller);
+        _visit = visit;
+        _selected = selected;
+        if (selected != null) _detailsVisible = true;
+        _loading = false;
+      });
+      if (selected != null) controller.select([selected]);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !identical(controller, _controller)) return;
+        final camera = restore?.camera;
+        if (fitOverview && selected != null && slice.graph.tables.length == 1) {
+          controller.setCamera(
+            DiagramCameraState(
+              center: controller.scene.shapeById(selected)!.source.frame.center,
+              zoom: 1,
+              viewportSize: controller.camera.viewportSize,
+            ),
+          );
+        } else if (fitOverview) {
+          unawaited(controller.view.show(const ViewTarget.all()));
+        } else if (camera != null) {
+          controller.setCamera(
+            DiagramCameraState(
+              center: camera.center,
+              zoom: camera.zoom,
+              viewportSize: controller.camera.viewportSize,
+            ),
+          );
+        } else if (_point(savedView?['center']) != null &&
+            savedView?['zoom'] is num &&
+            (savedView!['zoom'] as num).isFinite &&
+            (savedView['zoom'] as num) > 0) {
+          controller.setCamera(
+            DiagramCameraState(
+              center: _point(savedView['center'])!,
+              zoom: (savedView['zoom'] as num).toDouble(),
+              viewportSize: controller.camera.viewportSize,
+            ),
+          );
+        } else if (previousCamera != null && selected != null) {
+          final center = controller.scene
+              .shapeById(selected)!
+              .source
+              .frame
+              .center;
+          controller.setCamera(
+            DiagramCameraState(
+              center: center,
+              zoom: previousCamera.zoom,
+              viewportSize: controller.camera.viewportSize,
+            ),
+          );
+        } else {
+          unawaited(controller.view.show(const ViewTarget.all()));
+        }
+        _queueSave();
+      });
+    } catch (error) {
+      controller.dispose();
+      if (mounted && generation == _generation) {
+        setState(() {
+          _error = error;
+          _loading = false;
+        });
       }
-      _refreshContext();
-    });
-  }
-
-  void _refreshContext() {
-    final controller = _controller;
-    final graph = _contextGraph;
-    if (controller == null || graph == null) return;
-    if (_activeGroup == null && _hops == 0) _hops = 1;
-    _neighborhood = graph.neighborhood(
-      _contextMembers,
-      hops: _hops,
-      direction: _direction,
-    );
-    if (_contextMembers.isEmpty) _relationshipsVisible = false;
-    applySchemaContext(controller, _focusRelated ? _neighborhood : null);
-    setState(() {});
-  }
-
-  void _showAll() {
-    _activeGroup = null;
-    _controller?.clearSelection();
-    _refreshContext();
-  }
-
-  Future<void> _fitRelated() async {
-    final controller = _controller;
-    final ids = _neighborhood?.tables;
-    if (controller == null || ids == null || ids.isEmpty) return;
-    final frames = controller.document.elements
-        .whereType<ShapeElement>()
-        .where((e) => e.isVisible && ids.contains(e.id))
-        .map((e) => e.frame)
-        .toList();
-    if (frames.isEmpty) return;
-    setState(() => _previousCamera ??= controller.camera);
-    await controller.view.show(
-      ViewTarget.rectangle(DiagramRect.union(frames)),
-      motion: Motion.smooth,
-    );
-  }
-
-  void _restoreCamera() {
-    final controller = _controller;
-    final previous = _previousCamera;
-    if (controller == null || previous == null) return;
-    controller.setCamera(
-      DiagramCameraState(
-        center: previous.center,
-        zoom: previous.zoom,
-        viewportSize: controller.camera.viewportSize,
-      ),
-    );
-    setState(() => _previousCamera = null);
-  }
-
-  void _selectTable(String id, {bool closeBrowser = false}) {
-    if (closeBrowser) _scaffoldKey.currentState?.closeDrawer();
-    FocusManager.instance.primaryFocus?.unfocus();
-    _activeGroup = null;
-    _controller!.select([id]);
-    _queueContextRefresh(_controller!);
-    unawaited(
-      _controller!.view.show(ViewTarget.element(id), motion: Motion.smooth),
-    );
-  }
-
-  void _focusGroup(SchemaGroup group, {bool closeBrowser = false}) {
-    _activeGroup = group;
-    _selectingGroup = true;
-    try {
-      _controller!.select(group.members);
-    } finally {
-      _selectingGroup = false;
     }
-    _queueContextRefresh(_controller!);
-    if (closeBrowser) _scaffoldKey.currentState?.closeDrawer();
   }
 
-  Future<void> _editGroup([SchemaGroup? group]) async {
-    final graph = _contextGraph;
-    if (graph == null) return;
-    final result = await showDialog<SchemaGroup>(
-      context: context,
-      builder: (_) => SchemaGroupEditor(
-        contextGraph: graph,
-        id: group?.id ?? 'group-${++_groupSequence}',
-        group: group,
-        initialMembers: _selectedTables,
-      ),
-    );
-    if (!mounted || result == null || !identical(graph, _contextGraph)) return;
+  void _back() {
+    if (_loading || _history.isEmpty) return;
+    final visit = _history.removeLast();
+    _searchDebounce?.cancel();
     setState(() {
-      final i = _groups.indexWhere((g) => g.id == result.id);
-      if (i < 0) {
-        _groups.add(result);
-      } else {
-        _groups[i] = result;
-      }
-      _groupsTab = true;
+      _query = visit.query;
+      _search.text = visit.query;
+      _schema = visit.schema;
+      _limit = visit.limit;
+      _direction = visit.direction;
+      _hops = visit.hops;
+      _detailLevel = visit.detailLevel;
     });
-    _focusGroup(result);
+    final refreshed = visit.slice.roots.isEmpty
+        ? _navigation.overview(
+            schema: visit.schema,
+            limit: visit.slice.graph.tables.length,
+            revealed: visit.selected == null ? {} : {visit.selected!},
+          )
+        : _navigation.around(
+            visit.slice.roots,
+            limit: visit.limit,
+            direction: visit.direction,
+            hops: visit.hops,
+          );
+    final restore =
+        _Visit(
+            slice: refreshed,
+            query: visit.query,
+            schema: visit.schema,
+            limit: visit.limit,
+            direction: visit.direction,
+            selected: _navigation.context.tables.containsKey(visit.selected)
+                ? visit.selected
+                : null,
+            hops: visit.hops,
+            detailLevel: visit.detailLevel,
+          )
+          ..camera = visit.camera
+          ..frames = visit.frames;
+    unawaited(
+      _open(
+        refreshed,
+        selected: restore.selected,
+        restore: restore,
+        record: false,
+      ),
+    );
   }
 
-  void _removeGroup(SchemaGroup group) {
-    setState(() => _groups.removeWhere((g) => g.id == group.id));
-    if (_activeGroup?.id == group.id) _showAll();
-    _message('Removed group ${group.name}. Tables are unchanged.');
-  }
-
-  void _filter(
-    String? schema, {
-    bool preserveContext = false,
-    bool fit = true,
-  }) {
-    final controller = _controller;
-    final graph = _graph;
-    if (controller == null || graph == null) return;
-    final visible = {
-      for (final table in graph.tables)
-        if (schema == null || table.schema == schema) table.name,
-    };
-    controller.edits.batch('Filter schema', () {
-      for (final table in graph.tables) {
-        controller.edits.setVisible(
-          visible.contains(table.name),
-          ids: [table.name],
-        );
-      }
-      for (final edge
-          in controller.document.elements.whereType<ConnectorElement>()) {
-        final source = edge.start is BoundEndpoint
-            ? (edge.start as BoundEndpoint).elementId
-            : null;
-        final target = edge.end is BoundEndpoint
-            ? (edge.end as BoundEndpoint).elementId
-            : null;
-        controller.edits.setVisible(
-          visible.contains(source) && visible.contains(target),
-          ids: [edge.id],
-        );
-      }
-    }).requireAllowed();
-    if (!preserveContext) {
-      _activeGroup = null;
-      controller.clearSelection();
+  void _browse() {
+    if (MediaQuery.sizeOf(context).width < 700) {
+      _scaffoldKey.currentState?.openDrawer();
+    } else {
+      setState(() => _browserVisible = true);
     }
-    setState(() => _schema = schema);
-    _refreshContext();
-    if (fit) {
+  }
+
+  void _fit() {
+    final controller = _controller;
+    if (controller != null && !_loading) {
       unawaited(
         controller.view.show(const ViewTarget.all(), motion: Motion.smooth),
       );
     }
   }
 
-  Future<void> _layout(Layout layout) async {
-    final controller = _controller;
-    if (controller == null || _loading) return;
-    setState(() => _loading = true);
-    try {
-      final ids = controller.document.elements
-          .whereType<ShapeElement>()
-          .where((shape) => shape.isVisible)
-          .map((shape) => shape.id)
-          .toList();
-      await controller.layout(layout, nodeIds: ids, motion: Motion.smooth);
-      if (mounted && identical(controller, _controller)) {
-        await controller.view.show(
-          const ViewTarget.all(),
-          motion: Motion.smooth,
-        );
-      }
-    } catch (error) {
-      if (mounted) _message('Could not arrange schema: $error');
-    } finally {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
-  Future<void> _settings() async {
-    final controller = _controller;
-    if (controller == null) return;
-    await showDialog<void>(
-      context: context,
-      builder: (_) =>
-          SchemaViewSettings(controller: controller, preferences: _preferences),
-    );
-  }
-
-  void _selectRelationship(String destination) {
-    if (_schema != null &&
-        _contextGraph!.tables[destination]?.schema != _schema) {
-      _filter(null, preserveContext: true, fit: false);
-    }
-    _selectTable(destination);
-  }
-
-  Future<void> _relationships() async {
-    if (MediaQuery.sizeOf(context).width >= 700) {
-      setState(() => _relationshipsVisible = !_relationshipsVisible);
+  Future<void> _details() async {
+    final table = _navigation.context.tables[_selected];
+    if (table == null) return;
+    if (MediaQuery.sizeOf(context).width >= 1100) {
+      setState(() => _detailsVisible = !_detailsVisible);
       return;
     }
     await showModalBottomSheet<void>(
       context: context,
-      isScrollControlled: true,
       showDragHandle: true,
-      builder: (sheetContext) => SafeArea(
+      isScrollControlled: true,
+      builder: (sheet) => SafeArea(
         child: SizedBox(
-          height: MediaQuery.sizeOf(sheetContext).height * .7,
-          child: SchemaRelationshipsPanel(
-            graph: _contextGraph!,
-            members: _contextMembers,
-            group: _activeGroup,
-            onClose: () => Navigator.of(sheetContext).pop(),
-            onSelect: (destination) {
-              Navigator.of(sheetContext).pop();
-              _selectRelationship(destination);
+          height: MediaQuery.sizeOf(sheet).height * .8,
+          child: SchemaTableInspector(
+            table: table,
+            graph: _navigation.context,
+            sourcePath: widget.sourcePaths[table.name],
+            sourceCode: widget.modelSources[table.name],
+            onOpenModel: widget.onOpenModel,
+            onClose: () => Navigator.of(sheet).pop(),
+            onExplore: (id) {
+              Navigator.of(sheet).pop();
+              unawaited(_explore(id));
             },
           ),
         ),
@@ -436,247 +678,590 @@ class _SchemaViewerState extends State<SchemaViewer> {
     );
   }
 
-  Widget _contextControls() {
-    final graph = _contextGraph!;
-    final neighborhood = _neighborhood!;
-    return SchemaContextControls(
-      title:
-          _activeGroup?.name ??
-          (_contextMembers.length == 1
-              ? _contextMembers.single
-              : '${_contextMembers.length} selected tables'),
-      group: _activeGroup,
-      focused: _focusRelated,
-      direction: _direction,
-      hops: _hops,
-      tableCount: neighborhood.tables.length,
-      hiddenCount: neighborhood.tables
-          .where((id) => _schema != null && graph.tables[id]?.schema != _schema)
-          .length,
-      hasPreviousView: _previousCamera != null,
-      onFocusChanged: (value) {
-        _focusRelated = value;
-        _refreshContext();
-      },
-      onDirectionChanged: (value) {
-        _direction = value;
-        _refreshContext();
-      },
-      onHopsChanged: (value) {
-        _hops = value;
-        _refreshContext();
-      },
-      onShowAll: _showAll,
-      onFit: _fitRelated,
-      onBack: _restoreCamera,
-      onRelationships: _relationships,
-      onCreateGroup: () => _editGroup(),
-      onReveal: () => _filter(null, preserveContext: true, fit: false),
+  void _reopen() {
+    final visit = _visit;
+    if (visit == null) return;
+    final slice = visit.slice.roots.isEmpty
+        ? _navigation.overview(
+            schema: _schema,
+            limit: visit.slice.graph.tables.length,
+          )
+        : _navigation.around(
+            visit.slice.roots,
+            limit: _limit,
+            direction: _direction,
+            hops: _hops,
+          );
+    unawaited(_open(slice, selected: _selected));
+  }
+
+  Future<void> _autoLayout() async {
+    final controller = _controller;
+    if (controller == null || _loading) return;
+    await controller.layout(
+      Layout.layered(direction: LayoutDirection.right, gap: 64, layerGap: 120),
+    );
+    _queueSave();
+  }
+
+  Future<void> _settings() async {
+    if (_controller == null) return;
+    await showDialog<void>(
+      context: context,
+      builder: (_) => SchemaViewSettings(
+        controller: _controller!,
+        preferences: _preferences,
+      ),
     );
   }
 
-  @override
-  void dispose() {
-    ++_loadGeneration;
-    _searchController.dispose();
-    _selectionWatcher?.call();
-    _contextWatcher?.call();
-    final controller = _controller;
-    // The child canvas must unmount before its controller is disposed.
-    if (controller != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => controller.dispose());
-    }
-    super.dispose();
+  void _openSchema(String? schema) {
+    _searchDebounce?.cancel();
+    setState(() {
+      _schema = schema;
+      _query = '';
+      _search.clear();
+    });
+    unawaited(
+      _open(
+        _navigation.overview(
+          schema: schema,
+          limit: _navigation.graph.tables.length,
+        ),
+        fitOverview: true,
+      ),
+    );
   }
+
+  Widget _browser({bool closeOnSelect = false}) {
+    final matches = _navigation.catalog.tables(query: _query);
+    final counts = _navigation.catalog.schemaCounts;
+    final bySchema = <String, List<SchemaTable>>{};
+    for (final table in matches) {
+      bySchema.putIfAbsent(table.schema, () => []).add(table);
+    }
+    final schemas = counts.keys.toList()..sort();
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Schemas',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Collapse all schemas',
+                    onPressed: () => setState(_expandedSchemas.clear),
+                    icon: const Icon(Icons.unfold_less),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _search,
+                decoration: const InputDecoration(
+                  hintText: 'Find a table or column',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  _searchDebounce?.cancel();
+                  _searchDebounce = Timer(
+                    const Duration(milliseconds: 120),
+                    () {
+                      if (!mounted) return;
+                      setState(() {
+                        _query = value;
+                        if (value.isNotEmpty) {
+                          _expandedSchemas.addAll(
+                            _navigation.catalog
+                                .tables(query: value)
+                                .map((table) => table.schema),
+                          );
+                        }
+                      });
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: ListTile(
+                  selected:
+                      _schema == null && _visit?.slice.roots.isEmpty == true,
+                  leading: const Icon(Icons.account_tree_outlined, size: 20),
+                  title: const Text('All schemas'),
+                  subtitle: Text('${widget.graph.tables.length} tables'),
+                  onTap: _loading ? null : () => _openSchema(null),
+                ),
+              ),
+              if (matches.isEmpty)
+                const SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(child: Text('No matching tables')),
+                ),
+              for (final schema in schemas)
+                if (bySchema.containsKey(schema)) ...[
+                  SliverToBoxAdapter(
+                    child: Row(
+                      key: ValueKey('schema:$schema'),
+                      children: [
+                        IconButton(
+                          key: ValueKey('toggle-schema:$schema'),
+                          tooltip:
+                              '${_expandedSchemas.contains(schema) ? 'Collapse' : 'Expand'} $schema',
+                          icon: Icon(
+                            _expandedSchemas.contains(schema)
+                                ? Icons.expand_more
+                                : Icons.chevron_right,
+                          ),
+                          onPressed: () => setState(() {
+                            if (!_expandedSchemas.remove(schema)) {
+                              _expandedSchemas.add(schema);
+                            }
+                          }),
+                        ),
+                        Expanded(
+                          child: ListTile(
+                            selected:
+                                _schema == schema &&
+                                _visit?.slice.roots.isEmpty == true,
+                            contentPadding: const EdgeInsets.only(
+                              left: 4,
+                              right: 12,
+                            ),
+                            title: Text(schema),
+                            subtitle: Text('${counts[schema]} tables'),
+                            onTap: _loading
+                                ? null
+                                : () {
+                                    _expandedSchemas.add(schema);
+                                    _openSchema(schema);
+                                    if (closeOnSelect) {
+                                      _scaffoldKey.currentState?.closeDrawer();
+                                    }
+                                  },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (_expandedSchemas.contains(schema))
+                    SliverList.builder(
+                      itemCount: bySchema[schema]!.length,
+                      itemBuilder: (_, index) {
+                        final table = bySchema[schema]![index];
+                        return ListTile(
+                          key: ValueKey('table:${table.name}'),
+                          contentPadding: const EdgeInsets.only(
+                            left: 48,
+                            right: 12,
+                          ),
+                          dense: true,
+                          selected: table.name == _selected,
+                          leading: const Icon(
+                            Icons.table_chart_outlined,
+                            size: 18,
+                          ),
+                          title: Text(
+                            table.name.startsWith('$schema.')
+                                ? table.name.substring(schema.length + 1)
+                                : table.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          subtitle: Text(
+                            '${table.columns.length} columns · ${table.foreignKeys.length} references',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          onTap: _loading
+                              ? null
+                              : () => _explore(
+                                  table.name,
+                                  closeBrowser: closeOnSelect,
+                                ),
+                        );
+                      },
+                    ),
+                ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _landing() => Center(
+    child: SingleChildScrollView(
+      padding: const EdgeInsets.all(32),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 480),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.travel_explore, size: 40),
+            const SizedBox(height: 20),
+            Text(
+              'Where would you like to explore?',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Search ${widget.graph.tables.length} tables and their columns. Choose a table to see its immediate connections, then follow a relationship to explore further.',
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: () {
+                if (MediaQuery.sizeOf(context).width < 700) {
+                  _scaffoldKey.currentState?.openDrawer();
+                } else {
+                  setState(() => _browserVisible = true);
+                }
+              },
+              icon: const Icon(Icons.search),
+              label: const Text('Browse tables'),
+            ),
+            if (widget.graph.tables.isNotEmpty &&
+                widget.graph.tables.length <= 24)
+              TextButton(
+                onPressed: () => _open(_navigation.overview(schema: _schema)),
+                child: const Text('Open schema overview'),
+              ),
+          ],
+        ),
+      ),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
-    final controller = _controller;
     final compact = MediaQuery.sizeOf(context).width < 700;
+    final controller = _controller;
+    final table = _navigation.context.tables[_selected];
+    final material = Theme.of(context);
+    final theme = material.brightness == Brightness.dark
+        ? DiagramTheme.dark
+        : DiagramTheme.light;
+    final content = controller == null
+        ? _landing()
+        : ClipRect(
+            child: DiagramCanvas(
+              key: _canvasKey,
+              controller: controller,
+              theme: theme.copyWith(
+                canvas: theme.canvas.copyWith(
+                  background: material.colorScheme.surface,
+                ),
+              ),
+            ),
+          );
     return CallbackShortcuts(
-      bindings: {const SingleActivator(LogicalKeyboardKey.escape): _showAll},
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.escape): () =>
+            setState(() => _detailsVisible = false),
+        const SingleActivator(LogicalKeyboardKey.arrowLeft, alt: true): _back,
+      },
       child: Scaffold(
         key: _scaffoldKey,
-        drawer: compact && controller != null
-            ? Drawer(
-                child: SafeArea(
-                  child: Column(
-                    children: [
-                      ListTile(
-                        title: const Text('Schemas and tables'),
-                        trailing: IconButton(
-                          tooltip: 'Close schema browser',
-                          icon: const Icon(Icons.close),
-                          onPressed: () =>
-                              _scaffoldKey.currentState?.closeDrawer(),
-                        ),
-                      ),
-                      Expanded(
-                        child: _sidebar(controller, closeOnSelect: true),
-                      ),
-                    ],
-                  ),
-                ),
-              )
+        drawer: compact
+            ? Drawer(child: SafeArea(child: _browser(closeOnSelect: true)))
             : null,
         appBar: AppBar(
-          title: Text(
-            compact ? 'Lens' : 'Serverpod Lens',
-            style: TextStyle(fontSize: compact ? 18 : 20),
-          ),
+          title: Text(compact ? 'Lens' : 'Serverpod Lens'),
           leading: IconButton(
-            tooltip: compact || !_browserVisible
-                ? 'Browse schemas'
-                : 'Collapse schema browser',
-            onPressed: controller == null
-                ? null
-                : () {
-                    if (compact) {
-                      _scaffoldKey.currentState?.openDrawer();
-                    } else {
-                      setState(() => _browserVisible = !_browserVisible);
-                    }
-                  },
+            tooltip: 'Browse tables',
             icon: Icon(compact ? Icons.menu : Icons.view_sidebar_outlined),
+            onPressed: () {
+              if (compact) {
+                _scaffoldKey.currentState?.openDrawer();
+              } else {
+                setState(() => _browserVisible = !_browserVisible);
+              }
+            },
           ),
           actions: [
-            if (widget.onImport != null && compact)
+            if (widget.onImport != null)
               IconButton(
                 tooltip: 'Import schema',
-                onPressed: _loading ? null : widget.onImport,
+                onPressed: widget.onImport,
                 icon: const Icon(Icons.folder_open),
-              )
-            else if (widget.onImport != null)
-              TextButton.icon(
-                onPressed: _loading ? null : widget.onImport,
-                icon: const Icon(Icons.folder_open),
-                label: const Text('Import schema'),
               ),
             ...widget.importActions,
-            PopupMenuButton<String>(
-              tooltip: 'Auto layout',
-              enabled: controller != null && !_loading,
-              icon: const Icon(Icons.account_tree_outlined),
-              onSelected: (value) => _layout(switch (value) {
-                'grid' => Layout.grid(columns: 8, gap: 56),
-                'tree' => Layout.tree(direction: TreeDirection.right),
-                'force' => Layout.force(),
-                'circular' => Layout.circular(),
-                _ => Layout.layered(
-                  direction: LayoutDirection.left,
-                  gap: 56,
-                  layerGap: 160,
-                ),
-              }),
-              itemBuilder: (_) => const [
-                PopupMenuItem(value: 'layered', child: Text('Layered')),
-                PopupMenuItem(value: 'grid', child: Text('Grid')),
-                PopupMenuItem(value: 'tree', child: Text('Tree')),
-                PopupMenuItem(value: 'force', child: Text('Force directed')),
-                PopupMenuItem(value: 'circular', child: Text('Circular')),
-              ],
-            ),
             IconButton(
-              tooltip: 'Schema view settings',
-              onPressed: controller == null || _loading ? null : _settings,
+              tooltip: 'Settings',
+              onPressed: controller == null ? null : _settings,
               icon: const Icon(Icons.settings_outlined),
             ),
-            const SizedBox(width: 8),
+            PopupMenuButton<String>(
+              tooltip: 'View options',
+              onSelected: (value) {
+                if (value == 'layout') {
+                  unawaited(_autoLayout());
+                } else if (value == 'browse') {
+                  _browse();
+                } else if (value == 'overview') {
+                  _openSchema(_schema);
+                } else {
+                  unawaited(_settings());
+                }
+              },
+              itemBuilder: (_) => [
+                const PopupMenuItem(enabled: false, child: Text('Canvas')),
+                PopupMenuItem(
+                  value: 'layout',
+                  enabled: controller != null,
+                  child: const Text('Auto layout'),
+                ),
+                const PopupMenuDivider(),
+                const PopupMenuItem(
+                  value: 'browse',
+                  child: Text('Browse schema'),
+                ),
+                const PopupMenuItem(
+                  value: 'overview',
+                  child: Text('Schema overview'),
+                ),
+              ],
+            ),
           ],
         ),
         body: Column(
           children: [
             if (_loading) const LinearProgressIndicator(),
-            if (_neighborhood?.isEmpty == false) _contextControls(),
-            if (_neighborhood?.isEmpty != false && _previousCamera != null)
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton.icon(
-                  onPressed: _restoreCamera,
-                  icon: const Icon(Icons.undo),
-                  label: const Text('Back to previous view'),
+            if (_saveError)
+              TextButton(
+                onPressed: _persist,
+                child: const Text('Could not save your view. Retry'),
+              ),
+            if (_error != null)
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Text('Could not open this view: $_error'),
+              ),
+            if (_visit != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      tooltip: 'Back',
+                      onPressed: _history.isEmpty || _loading ? null : _back,
+                      icon: const Icon(Icons.arrow_back),
+                    ),
+                    Expanded(
+                      child: Text(
+                        _selected ??
+                            (_schema == null
+                                ? 'All schemas'
+                                : 'Schema: $_schema'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    PopupMenuButton<SchemaDetailLevel>(
+                      tooltip: 'Diagram detail level',
+                      initialValue: _detailLevel,
+                      onSelected: (level) {
+                        setState(() => _detailLevel = level);
+                        _reopen();
+                        _queueSave();
+                      },
+                      itemBuilder: (_) => [
+                        for (final level in SchemaDetailLevel.values)
+                          CheckedPopupMenuItem(
+                            value: level,
+                            checked: _detailLevel == level,
+                            child: Text(level.label),
+                          ),
+                      ],
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.view_column_outlined, size: 18),
+                            if (!compact) ...[
+                              const SizedBox(width: 6),
+                              Text(_detailLevel.label),
+                            ],
+                            const Icon(Icons.arrow_drop_down, size: 18),
+                          ],
+                        ),
+                      ),
+                    ),
+                    PopupMenuButton<String>(
+                      tooltip: 'Table references',
+                      enabled: table != null && !_loading,
+                      onSelected: _references,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.account_tree_outlined, size: 18),
+                            if (!compact) ...[
+                              const SizedBox(width: 6),
+                              const Text('References'),
+                            ],
+                            const Icon(Icons.arrow_drop_down, size: 18),
+                          ],
+                        ),
+                      ),
+                      itemBuilder: (_) => [
+                        const PopupMenuItem(
+                          value: 'show',
+                          child: Text('Show references'),
+                        ),
+                        const PopupMenuItem(
+                          value: 'all',
+                          child: Text('Show all references'),
+                        ),
+                        const PopupMenuItem(
+                          value: 'only',
+                          child: Text('Selected table only'),
+                        ),
+                        const PopupMenuDivider(),
+                        for (final hops in [1, 2])
+                          CheckedPopupMenuItem(
+                            value: 'hops:$hops',
+                            checked: _hops == hops,
+                            child: Text('$hops hop${hops == 1 ? '' : 's'}'),
+                          ),
+                        for (final direction in RelationDirection.values)
+                          CheckedPopupMenuItem(
+                            value: 'direction:${direction.name}',
+                            checked: _direction == direction,
+                            child: Text(direction.label),
+                          ),
+                      ],
+                    ),
+                    IconButton(
+                      tooltip: 'Fit view',
+                      onPressed: _loading ? null : _fit,
+                      icon: const Icon(Icons.fit_screen),
+                    ),
+                    IconButton(
+                      tooltip: 'Table details',
+                      onPressed: table == null ? null : _details,
+                      icon: const Icon(Icons.info_outline),
+                    ),
+                  ],
                 ),
               ),
             Expanded(
-              child: controller == null
-                  ? Center(
-                      child: _error == null
-                          ? const CircularProgressIndicator()
-                          : Column(
-                              mainAxisSize: MainAxisSize.min,
+              child: Row(
+                children: [
+                  if (!compact && _browserVisible) ...[
+                    SizedBox(width: 280, child: _browser()),
+                    const VerticalDivider(width: 1),
+                  ],
+                  Expanded(
+                    key: const ValueKey('schema-content'),
+                    child: Column(
+                      children: [
+                        Expanded(child: content),
+                        if (_visit != null)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            child: Wrap(
+                              alignment: WrapAlignment.center,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 12,
                               children: [
-                                Text('Could not load schema: $_error'),
-                                TextButton(
-                                  onPressed: _loadSchema,
-                                  child: const Text('Retry'),
+                                Text(
+                                  '${_visit!.slice.graph.tables.length} tables · ${_detailLevel.label}',
+                                  style: material.textTheme.bodySmall,
                                 ),
+                                if (_visit!.slice.hiddenCount > 0)
+                                  TextButton(
+                                    onPressed: _loading
+                                        ? null
+                                        : () {
+                                            if (_visit!.slice.roots.isEmpty) {
+                                              unawaited(
+                                                _open(
+                                                  _navigation.overview(
+                                                    schema: _schema,
+                                                    limit:
+                                                        _visit!
+                                                            .slice
+                                                            .graph
+                                                            .tables
+                                                            .length +
+                                                        24,
+                                                  ),
+                                                ),
+                                              );
+                                            } else {
+                                              _limit += 8;
+                                              unawaited(
+                                                _open(
+                                                  _navigation.around(
+                                                    _visit!.slice.roots,
+                                                    limit: _limit,
+                                                    direction: _direction,
+                                                    hops: _hops,
+                                                  ),
+                                                  selected: _selected,
+                                                ),
+                                              );
+                                            }
+                                          },
+                                    child: Text(
+                                      '${_visit!.slice.roots.isNotEmpty && _limit == 0 ? 'Show references' : 'Show more'} (${_visit!.slice.hiddenCount})',
+                                    ),
+                                  ),
                               ],
                             ),
-                    )
-                  : LayoutBuilder(
-                      builder: (context, constraints) {
-                        final sidebar = _sidebar(controller);
-                        final material = Theme.of(context);
-                        final diagramTheme =
-                            material.brightness == Brightness.dark
-                            ? DiagramTheme.dark
-                            : DiagramTheme.light;
-                        final canvas = ClipRect(
-                          child: DiagramCanvas(
-                            key: ValueKey(controller),
-                            controller: controller,
-                            theme: diagramTheme.copyWith(
-                              canvas: diagramTheme.canvas.copyWith(
-                                background: material.colorScheme.surface,
-                              ),
-                              selection: diagramTheme.selection.copyWith(
-                                color: _activeGroup == null
-                                    ? material.colorScheme.primary
-                                    : Color(_activeGroup!.color),
-                                marquee: material.colorScheme.primary,
-                                handleFill: material.colorScheme.surface,
-                                handleHover: material
-                                    .colorScheme
-                                    .surfaceContainerHighest,
-                              ),
-                            ),
                           ),
-                        );
-                        if (constraints.maxWidth < 700) {
-                          return canvas;
-                        }
-                        return Row(
-                          children: [
-                            if (_browserVisible &&
-                                (!_relationshipsVisible ||
-                                    constraints.maxWidth >= 1100)) ...[
-                              SizedBox(width: 280, child: sidebar),
-                              const VerticalDivider(width: 1),
-                            ],
-                            Expanded(
-                              key: const ValueKey('schemaCanvas'),
-                              child: canvas,
-                            ),
-                            if (_relationshipsVisible &&
-                                _contextMembers.isNotEmpty) ...[
-                              const VerticalDivider(width: 1),
-                              SizedBox(
-                                width: constraints.maxWidth < 1100 ? 320 : 400,
-                                child: SchemaRelationshipsPanel(
-                                  graph: _contextGraph!,
-                                  members: _contextMembers,
-                                  group: _activeGroup,
-                                  onClose: () => setState(
-                                    () => _relationshipsVisible = false,
-                                  ),
-                                  onSelect: _selectRelationship,
-                                ),
-                              ),
-                            ],
-                          ],
-                        );
-                      },
+                      ],
                     ),
+                  ),
+                  if (MediaQuery.sizeOf(context).width >= 1100 &&
+                      _detailsVisible &&
+                      table != null) ...[
+                    const VerticalDivider(width: 1),
+                    SizedBox(
+                      width: 380,
+                      child: SchemaTableInspector(
+                        table: table,
+                        graph: _navigation.context,
+                        sourcePath: widget.sourcePaths[table.name],
+                        sourceCode: widget.modelSources[table.name],
+                        onOpenModel: widget.onOpenModel,
+                        onClose: () => setState(() => _detailsVisible = false),
+                        onExplore: (id) => _explore(id),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ],
         ),
@@ -684,201 +1269,20 @@ class _SchemaViewerState extends State<SchemaViewer> {
     );
   }
 
-  Widget _sidebar(DiagramController controller, {bool closeOnSelect = false}) {
-    final tables = _tables;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-          child: SegmentedButton<bool>(
-            segments: [
-              const ButtonSegment(
-                value: false,
-                label: Text('Tables'),
-                icon: Icon(Icons.table_chart_outlined),
-              ),
-              ButtonSegment(
-                value: true,
-                label: Text('Groups (${_groups.length})'),
-                icon: const Icon(Icons.workspaces_outline),
-              ),
-            ],
-            selected: {_groupsTab},
-            showSelectedIcon: false,
-            onSelectionChanged: (value) =>
-                setState(() => _groupsTab = value.single),
-          ),
-        ),
-        if (_groupsTab) ...[
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: FilledButton.tonalIcon(
-              onPressed: () => _editGroup(),
-              icon: const Icon(Icons.add),
-              label: const Text('Create group'),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              'Group tables across schemas. Saved for this session.',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ),
-          Expanded(
-            child: _groups.isEmpty
-                ? const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24),
-                      child: Text(
-                        'Create a named group to explore a feature and its dependencies.',
-                      ),
-                    ),
-                  )
-                : ListView(
-                    children: [
-                      for (final group in _groups)
-                        ListTile(
-                          selected: _activeGroup?.id == group.id,
-                          leading: Icon(
-                            Icons.workspaces_outline,
-                            color: Color(group.color),
-                          ),
-                          title: Text(
-                            group.name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          subtitle: Text(
-                            '${group.members.length} tables · ${_contextGraph!.external(group.members).length} external FKs',
-                          ),
-                          onTap: () =>
-                              _focusGroup(group, closeBrowser: closeOnSelect),
-                          trailing: PopupMenuButton<String>(
-                            tooltip: 'Manage ${group.name}',
-                            onSelected: (action) {
-                              if (action == 'edit') {
-                                _editGroup(group);
-                              } else {
-                                _removeGroup(group);
-                              }
-                            },
-                            itemBuilder: (_) => const [
-                              PopupMenuItem(
-                                value: 'edit',
-                                child: Text('Edit group'),
-                              ),
-                              PopupMenuItem(
-                                value: 'remove',
-                                child: Text('Remove group'),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-          ),
-        ] else ...[
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              children: [
-                DropdownButtonFormField<String>(
-                  isExpanded: true,
-                  key: ValueKey((_source, _schema)),
-                  initialValue: _schema ?? '',
-                  decoration: const InputDecoration(
-                    labelText: 'Schema',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: [
-                    const DropdownMenuItem(
-                      value: '',
-                      child: Text('All schemas'),
-                    ),
-                    for (final schema in SchemaCatalog(
-                      _graph!,
-                    ).schemaCounts.entries)
-                      DropdownMenuItem(
-                        value: schema.key,
-                        child: Text(
-                          '${schema.key} (${schema.value})',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                  ],
-                  onChanged: _loading
-                      ? null
-                      : (value) => _filter(value == '' ? null : value),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  key: ValueKey(_source),
-                  controller: _searchController,
-                  decoration: const InputDecoration(
-                    hintText: 'Find a table or column',
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (value) => setState(() => _query = value),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Observer(
-              builder: (_) {
-                final selection = controller.selection;
-                final selected = selection is ElementSelection
-                    ? selection.elementIds
-                    : <String>{};
-                if (tables.isEmpty) {
-                  return Center(
-                    child: Text(
-                      _graph!.tables.isEmpty
-                          ? 'This schema has no tables'
-                          : 'No matching tables',
-                    ),
-                  );
-                }
-                return ListView.builder(
-                  itemCount: tables.length,
-                  itemBuilder: (_, index) {
-                    final table = tables[index];
-                    return ListTile(
-                      dense: true,
-                      selected: selected.contains(table.name),
-                      leading: Icon(
-                        Icons.table_chart_outlined,
-                        size: 18,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      title: Text(
-                        table.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      subtitle: Text(
-                        '${table.columns.length} columns${switch (_neighborhood?.distances[table.name]) {
-                          0 => ' · Selected',
-                          1 => ' · Directly related',
-                          2 => ' · 2 hops away',
-                          _ => '',
-                        }}',
-                      ),
-                      onTap: () {
-                        _selectTable(table.name, closeBrowser: closeOnSelect);
-                      },
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-        ],
-      ],
-    );
+  @override
+  void dispose() {
+    ++_generation;
+    _saveDebounce?.cancel();
+    unawaited(_persist());
+    _positionWatcher?.call();
+    _searchDebounce?.cancel();
+    _search.dispose();
+    _selectionWatcher?.call();
+    _effectWatcher?.call();
+    final controller = _controller;
+    if (controller != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => controller.dispose());
+    }
+    super.dispose();
   }
 }

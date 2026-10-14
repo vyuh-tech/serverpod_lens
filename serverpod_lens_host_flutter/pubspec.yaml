@@ -7,6 +7,7 @@ environment:
   flutter: '>=3.47.0'
 resolution: workspace
 dependencies:
+  url_launcher: ^6.3.2
   flutter:
     sdk: flutter
   flutter_localizations:

@@ -4,32 +4,30 @@ import 'package:serverpod_lens_schema/serverpod_lens_schema.dart'
 /// Read-only queries over an imported schema snapshot.
 /// Database schemas group tables; Serverpod modules remain separate metadata.
 final class SchemaCatalog {
-  SchemaCatalog(this.graph);
+  SchemaCatalog(this.graph) {
+    _sorted = List.of(graph.tables)..sort((a, b) => a.name.compareTo(b.name));
+    for (final table in _sorted) {
+      _search[table.name] =
+          '${table.name} ${table.className} ${table.columns.map((c) => '${c.name} ${c.fieldName}').join(' ')}'
+              .toLowerCase();
+      _counts.update(table.schema, (n) => n + 1, ifAbsent: () => 1);
+    }
+  }
+  late final List<SchemaTable> _sorted;
+  final _search = <String, String>{};
+  final _counts = <String, int>{};
   final SchemaGraph graph;
 
-  Map<String, int> get schemaCounts {
-    final counts = <String, int>{};
-    for (final table in graph.tables) {
-      counts.update(table.schema, (count) => count + 1, ifAbsent: () => 1);
-    }
-    return Map.fromEntries(
-      counts.entries.toList()..sort((a, b) => a.key.compareTo(b.key)),
-    );
-  }
+  Map<String, int> get schemaCounts => Map.unmodifiable(_counts);
 
   List<SchemaTable> tables({String? schema, String query = ''}) {
     final term = query.trim().toLowerCase();
-    return graph.tables
+    return _sorted
         .where(
           (table) =>
               (schema == null || table.schema == schema) &&
-              (term.isEmpty ||
-                  table.name.toLowerCase().contains(term) ||
-                  table.columns.any(
-                    (column) => column.name.toLowerCase().contains(term),
-                  )),
+              (term.isEmpty || _search[table.name]!.contains(term)),
         )
-        .toList()
-      ..sort((a, b) => a.name.compareTo(b.name));
+        .toList();
   }
 }

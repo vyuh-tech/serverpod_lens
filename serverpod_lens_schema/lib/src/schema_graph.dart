@@ -206,6 +206,7 @@ class SchemaTable {
     required this.schema,
     required this.module,
     this.documentation,
+    this.definition,
     required this.columns,
     required this.foreignKeys,
     required this.indexes,
@@ -215,6 +216,9 @@ class SchemaTable {
   final String schema;
   final String module;
   final String? documentation;
+
+  /// Complete resolved table metadata, including newer Serverpod attributes.
+  final String? definition;
   final List<SchemaColumn> columns;
   final List<SchemaForeignKey> foreignKeys;
   final List<SchemaIndex> indexes;
@@ -224,6 +228,7 @@ class SchemaTable {
     schema: json['schema'] as String,
     module: json['module'] as String,
     documentation: json['documentation'] as String?,
+    definition: json['definition'] as String?,
     columns: (json['columns'] as List? ?? [])
         .map((v) => SchemaColumn.fromJson(Map<String, dynamic>.from(v as Map)))
         .toList(),
@@ -243,6 +248,7 @@ class SchemaTable {
     'schema': schema,
     'module': module,
     'documentation': documentation,
+    if (definition != null) 'definition': definition,
     'columns': columns.map((v) => v.toJson()).toList(),
     'foreignKeys': foreignKeys.map((v) => v.toJson()).toList(),
     'indexes': indexes.map((v) => v.toJson()).toList(),
@@ -253,6 +259,7 @@ class SchemaTable {
     String? schema,
     String? module,
     Object? documentation = _unset,
+    String? definition,
     List<SchemaColumn>? columns,
     List<SchemaForeignKey>? foreignKeys,
     List<SchemaIndex>? indexes,
@@ -261,6 +268,7 @@ class SchemaTable {
     className: className ?? this.className,
     schema: schema ?? this.schema,
     module: module ?? this.module,
+    definition: definition ?? this.definition,
     documentation: identical(documentation, _unset)
         ? this.documentation
         : documentation as String?,
@@ -318,3 +326,15 @@ class SchemaGraph {
     enums: enums ?? this.enums,
   );
 }
+
+/// A model path is relative to its owning project, never a URL or filesystem escape.
+bool isSafeModelPath(String path) =>
+    path.isNotEmpty &&
+    !path.startsWith('/') &&
+    !path.contains('\\') &&
+    !path.contains(':') &&
+    !path.codeUnits.any((code) => code < 32 || code == 127) &&
+    !path
+        .split('/')
+        .any((part) => part == '..' || part == '.' || part.isEmpty) &&
+    path.endsWith('.spy.yaml');

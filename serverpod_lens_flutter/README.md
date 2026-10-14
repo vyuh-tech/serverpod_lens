@@ -1,15 +1,8 @@
-# serverpod_lens_flutter
+# Offline demo
 
-A new Flutter project with Serverpod.
+An independent Flutter host for the reusable Lens viewer. It accepts migration
+JSON/ZIP, partial YAML and PostgreSQL DDL; imports do not need a backend.
+The bundled SQL graph is a sample dataset, not the connected host's current target.
 
-## Getting Started
-
-This project is a starting point for a Flutter application that is using
-Serverpod.
-
-A great starting point for learning Serverpod is our documentation site at:
-[https://docs.serverpod.dev](https://docs.serverpod.dev).
-
-To run the project, first make sure that the server is running, then do:
-
-    flutter run
+Run `flutter run -d chrome` here. See the [workspace README](../README.md) for
+package architecture, supported inputs, limits and verification commands.

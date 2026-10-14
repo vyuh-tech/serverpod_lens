@@ -8,14 +8,21 @@ import 'package:serverpod_lens/serverpod_lens.dart';
 
 /// Standalone demo: source loading belongs here; rendering belongs to the package.
 class SchemaMapScreen extends StatefulWidget {
-  const SchemaMapScreen({super.key, this.asset = 'assets/schema_graph.json'});
+  const SchemaMapScreen({
+    super.key,
+    this.asset = 'assets/schema_graph.json',
+    this.viewStore = const PreferencesSchemaViewStore(),
+  });
   final String asset;
+  final SchemaViewStore viewStore;
   @override
   State<SchemaMapScreen> createState() => _SchemaMapScreenState();
 }
 
 class _SchemaMapScreenState extends State<SchemaMapScreen> {
   SchemaGraph? _graph;
+  Map<String, String> _sourcePaths = {};
+  Map<String, String> _modelSources = {};
   String? _error;
   bool _importing = false;
   @override
@@ -35,7 +42,12 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
     }
   }
 
-  Future<void> _accept(SchemaGraph graph, List<String> warnings) async {
+  Future<void> _accept(
+    SchemaGraph graph,
+    List<String> warnings, {
+    Map<String, String> paths = const {},
+    Map<String, String> sources = const {},
+  }) async {
     if (!mounted) return;
     if (warnings.isNotEmpty) {
       final render = await showDialog<bool>(
@@ -62,7 +74,11 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
       );
       if (render != true || !mounted) return;
     }
-    setState(() => _graph = graph);
+    setState(() {
+      _graph = graph;
+      _sourcePaths = paths;
+      _modelSources = sources;
+    });
   }
 
   void _message(Object error) {
@@ -85,6 +101,9 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
         ],
       );
       if (file == null || !mounted) return;
+      if (await file.length() > 20 * 1024 * 1024) {
+        throw const FormatException('Schema file exceeds the 20 MiB limit.');
+      }
       final name = file.name;
       final extensionName = name.toLowerCase();
       if (extensionName.endsWith('.sql')) {
@@ -120,7 +139,12 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
         if (!analysis.isValid) {
           throw FormatException(analysis.warnings.join('\n'));
         }
-        await _accept(analysis.graph, analysis.warnings);
+        await _accept(
+          analysis.graph,
+          analysis.warnings,
+          paths: analysis.sourcePaths,
+          sources: analysis.modelSources,
+        );
       }
     } catch (error) {
       _message('Could not import schema: $error');
@@ -171,6 +195,9 @@ class _SchemaMapScreenState extends State<SchemaMapScreen> {
       children: [
         SchemaViewer(
           graph: _graph!,
+          viewStore: widget.viewStore,
+          sourcePaths: _sourcePaths,
+          modelSources: _modelSources,
           onImport: _importing ? null : _importFile,
           importActions: [
             if (kIsWeb)

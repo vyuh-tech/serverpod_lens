@@ -1,10 +1,8 @@
-# serverpod_lens_server
+# Connected sample host
 
-This is the starting point for your Serverpod server.
+This Serverpod backend exposes its own resolved schema behind built-in email/JWT
+authentication and a project read scope. Its recreated models are sample fixtures.
 
-Start your server by running:
-
-    cd serverpod_lens
-    serverpod start
-
-When you are finished, you can shut down the running server with `Q`.
+Run `serverpod start` here to start the backend and connected Flutter host.
+See the [workspace README](../README.md) for setup and operator access grants.
+Generated server/client files and migrations are managed by Serverpod.

@@ -27,6 +27,7 @@ abstract class SchemaTable
     required this.columns,
     required this.foreignKeys,
     required this.indexes,
+    this.definition,
   });
 
   factory SchemaTable({
@@ -38,6 +39,7 @@ abstract class SchemaTable
     required List<_ia7efkzh.SchemaColumn> columns,
     required List<_iqtfaf2b.SchemaForeignKey> foreignKeys,
     required List<_ij2l1t2u.SchemaIndex> indexes,
+    String? definition,
   }) = _SchemaTableImpl;
 
   factory SchemaTable.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -57,6 +59,7 @@ abstract class SchemaTable
       indexes: _ixq89rj6.Protocol().deserialize<List<_ij2l1t2u.SchemaIndex>>(
         jsonSerialization['indexes'],
       ),
+      definition: jsonSerialization['definition'] as String?,
     );
   }
 
@@ -76,6 +79,8 @@ abstract class SchemaTable
 
   List<_ij2l1t2u.SchemaIndex> indexes;
 
+  String? definition;
+
   /// Returns a shallow copy of this [SchemaTable]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -88,6 +93,7 @@ abstract class SchemaTable
     List<_ia7efkzh.SchemaColumn>? columns,
     List<_iqtfaf2b.SchemaForeignKey>? foreignKeys,
     List<_ij2l1t2u.SchemaIndex>? indexes,
+    String? definition,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -101,6 +107,7 @@ abstract class SchemaTable
       'columns': columns.toJson(valueToJson: (v) => v.toJson()),
       'foreignKeys': foreignKeys.toJson(valueToJson: (v) => v.toJson()),
       'indexes': indexes.toJson(valueToJson: (v) => v.toJson()),
+      if (definition != null) 'definition': definition,
     };
   }
 
@@ -118,6 +125,7 @@ abstract class SchemaTable
         valueToJson: (v) => v.toJsonForProtocol(),
       ),
       'indexes': indexes.toJson(valueToJson: (v) => v.toJsonForProtocol()),
+      if (definition != null) 'definition': definition,
     };
   }
 
@@ -139,6 +147,7 @@ class _SchemaTableImpl extends SchemaTable {
     required List<_ia7efkzh.SchemaColumn> columns,
     required List<_iqtfaf2b.SchemaForeignKey> foreignKeys,
     required List<_ij2l1t2u.SchemaIndex> indexes,
+    String? definition,
   }) : super._(
          name: name,
          className: className,
@@ -148,6 +157,7 @@ class _SchemaTableImpl extends SchemaTable {
          columns: columns,
          foreignKeys: foreignKeys,
          indexes: indexes,
+         definition: definition,
        );
 
   /// Returns a shallow copy of this [SchemaTable]
@@ -163,6 +173,7 @@ class _SchemaTableImpl extends SchemaTable {
     List<_ia7efkzh.SchemaColumn>? columns,
     List<_iqtfaf2b.SchemaForeignKey>? foreignKeys,
     List<_ij2l1t2u.SchemaIndex>? indexes,
+    Object? definition = _Undefined,
   }) {
     return SchemaTable(
       name: name ?? this.name,
@@ -176,6 +187,7 @@ class _SchemaTableImpl extends SchemaTable {
       foreignKeys:
           foreignKeys ?? this.foreignKeys.map((e0) => e0.copyWith()).toList(),
       indexes: indexes ?? this.indexes.map((e0) => e0.copyWith()).toList(),
+      definition: definition is String? ? definition : this.definition,
     );
   }
 }

@@ -8,6 +8,38 @@ import 'dart:convert';
 /// The viewer uses the plain model; the Serverpod fixture bridges to its generated
 /// protocol. Database schema and Serverpod module remain distinct.
 abstract final class SchemaDefinitionReader {
+  static const contractRevision = 2;
+  static const _dartTypes = [
+    'String',
+    'bool',
+    'int',
+    'double',
+    'DateTime',
+    'ByteData',
+    'int',
+    'UuidValue',
+    'Object',
+    'Object',
+    'Vector',
+    'HalfVector',
+    'SparseVector',
+    'Bit',
+    'Object',
+    'GeographyPoint',
+    'GeographyLineString',
+    'GeographyPolygon',
+    'GeographyGeometryCollection',
+  ];
+  static String _databaseType(Map<String, dynamic> column) {
+    final type = _enumName(column['columnType'], _columnTypes);
+    final dimension = column['vectorDimension'];
+    return dimension is int &&
+            dimension > 0 &&
+            const {'vector', 'halfvec', 'sparsevec', 'bit'}.contains(type)
+        ? '$type($dimension)'
+        : type;
+  }
+
   static const _columnTypes = [
     'text',
     'boolean',
@@ -89,6 +121,7 @@ abstract final class SchemaDefinitionReader {
       }
       tables.add({
         '__className__': 'SchemaTable',
+        'definition': jsonEncode(raw),
         'name': _qualified(raw['schema'] ?? 'public', raw['name'] ?? ''),
         'className': raw['dartName'] ?? raw['name'] ?? '',
         'schema': raw['schema'] ?? 'public',
@@ -99,11 +132,14 @@ abstract final class SchemaDefinitionReader {
               '__className__': 'SchemaColumn',
               'name': column['name'] ?? '',
               'fieldName': column['fieldName'] ?? column['name'] ?? '',
-              'dartType': column['dartType'] ?? 'String',
-              'dbType': _enumName(column['columnType'], _columnTypes),
+              'dartType':
+                  column['dartType'] ??
+                  _enumName(column['columnType'], _dartTypes),
+              'dbType': _databaseType(column),
               'isNullable': column['isNullable'] ?? true,
               'isPrimaryKey':
-                  column['name'] == 'id' || primary.contains(column['name']),
+                  (primary.isEmpty && column['name'] == 'id') ||
+                  primary.contains(column['name']),
               'isUnique': unique.contains(column['name']),
               if (column['columnDefault'] != null)
                 'defaultValue': column['columnDefault'],
@@ -120,8 +156,12 @@ abstract final class SchemaDefinitionReader {
                 key['referenceTable'] ?? '',
               ),
               'refColumns': _strings(key['referenceColumns']),
-              'onDelete': _enumName(key['onDelete'], _actions),
-              'onUpdate': _enumName(key['onUpdate'], _actions),
+              'onDelete': key['onDelete'] == null
+                  ? 'noAction'
+                  : _enumName(key['onDelete'], _actions),
+              'onUpdate': key['onUpdate'] == null
+                  ? 'noAction'
+                  : _enumName(key['onUpdate'], _actions),
             },
         ],
         'indexes': indexes,

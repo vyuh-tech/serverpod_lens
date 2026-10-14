@@ -1,12 +1,23 @@
 import 'dart:convert';
 
 import 'package:serverpod_lens_schema/serverpod_lens_schema.dart'
-    show SchemaGraph, SchemaTable;
+    show SchemaGraph, SchemaTable, SchemaColumn;
 import 'package:vyuh_diagram_core/vyuh_diagram_core.dart';
 import 'package:vyuh_diagram_core/extension_api.dart';
+import 'package:vyuh_diagram_core/adapter.dart'
+    show DiagramTransaction, InsertElementsStep, ReplaceElementStep;
 import 'package:vyuh_diagram_extension_layout/vyuh_diagram_extension_layout.dart';
 import 'package:vyuh_diagram_extension_table/vyuh_diagram_extension_table.dart';
 import 'package:vyuh_diagram_extension_table/extension_api.dart';
+
+enum SchemaDetailLevel {
+  names('Names'),
+  keys('Keys'),
+  allFields('All fields');
+
+  const SchemaDetailLevel(this.label);
+  final String label;
+}
 
 /// Maps schema semantics onto Vyuh's native shapes, table content and ports.
 /// Rendering, editing, layout and history belong to Vyuh Diagram.
@@ -23,94 +34,165 @@ abstract final class SchemaDiagram {
     SchemaGraph graph, {
     DiagramController? controller,
     Layout? layout,
+    int? columnLimit,
+    SchemaDetailLevel detailLevel = SchemaDetailLevel.allFields,
   }) async {
     final target =
         controller ??
         DiagramController(
           configuration: DiagramConfiguration(
-            extensions: [SchemaTableExtension(), const LayoutExtension()],
+            extensions: [
+              SchemaTableExtension(detailLevel: detailLevel),
+              const LayoutExtension(),
+            ],
           ),
         );
-    final byName = {for (final table in graph.tables) table.name: table};
-    target.edits.batch('Import schema', () {
-      for (final table in graph.tables) {
-        target.edits.createShape(
-          tableShapeType,
+    final previews = {
+      for (final table in graph.tables)
+        table.name: table.copyWith(
+          columns: detailLevel == SchemaDetailLevel.names
+              ? []
+              : detailLevel == SchemaDetailLevel.keys
+              ? [
+                  for (final column in table.columns)
+                    if (column.isPrimaryKey ||
+                        table.foreignKeys.any(
+                          (key) => key.columns.contains(column.name),
+                        ))
+                      column,
+                ]
+              : columnLimit == null
+              ? table.columns
+              : _previewColumns(table, columnLimit),
+        ),
+    };
+    final byName = previews;
+    final originals = {for (final table in graph.tables) table.name: table};
+    final elements = <DiagramElement>[];
+    for (final source in graph.tables) {
+      final table = previews[source.name]!;
+      elements.add(
+        ShapeElement(
           id: table.name,
-          at: DiagramPoint.zero,
-          size: DiagramSize(nodeWidth, heightOf(table)),
-          style: ShapeStyle(
-            fill: const DiagramColor(0xffffffff),
-            stroke: const DiagramColor(0xffd4d4d4),
+          type: tableShapeType,
+          frame: DiagramRect.fromLTWH(
+            0,
+            0,
+            nodeWidth,
+            detailLevel == SchemaDetailLevel.names
+                ? headerHeight
+                : heightOf(table),
+          ),
+          style: const ShapeStyle(
+            fill: DiagramColor(0xffffffff),
+            stroke: DiagramColor(0xffd4d4d4),
             strokeWidth: 1,
             cornerRadius: 6,
           ),
-          values: {'schema': table.toJson()},
-          textStory: _story(table),
+          values: {'schema': source.toJson()},
+          textStory: _story(
+            table,
+            totalColumns: source.columns.length,
+            headerOnly: detailLevel == SchemaDetailLevel.names,
+          ),
           ports: portsFor(table),
-          select: false,
+        ),
+      );
+    }
+    for (final table in previews.values) {
+      for (var index = 0; index < table.foreignKeys.length; index++) {
+        final fk = table.foreignKeys[index];
+        final parent = byName[fk.refTable];
+        if (parent == null) continue;
+        final childColumn = fk.columns.firstOrNull;
+        final parentColumn = fk.refColumns.firstOrNull ?? 'id';
+        final original = originals[table.name]!;
+        final unique =
+            fk.columns.length == 1 &&
+                original.columns.any(
+                  (column) =>
+                      column.name == childColumn &&
+                      (column.isUnique ||
+                          column.isPrimaryKey &&
+                              original.columns
+                                      .where((column) => column.isPrimaryKey)
+                                      .length ==
+                                  1),
+                ) ||
+            original.indexes.any(
+              (key) =>
+                  key.unique &&
+                  (key.predicate == null || key.predicate!.isEmpty) &&
+                  key.columns.length == fk.columns.length &&
+                  key.columns.toSet().containsAll(fk.columns),
+            );
+        final id = '${table.name}::relation::$index';
+        ConnectorLabel label(
+          String suffix,
+          String text,
+          double fraction,
+          DiagramPoint offset,
+        ) => ConnectorLabel(
+          id: '$id::$suffix',
+          fraction: fraction,
+          offset: offset,
+          story: TextStory(
+            id: '$id::$suffix-story',
+            blocks: [
+              TextParagraph(
+                id: '$id::$suffix-paragraph',
+                runs: [TextRun(text)],
+              ),
+            ],
+          ),
+        );
+        elements.add(
+          ConnectorElement(
+            id: id,
+            start: BoundEndpoint(
+              elementId: table.name,
+              portId: table.columns.any((column) => column.name == childColumn)
+                  ? _portId(table.name, childColumn!, 'r')
+                  : _tablePortId(table.name, 'r'),
+            ),
+            end: BoundEndpoint(
+              elementId: parent.name,
+              portId:
+                  parent.columns.any((column) => column.name == parentColumn)
+                  ? _portId(parent.name, parentColumn, 'l')
+                  : _tablePortId(parent.name, 'l'),
+            ),
+            labels: [
+              if (fk.columns.length > 1)
+                label(
+                  'columns',
+                  '${fk.columns.join(', ')} → ${fk.refColumns.join(', ')}',
+                  .5,
+                  DiagramPoint.zero,
+                ),
+              label(
+                'from',
+                unique ? '1' : 'N',
+                .08,
+                const DiagramPoint(0, -12),
+              ),
+              label('to', '1', .92, const DiagramPoint(0, -12)),
+            ],
+          ),
         );
       }
-      for (final table in graph.tables) {
-        for (final fk in table.foreignKeys) {
-          final parent = byName[fk.refTable];
-          if (parent == null) continue;
-          final childColumn = fk.columns.firstOrNull;
-          final parentColumn = fk.refColumns.firstOrNull ?? 'id';
-          final edge = target.edits.connect(
-            table.name,
-            parent.name,
-            fromPort: table.columns.any((c) => c.name == childColumn)
-                ? _portId(table.name, childColumn!, 'r')
-                : null,
-            toPort: parent.columns.any((c) => c.name == parentColumn)
-                ? _portId(parent.name, parentColumn, 'l')
-                : null,
-            select: false,
-          )..requireAllowed();
-          final edgeId = edge.id!;
-          // A composite constraint stays one relation; label every column pair.
-          if (fk.columns.length > 1) {
-            target.edits.addConnectorLabel(
-              edgeId,
-              text: '${fk.columns.join(', ')} → ${fk.refColumns.join(', ')}',
-              fraction: 0.5,
-            );
-          }
-          final unique =
-              fk.columns.length == 1 &&
-                  table.columns.any(
-                    (c) =>
-                        c.name == childColumn &&
-                        (c.isUnique ||
-                            (c.isPrimaryKey &&
-                                table.columns
-                                        .where((column) => column.isPrimaryKey)
-                                        .length ==
-                                    1)),
-                  ) ||
-              table.indexes.any(
-                (index) =>
-                    index.unique &&
-                    (index.predicate == null || index.predicate!.isEmpty) &&
-                    index.columns.length == fk.columns.length &&
-                    index.columns.toSet().containsAll(fk.columns),
-              );
-          target.edits.addConnectorLabel(
-            edgeId,
-            text: unique ? '1' : 'N',
-            fraction: 0.08,
-            offset: const DiagramPoint(0, -12),
-          );
-          target.edits.addConnectorLabel(
-            edgeId,
-            text: '1',
-            fraction: 0.92,
-            offset: const DiagramPoint(0, -12),
-          );
-        }
-      }
-    }).requireAllowed();
+    }
+    // Admit the native document once, rather than resolving an intermediate
+    // document after every shape, edge and label mutation.
+    target.edits
+        .dispatch(
+          DiagramTransaction(
+            label: 'Import schema',
+            steps: [InsertElementsStep(elements)],
+          ),
+          expectedRevision: target.document.revision,
+        )
+        .requireAllowed();
     // Single-line native table rows use measured heights, not authored rowHeight.
     // Bind ports to the resolved cell centres rather than approximating offsets.
     final connectedPorts = <String>{};
@@ -122,11 +204,12 @@ abstract final class SchemaDiagram {
       }
     }
     final aligned = <String, List<Port>>{};
-    for (final table in graph.tables) {
+    for (final table in previews.values) {
       final layout = target.resolvedTable(table.name, '${table.name}-columns');
       if (layout == null) continue;
       final top = target.scene.shapeById(table.name)!.source.frame.top;
       aligned[table.name] = [
+        ..._tablePorts(table.name),
         for (var i = 0; i < table.columns.length; i++)
           for (final side in const [PortSide.left, PortSide.right])
             if (connectedPorts.contains(
@@ -158,11 +241,22 @@ abstract final class SchemaDiagram {
               ),
       ];
     }
-    target.edits.batch('Align column ports', () {
-      for (final entry in aligned.entries) {
-        target.edits.setPorts(entry.value, ids: [entry.key]).requireAllowed();
-      }
-    }).requireAllowed();
+    final portSteps = <ReplaceElementStep>[
+      for (final entry in aligned.entries)
+        ReplaceElementStep(
+          before: target.document.elementById(entry.key)!,
+          after: (target.document.elementById(entry.key)! as ShapeElement)
+              .copyWith(ports: entry.value),
+        ),
+    ];
+    if (portSteps.isNotEmpty) {
+      target.edits
+          .dispatch(
+            DiagramTransaction(label: 'Align column ports', steps: portSteps),
+            expectedRevision: target.document.revision,
+          )
+          .requireAllowed();
+    }
     await target.layout(
       layout ??
           Layout.layered(
@@ -175,11 +269,25 @@ abstract final class SchemaDiagram {
     return target;
   }
 
+  static List<SchemaColumn> _previewColumns(SchemaTable table, int limit) {
+    final keys = {for (final fk in table.foreignKeys) ...fk.columns};
+    final ordered = [
+      ...table.columns.where((c) => c.isPrimaryKey),
+      ...table.columns.where((c) => !c.isPrimaryKey && keys.contains(c.name)),
+      ...table.columns.where((c) => !c.isPrimaryKey && !keys.contains(c.name)),
+    ];
+    return ordered.take(limit).toList();
+  }
+
   static double heightOf(SchemaTable table) =>
       headerHeight +
       (table.columns.isEmpty ? 1 : table.columns.length) * rowHeight;
 
-  static TextStory _story(SchemaTable table) {
+  static TextStory _story(
+    SchemaTable table, {
+    required int totalColumns,
+    bool headerOnly = false,
+  }) {
     final foreignKeys = {for (final fk in table.foreignKeys) ...fk.columns};
     DiagramTableCell cell(String row, String column, String text) {
       final id = '${table.name}::$row::$column';
@@ -223,60 +331,67 @@ abstract final class SchemaDiagram {
               fontSize: 13,
               color: const DiagramColor(0xff262626),
             ),
+            if (totalColumns > table.columns.length)
+              TextRun(
+                '  (${table.columns.length}/$totalColumns)',
+                fontSize: 10,
+                color: const DiagramColor(0xff737373),
+              ),
           ],
         ),
       ],
       contents: [
-        TextTable(
-          id: '${table.name}-columns',
-          slotId: 'columns',
-          cellPadding: 6,
-          outerBorder: const DiagramBorder(width: 0),
-          rowBorder: const DiagramBorder(
-            color: DiagramColor(0xffe5e5e5),
-            width: .6,
+        if (!headerOnly)
+          TextTable(
+            id: '${table.name}-columns',
+            slotId: 'columns',
+            cellPadding: 6,
+            outerBorder: const DiagramBorder(width: 0),
+            rowBorder: const DiagramBorder(
+              color: DiagramColor(0xffe5e5e5),
+              width: .6,
+            ),
+            columnBorder: const DiagramBorder(width: 0),
+            columns: [
+              DiagramTableColumn(id: '${table.name}::track-key', width: 30),
+              DiagramTableColumn(id: '${table.name}::track-name', width: 210),
+              DiagramTableColumn(id: '${table.name}::track-type', width: 120),
+            ],
+            rows: [
+              for (final column in table.columns)
+                DiagramTableRow(
+                  id: '${table.name}::${column.name}',
+                  height: rowHeight,
+                  cells: [
+                    cell(
+                      column.name,
+                      'key',
+                      column.isPrimaryKey
+                          ? 'PK'
+                          : foreignKeys.contains(column.name)
+                          ? 'FK'
+                          : '',
+                    ),
+                    cell(column.name, 'name', column.name),
+                    cell(
+                      column.name,
+                      'type',
+                      '${column.dbType}${column.isNullable ? '?' : ''}',
+                    ),
+                  ],
+                ),
+              if (table.columns.isEmpty)
+                DiagramTableRow(
+                  id: '${table.name}::empty',
+                  height: rowHeight,
+                  cells: [
+                    cell('empty', 'key', ''),
+                    cell('empty', 'name', 'No columns'),
+                    cell('empty', 'type', ''),
+                  ],
+                ),
+            ],
           ),
-          columnBorder: const DiagramBorder(width: 0),
-          columns: [
-            DiagramTableColumn(id: '${table.name}::track-key', width: 30),
-            DiagramTableColumn(id: '${table.name}::track-name', width: 210),
-            DiagramTableColumn(id: '${table.name}::track-type', width: 120),
-          ],
-          rows: [
-            for (final column in table.columns)
-              DiagramTableRow(
-                id: '${table.name}::${column.name}',
-                height: rowHeight,
-                cells: [
-                  cell(
-                    column.name,
-                    'key',
-                    column.isPrimaryKey
-                        ? 'PK'
-                        : foreignKeys.contains(column.name)
-                        ? 'FK'
-                        : '',
-                  ),
-                  cell(column.name, 'name', column.name),
-                  cell(
-                    column.name,
-                    'type',
-                    '${column.dbType}${column.isNullable ? '?' : ''}',
-                  ),
-                ],
-              ),
-            if (table.columns.isEmpty)
-              DiagramTableRow(
-                id: '${table.name}::empty',
-                height: rowHeight,
-                cells: [
-                  cell('empty', 'key', ''),
-                  cell('empty', 'name', 'No columns'),
-                  cell('empty', 'type', ''),
-                ],
-              ),
-          ],
-        ),
       ],
     );
   }
@@ -284,7 +399,25 @@ abstract final class SchemaDiagram {
   static String _portId(String table, String column, String side) =>
       '$table::$column::$side';
 
+  static String _tablePortId(String table, String side) =>
+      '$table::table-edge/$side';
+
+  static List<Port> _tablePorts(String table) => [
+    for (final side in const [PortSide.left, PortSide.right])
+      Port(
+        id: _tablePortId(table, side == PortSide.left ? 'l' : 'r'),
+        side: side,
+        offset: .5,
+        width: 4,
+        height: 4,
+        fill: const DiagramColor(0x00000000),
+        stroke: const DiagramColor(0x00000000),
+        strokeWidth: 0,
+      ),
+  ];
+
   static List<Port> portsFor(SchemaTable table) => [
+    ..._tablePorts(table.name),
     for (var i = 0; i < table.columns.length; i++)
       for (final side in const [PortSide.left, PortSide.right])
         Port(
@@ -305,62 +438,64 @@ abstract final class SchemaDiagram {
 /// A schema-specific composition of native title and table parts.
 /// All cell rendering, geometry, selection and persistence use Vyuh's table.
 final class SchemaTableExtension extends DiagramExtension {
-  SchemaTableExtension()
-    : super(
-        id: 'podlens.tables',
-        dependencies: [TableExtension(tool: false)],
-        shapes: [
-          ShapeDefinition(
-            type: SchemaDiagram.tableShapeType,
-            name: 'Schema table',
-            values: {'schema': ObjectValueField(defaultValue: {})},
-            // Vyuh requires fallback ports; make those markers transparent.
-            // Explicit relationship ports retain their own native styling.
-            connection: ShapeConnectionDefinition.instancePorts(
-              portStyle: const PortStyle(
-                fill: DiagramColor(0x00000000),
-                stroke: DiagramColor(0x00000000),
-                strokeWidth: 0,
-                connectedFill: DiagramColor(0x00000000),
-              ),
-            ),
-            behavior: const ShapeBehavior(resizable: false, rotatable: false),
-            body: ShapeColumn([
-              ShapeSized(
-                extent: SchemaDiagram.headerHeight,
-                child: const ShapeSurface(
-                  outline: ShapeOutline.rect(cornerRadius: false),
-                  style: ShapeStyle(
-                    fill: DiagramColor(0xfff2f2f2),
-                    strokeWidth: 0,
-                    cornerRadius: 0,
-                  ),
-                  child: ShapeText(
-                    'title',
-                    role: TextRole.title,
-                    editable: false,
-                  ),
-                ),
-              ),
-              const ShapeTable(
-                'columns',
-                columns: 3,
-                textType: PlainTextDefinition(maxLines: 1),
-                controls: ShapeTableControls(
-                  rowLabel: 'column',
-                  columnLabel: 'field',
-                  capabilities: ShapeTableCapabilities(
-                    resizeTable: false,
-                    resizeRows: false,
-                    resizeColumns: false,
-                    mergeCells: false,
-                    mergeRows: false,
-                    unmergeCells: false,
-                  ),
-                ),
-              ),
-            ]),
-          ),
-        ],
-      );
+  SchemaTableExtension({
+    SchemaDetailLevel detailLevel = SchemaDetailLevel.allFields,
+  }) : super(
+         id: 'podlens.tables',
+         dependencies: [TableExtension(tool: false)],
+         shapes: [
+           ShapeDefinition(
+             type: SchemaDiagram.tableShapeType,
+             name: 'Schema table',
+             values: {'schema': ObjectValueField(defaultValue: {})},
+             // Vyuh requires fallback ports; make those markers transparent.
+             // Explicit relationship ports retain their own native styling.
+             connection: ShapeConnectionDefinition.instancePorts(
+               portStyle: const PortStyle(
+                 fill: DiagramColor(0x00000000),
+                 stroke: DiagramColor(0x00000000),
+                 strokeWidth: 0,
+                 connectedFill: DiagramColor(0x00000000),
+               ),
+             ),
+             behavior: const ShapeBehavior(resizable: false, rotatable: false),
+             body: ShapeColumn([
+               ShapeSized(
+                 extent: SchemaDiagram.headerHeight,
+                 child: const ShapeSurface(
+                   outline: ShapeOutline.rect(cornerRadius: false),
+                   style: ShapeStyle(
+                     fill: DiagramColor(0xfff2f2f2),
+                     strokeWidth: 0,
+                     cornerRadius: 0,
+                   ),
+                   child: ShapeText(
+                     'title',
+                     role: TextRole.title,
+                     editable: false,
+                   ),
+                 ),
+               ),
+               if (detailLevel != SchemaDetailLevel.names)
+                 const ShapeTable(
+                   'columns',
+                   columns: 3,
+                   textType: PlainTextDefinition(maxLines: 1),
+                   controls: ShapeTableControls(
+                     rowLabel: 'column',
+                     columnLabel: 'field',
+                     capabilities: ShapeTableCapabilities(
+                       resizeTable: false,
+                       resizeRows: false,
+                       resizeColumns: false,
+                       mergeCells: false,
+                       mergeRows: false,
+                       unmergeCells: false,
+                     ),
+                   ),
+                 ),
+             ]),
+           ),
+         ],
+       );
 }

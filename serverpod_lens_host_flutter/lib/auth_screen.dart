@@ -51,65 +51,68 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
         ),
       ),
-      child: Scaffold(
-        body: LayoutBuilder(
-          builder: (context, constraints) {
-            final wide = constraints.maxWidth >= 1000;
-            final form = SafeArea(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(
-                  horizontal: wide ? 64 : 24,
-                  vertical: 36,
-                ),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: (constraints.maxHeight - 72).clamp(
-                      0,
-                      double.infinity,
-                    ),
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+        child: Scaffold(
+          body: LayoutBuilder(
+            builder: (context, constraints) {
+              final wide = constraints.maxWidth >= 1000;
+              final form = SafeArea(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: wide ? 64 : 24,
+                    vertical: 36,
                   ),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 400),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const _Brand(),
-                          const SizedBox(height: 48),
-                          DemoSignIn(key: _loginKey, client: widget.client),
-                          const SizedBox(height: 40),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.lock_outline,
-                                size: 14,
-                                color: colors.onSurfaceVariant,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Secured by Serverpod',
-                                style: base.textTheme.bodySmall?.copyWith(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: (constraints.maxHeight - 72).clamp(
+                        0,
+                        double.infinity,
+                      ),
+                    ),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 400),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const _Brand(),
+                            const SizedBox(height: 48),
+                            DemoSignIn(key: _loginKey, client: widget.client),
+                            const SizedBox(height: 40),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.lock_outline,
+                                  size: 14,
                                   color: colors.onSurfaceVariant,
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Secured by Serverpod',
+                                  style: base.textTheme.bodySmall?.copyWith(
+                                    color: colors.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            );
-            return Row(
-              children: [
-                if (wide) const Expanded(child: _SchemaWelcome()),
-                Expanded(child: form),
-              ],
-            );
-          },
+              );
+              return Row(
+                children: [
+                  if (wide) const Expanded(child: _SchemaWelcome()),
+                  Expanded(child: form),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -157,69 +160,40 @@ class _SchemaWelcome extends StatelessWidget {
         colors: [Color(0xff101e20), Color(0xff17382f), Color(0xff102824)],
       ),
     ),
-    child: Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(56),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 460),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xff376352)),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: const Text(
-                  'A clearer view of your backend',
-                  style: TextStyle(color: Color(0xffb0e2c9), fontSize: 12),
-                ),
-              ),
-              const SizedBox(height: 28),
-              const Text(
-                'See the structure.\nFind the connection.',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 42,
-                  height: 1.15,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -1.4,
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Your Serverpod schema, mapped out. Explore tables, follow relationships, and see how everything fits together.',
-                style: TextStyle(
-                  color: Color(0xffafc6be),
-                  fontSize: 16,
-                  height: 1.6,
-                ),
-              ),
-              const SizedBox(height: 44),
-              const ExcludeSemantics(child: _SchemaPreview()),
-              const SizedBox(height: 36),
-              const Row(
-                children: [
-                  Icon(
-                    Icons.visibility_outlined,
-                    size: 16,
-                    color: Color(0xff91b6a6),
+    child: Padding(
+      padding: const EdgeInsets.all(48),
+      child: Center(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: SizedBox(
+            width: 460,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'See the structure.\nFind the connection.',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 42,
+                    height: 1.15,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -1.4,
                   ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Explore freely. Your schema stays read-only.',
-                      style: TextStyle(color: Color(0xffafc6be), fontSize: 12),
-                    ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Explore tables, follow relationships, and understand your Serverpod schema.',
+                  style: TextStyle(
+                    color: Color(0xffafc6be),
+                    fontSize: 16,
+                    height: 1.6,
                   ),
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(height: 40),
+                const ExcludeSemantics(child: _SchemaPreview()),
+              ],
+            ),
           ),
         ),
       ),

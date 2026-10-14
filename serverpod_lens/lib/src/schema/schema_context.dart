@@ -55,7 +55,6 @@ final class SchemaContext {
     for (final table in graph.tables) {
       for (final key in table.foreignKeys) {
         final relation = ContextRelation(table.name, key);
-        _relations.add(relation);
         _outgoing.putIfAbsent(table.name, () => []).add(relation);
         _incoming.putIfAbsent(key.refTable, () => []).add(relation);
       }
@@ -63,7 +62,6 @@ final class SchemaContext {
   }
 
   final Map<String, SchemaTable> tables;
-  final _relations = <ContextRelation>[];
   final _outgoing = <String, List<ContextRelation>>{};
   final _incoming = <String, List<ContextRelation>>{};
 
@@ -104,11 +102,11 @@ final class SchemaContext {
 
   List<ContextRelation> internal(Iterable<String> members) {
     final ids = members.toSet();
-    return _relations
-        .where(
-          (r) => ids.contains(r.table) && ids.contains(r.foreignKey.refTable),
-        )
-        .toList();
+    return [
+      for (final id in ids)
+        for (final r in _outgoing[id] ?? <ContextRelation>[])
+          if (ids.contains(r.foreignKey.refTable)) r,
+    ];
   }
 
   List<ContextRelation> external(
@@ -116,13 +114,16 @@ final class SchemaContext {
     RelationDirection direction = RelationDirection.both,
   }) {
     final ids = members.toSet();
-    return _relations.where((r) {
-      final from = ids.contains(r.table);
-      final to = ids.contains(r.foreignKey.refTable);
-      return from != to &&
-          (direction == RelationDirection.both ||
-              (direction == RelationDirection.outgoing ? from : to));
-    }).toList();
+    return [
+      if (direction != RelationDirection.incoming)
+        for (final id in ids)
+          for (final r in _outgoing[id] ?? <ContextRelation>[])
+            if (!ids.contains(r.foreignKey.refTable)) r,
+      if (direction != RelationDirection.outgoing)
+        for (final id in ids)
+          for (final r in _incoming[id] ?? <ContextRelation>[])
+            if (!ids.contains(r.table)) r,
+    ];
   }
 }
 

@@ -1,8 +1,9 @@
 # Serverpod Lens submission draft
 
-Status: prepared copy, not a submitted entry. Public demo URL, public video URL,
-submitted commit, judge credentials and entrant rights/eligibility confirmation
-must be completed before the final BuilderBase submit action.
+Status: prepared copy, not a submitted entry. Hosted demo:
+https://serverpod-lens.serverpod.space/. The navigation release is verified locally
+and awaits deployment authorization. A public video URL, submitted commit and
+judge access details still need to accompany the final submission.
 
 ## Project description
 
@@ -20,10 +21,16 @@ access denial and sign-out remove protected content.
 The viewer is a reusable Flutter package. A shared pure Dart reader maps schema
 metadata into a graph, while Vyuh Diagram supplies native tables, column ports,
 connectors, layout, minimap and gestures. Lens contributes schema interpretation,
-qualified identities, relationship navigation, filtering, contextual groups,
+qualified identities, explicit relationship navigation, table inspection,
 import diagnostics and the host integration. The separate offline demo accepts
 Serverpod migration/project files and PostgreSQL SQL without requiring a backend.
 SQL parsing runs locally in a browser worker and never executes the input.
+
+The collapsible Schemas browser opens a selected table alone. References reveals
+its neighborhood; All schemas opens the complete graph for broader exploration. A right
+inspector shows fields, relationships, indexes and authored YAML. Names/Keys/All
+fields control diagram detail; manual positions persist per account. Refresh is
+manual, and Settings remains visible in the toolbar.
 
 Settings let developers show relationship labels when useful and configure
 snapping, layout, connection style and animation. Phones use a drawer to preserve
@@ -34,7 +41,8 @@ network recovery, repeated module tables and small layouts with enlarged text.
 This is a read-only view of generated schema metadata. It does not edit models,
 query user records, detect database drift, or install itself into Serverpod's
 upstream development tools. Migration comparison remains future work. A changed
-schema snapshot currently resets search, selection, groups and camera context.
+schema snapshot preserves valid search, selection, positions and camera
+context, pruning removed models.
 
 ## AI assistance disclosure
 
@@ -62,9 +70,9 @@ credentials and verification codes out of the recording.
 | Time | Show | Narration |
 | --- | --- | --- |
 | 0–12s | Connected schema overview | “Serverpod projects can grow into hundreds of related tables. Lens helps developers understand those relationships without opening every model file.” |
-| 12–28s | Sign in and current-target status | “This Flutter app signs in through Serverpod. The backend checks project access and returns its resolved schema, including framework and auth modules.” |
+| 12–28s | Sign in and browse schemas | “This Flutter app signs in through Serverpod. The backend checks project access and returns its resolved schema, including framework and auth modules.” |
 | 28–53s | Search, select a table, follow relationships | “Search a table or column, focus its incoming and outgoing links, and expand the neighborhood to answer which tables depend on it.” |
-| 53–70s | Settings: labels and snapping | “Keep the map quiet by default, then reveal relationship labels when needed. Snapping and guides are configurable from the same settings.” |
+| 53–70s | Right inspector and field detail | “Inspect fields, relationships, indexes and YAML in the side panel. Switch from keys to all fields, and explore only the connections needed for your question.” |
 | 70–87s | Refresh while focused | “Refresh checks the generated target. When the schema is unchanged, Lens keeps the current map and avoids rebuilding it.” |
 | 87–100s | Ungranted account/access screen | “Authentication alone does not expose the schema. A separate account without the project scope is denied access.” |
 | 100–110s | Return to overview | “Lens combines Serverpod's schema and authorization with a reusable Flutter viewer. The goal is to make schema exploration a useful part of Serverpod development tooling.” |
@@ -84,9 +92,9 @@ A replacement recording and public YouTube/Vimeo upload are pending.
 - Judge account instructions: sign in as `test`; deliver the password separately; see DEPLOYMENT.md
 - Public YouTube/Vimeo URL: replacement recording and public upload pending
 - Description/AI disclosure: review the copy above
-- Deadline: 14 October 2026, 23:59 CEST / 15 October, 03:29 IST
+- Rules PDF deadline: 14 October 2026, 23:59 CEST / 15 October, 03:29 IST; check the event dashboard for amendments
 - After submitting: verify receipt/status and preserve the exact submitted materials
 
-See HACKATHON_AUDIT.md and HACKATHON_RESEARCH.md for rule references and remaining
-entrant-specific confirmations. Neither a saved draft nor a pushed repository
-proves BuilderBase submission.
+Use [Project description](PROJECT_DESCRIPTION.md) for the submission copy and
+[Submission requirements](SUBMISSION_REQUIREMENTS.md) for the verified rules.
+Complete the final dashboard submission and confirm its receipt.

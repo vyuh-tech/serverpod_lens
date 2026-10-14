@@ -10,6 +10,8 @@ class ConnectedSchemaController extends ChangeNotifier {
 
   final SnapshotLoader _load;
   SchemaGraph? graph;
+  Map<String, String> sourcePaths = {};
+  Map<String, String> modelSources = {};
   String? revision;
   DateTime? checkedAt;
   String? error;
@@ -36,6 +38,8 @@ class ConnectedSchemaController extends ChangeNotifier {
       // camera, search, groups and positions instead of rebuilding the canvas.
       if (result.graph != null && revision != result.revision) {
         graph = SchemaGraph.fromJson(result.graph!.toJson());
+        sourcePaths = Map.of(result.sourcePaths ?? {});
+        modelSources = Map.of(result.modelSources ?? {});
       }
       revision = result.revision;
       checkedAt = result.checkedAt;
@@ -48,6 +52,8 @@ class ConnectedSchemaController extends ChangeNotifier {
           failure is api.ServerpodClientForbidden;
       if (accessDenied) {
         graph = null;
+        sourcePaths = {};
+        modelSources = {};
         revision = null;
         checkedAt = null;
         error = 'This account does not have access to this project. Ask the project owner to enable schema access, then sign in again.';
@@ -67,6 +73,8 @@ class ConnectedSchemaController extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    sourcePaths = {};
+    modelSources = {};
     graph = null;
     revision = null;
     super.dispose();

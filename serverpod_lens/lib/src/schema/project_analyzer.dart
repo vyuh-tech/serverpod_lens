@@ -22,9 +22,13 @@ class ProjectAnalysis {
     this.warnings = const [],
     this.projectName,
     this.isValid = true,
+    this.sourcePaths = const {},
+    this.modelSources = const {},
   });
 
   final SchemaGraph graph;
+  final Map<String, String> sourcePaths;
+  final Map<String, String> modelSources;
   final List<String> warnings;
   final String? projectName;
 
@@ -50,44 +54,86 @@ abstract final class ProjectAnalyzer {
   );
 
   static ProjectAnalysis analyzeZip(Uint8List bytes, {required String name}) {
-    final Archive archive;
-    try {
-      archive = ZipDecoder().decodeBytes(bytes);
-    } catch (error) {
-      return ProjectAnalysis(
-        _emptyGraph(name),
-        isValid: false,
-        warnings: ['Not a valid zip: $error'],
-      );
+    ProjectAnalysis rejected(String reason) =>
+        ProjectAnalysis(_emptyGraph(name), isValid: false, warnings: [reason]);
+    if (bytes.length > 20 * 1024 * 1024) {
+      return rejected('ZIP input exceeds the 20 MiB limit.');
     }
-
     final projectDefs = <String, String>{};
     final fullDefs = <String, String>{};
     final spyFiles = <String, String>{};
-
-    for (final file in archive) {
-      if (!file.isFile) continue;
-      final path = file.name;
-      if (!_projectDef.hasMatch(path) &&
-          !_fullDef.hasMatch(path) &&
-          !path.endsWith('.spy.yaml') &&
-          !path.endsWith('.spy.yml') &&
-          !path.endsWith('.spy')) {
-        continue;
+    try {
+      // Read metadata first. Do not let ZIP decoding eagerly inflate symlinks.
+      final directory = ZipDirectory()..read(InputMemoryStream(bytes));
+      if (directory.fileHeaders.length > 10000) {
+        return rejected('ZIP contains more than 10,000 entries.');
       }
-      final content = utf8.decode(
-        file.content as List<int>,
-        allowMalformed: true,
+      var declaredTotal = 0;
+      final seen = <String>{};
+      for (final header in directory.fileHeaders) {
+        final path = header.filename;
+        if (path.endsWith('/')) continue;
+        if (!_projectDef.hasMatch(path) &&
+            !_fullDef.hasMatch(path) &&
+            !path.endsWith('.spy.yaml') &&
+            !path.endsWith('.spy.yml') &&
+            !path.endsWith('.spy')) {
+          continue;
+        }
+        if (path.startsWith('/') ||
+            path.contains('\\') ||
+            path.contains(':') ||
+            path.codeUnits.any((code) => code < 32 || code == 127) ||
+            path
+                .split('/')
+                .any((part) => part == '..' || part == '.' || part.isEmpty)) {
+          return rejected('ZIP contains an unsafe schema path.');
+        }
+        if (!seen.add(path)) {
+          return rejected('ZIP contains duplicate schema paths.');
+        }
+        if ((header.externalFileAttributes >> 16 & 0xf000) == 0xa000 ||
+            header.generalPurposeBitFlag & 1 != 0) {
+          return rejected(
+            'Linked or encrypted schema entries are not supported.',
+          );
+        }
+        final declared = header.uncompressedSize;
+        declaredTotal += declared;
+        if (declared < 0 ||
+            declared > 8 * 1024 * 1024 ||
+            declaredTotal > 32 * 1024 * 1024) {
+          return rejected('Expanded schema exceeds the ZIP import size limit.');
+        }
+      }
+      var actualTotal = 0;
+      for (final header in directory.fileHeaders.where(
+        (entry) => seen.contains(entry.filename),
+      )) {
+        final output = _BoundedSchemaOutput(8 * 1024 * 1024);
+        header.file!.decompress(output);
+        final contentBytes = output.getBytes();
+        actualTotal += contentBytes.length;
+        if (contentBytes.length != header.uncompressedSize ||
+            actualTotal > 32 * 1024 * 1024) {
+          return rejected(
+            'ZIP schema size does not match its metadata or exceeds the limit.',
+          );
+        }
+        final content = utf8.decode(contentBytes);
+        final path = header.filename;
+        if (_projectDef.hasMatch(path)) {
+          projectDefs[path] = content;
+        } else if (_fullDef.hasMatch(path)) {
+          fullDefs[path] = content;
+        } else {
+          spyFiles[path] = content;
+        }
+      }
+    } catch (_) {
+      return rejected(
+        'Invalid ZIP or expanded schema exceeds the import size limit.',
       );
-      if (_projectDef.hasMatch(path)) {
-        projectDefs[path] = content;
-      } else if (_fullDef.hasMatch(path)) {
-        fullDefs[path] = content;
-      } else if (path.endsWith('.spy.yaml') ||
-          path.endsWith('.spy.yml') ||
-          path.endsWith('.spy')) {
-        spyFiles[path] = content;
-      }
     }
 
     // Prefer the complete, newest snapshot so framework/module relations remain
@@ -123,8 +169,11 @@ abstract final class ProjectAnalyzer {
         projectOnly: false,
       );
       if (graph != null) {
+        final sources = _modelSources(graph, spyFiles);
         return ProjectAnalysis(
           _withModules(graph, name),
+          sourcePaths: sources.$1,
+          modelSources: sources.$2,
           warnings: fullDefs.containsKey(path)
               ? const []
               : const [
@@ -161,11 +210,56 @@ abstract final class ProjectAnalyzer {
     Map<String, String> files, {
     required String name,
   }) {
+    if (files.length > 10000 ||
+        files.values.any((source) => source.length > 1024 * 1024) ||
+        files.values.fold<int>(0, (size, source) => size + source.length) >
+            32 * 1024 * 1024) {
+      return ProjectAnalysis(
+        _emptyGraph(name),
+        isValid: false,
+        warnings: const ['YAML input exceeds the import size limit.'],
+      );
+    }
     final warnings = <String>[
       'YAML inference is partial: implicit relation columns, join tables, module dependencies and compiler-specific mappings may be absent. Default id columns are inferred as bigint.',
     ];
     final graph = _fromSpyFiles(files, name, warnings);
-    return ProjectAnalysis(_withModules(graph, name), warnings: warnings);
+    final sources = _modelSources(graph, files);
+    return ProjectAnalysis(
+      _withModules(graph, name),
+      warnings: warnings,
+      sourcePaths: sources.$1,
+      modelSources: sources.$2,
+    );
+  }
+
+  static (Map<String, String>, Map<String, String>) _modelSources(
+    SchemaGraph graph,
+    Map<String, String> files,
+  ) {
+    final ids = graph.tables.map((table) => table.name).toSet();
+    final paths = <String, String>{}, sources = <String, String>{};
+    for (final entry in files.entries) {
+      final Object? document;
+      try {
+        document = loadYaml(entry.value);
+      } catch (_) {
+        continue;
+      }
+      if (document is! YamlMap || document['table'] is! String) continue;
+      final name = document['table'] as String;
+      final id = name.contains('.')
+          ? name
+          : '${document['schema'] ?? 'public'}.$name';
+      if (!ids.contains(id) ||
+          entry.key.startsWith('/') ||
+          entry.key.split('/').contains('..')) {
+        continue;
+      }
+      paths[id] = entry.key;
+      sources[id] = entry.value;
+    }
+    return (paths, sources);
   }
 
   static SchemaGraph? _tryDefinition(
@@ -422,5 +516,36 @@ abstract final class ProjectAnalyzer {
       'Uri' => 'text',
       _ => 'unknown',
     };
+  }
+}
+
+/// The declared ZIP size is untrusted; enforce the limit on actual output too.
+final class _BoundedSchemaOutput extends OutputMemoryStream {
+  _BoundedSchemaOutput(this.maximum);
+  final int maximum;
+  void _check(int extra) {
+    if (extra < 0 || length + extra > maximum) {
+      throw const FormatException(
+        'Expanded schema exceeds the import size limit.',
+      );
+    }
+  }
+
+  @override
+  void writeByte(int value) {
+    _check(1);
+    super.writeByte(value);
+  }
+
+  @override
+  void writeBytes(List<int> bytes, {int? length}) {
+    _check(length ?? bytes.length);
+    super.writeBytes(bytes, length: length);
+  }
+
+  @override
+  void writeStream(InputStream stream) {
+    _check(stream.length);
+    super.writeStream(stream);
   }
 }

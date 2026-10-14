@@ -8,3 +8,4 @@ fields:
   columns: List<SchemaColumn>
   foreignKeys: List<SchemaForeignKey>
   indexes: List<SchemaIndex>
+  definition: String?

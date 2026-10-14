@@ -5,3 +5,5 @@ fields:
   revision: String
   checkedAt: DateTime
   graph: SchemaGraph?
+  sourcePaths: Map<String, String>?
+  modelSources: Map<String, String>?

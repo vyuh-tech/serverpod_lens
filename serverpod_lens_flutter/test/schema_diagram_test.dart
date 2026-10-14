@@ -28,7 +28,7 @@ void main() {
     );
     addTearDown(controller.dispose);
     final shape = controller.document.elements.whereType<ShapeElement>().single;
-    expect(shape.ports, isEmpty);
+    expect(shape.ports, hasLength(2));
     final defaults = SchemaTableExtension().shapes.single.connection.portsFor(
       shape,
     );
@@ -113,7 +113,13 @@ void main() {
                   endpoint.portId != null)
                 endpoint.portId!,
         };
-        expect(shape.ports.map((port) => port.id).toSet(), boundPortIds);
+        expect(
+          shape.ports
+              .where((port) => !port.id.contains('::table-edge/'))
+              .map((port) => port.id)
+              .toSet(),
+          boundPortIds.where((id) => !id.contains('::table-edge/')).toSet(),
+        );
         final resolved = controller.resolvedTable(
           table.name,
           '${table.name}-columns',

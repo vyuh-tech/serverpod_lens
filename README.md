@@ -35,7 +35,7 @@ flowchart TB
 
     subgraph host["Connected Flutter host · serverpod_lens_host_flutter"]
         client["Generated Serverpod client<br/>Authenticated snapshot transport"]
-        connection["ConnectedSchemaController<br/>Refresh · revision · stale / denied state"]
+        connection["ConnectedSchemaController<br/>Automatic refresh · revision · access state"]
         client --> connection
     end
 
@@ -45,8 +45,8 @@ flowchart TB
 
     subgraph viewer["Reusable Flutter viewer · serverpod_lens"]
         imports["Import adapters<br/>Parsing + partial-import diagnostics"]
-        queries["SchemaCatalog + SchemaContext<br/>Search · filters · relationships · groups"]
-        screen["SchemaViewer<br/>Exploration UI + view preferences"]
+        queries["SchemaCatalog + SchemaContext<br/>Search · indexed neighborhoods"]
+        screen["SchemaViewer<br/>Navigation + inspector + saved views"]
         mapping["SchemaDiagram<br/>Graph → native tables, ports and connectors"]
         canvas["Vyuh Diagram<br/>Rendering · layout · pan / zoom · minimap"]
         queries --> screen --> mapping --> canvas
@@ -89,10 +89,9 @@ Vyuh supplies native table rendering, connectors, layout and canvas gestures.
 Lens maps schema meaning onto those primitives. Moving tables changes the view;
 it never changes models or the database.
 
-The separation supports both connected and offline hosts today. Further cleanup
-would make the fixture's project ID/read scope configurable, separate optional
-import dependencies from the viewer, and move diagram decoration out of the
-`SchemaContext` traversal file.
+The connected and offline hosts use the same viewer. Backend access and
+authentication stay in the host; navigation, view persistence and native diagram
+mapping stay in the viewer.
 
 ## Embed the viewer
 
@@ -114,10 +113,11 @@ and pass the decoded graph to the same widget. The included endpoint exposes its
 own project's generated target. Connecting another project requires an adapter
 in that project's backend; importing a ZIP opens an offline snapshot.
 
-An unchanged refresh keeps the graph and exploration state. A changed graph
-rebuilds the map and resets search, selection, groups and camera while retaining
-view preferences. Temporary network failures show a labelled stale snapshot;
-access denial and sign-out remove protected content.
+The connected host loads once after sign-in and updates when you press Refresh.
+Both unchanged and changed snapshots preserve valid search, selection, camera
+and manual positions. Removed models are pruned. Temporary network failures keep
+the last valid graph with an error; access denial and sign-out remove protected
+content.
 
 ## Run with Serverpod
 
@@ -143,25 +143,56 @@ dart run bin/grant_schema_access.dart <account-uuid>
 Sign out and back in to receive the project scope. For the independent offline
 demo, run `flutter run -d chrome` from `serverpod_lens_flutter` instead.
 
-## Current scope
+## Explore a large schema
 
-Search tables and columns, filter database schemas, follow incoming/outgoing
-relationships, expand to two hops and create session groups. Native layout,
-relationship labels, snapping, minimap and light/dark modes are available.
-Offline imports support migration JSON/ZIP, partial YAML inference and PostgreSQL
-SQL parsed locally on web. Import diagnostics disclose incomplete coverage.
+- Browse **All schemas → schema → tables**. Expand/collapse arrows control the
+  tree independently; clicking a schema opens its overview. Search tables and fields.
+- The initial preview is bounded; complete overviews and reference expansion are
+  explicit actions.
+- Select a table in the tree to open that table alone. Use **References** to
+  reveal a bounded neighborhood or all references, choose incoming/outgoing links
+  and expand to two hops. Follow a relationship or go Back.
+- Click **All schemas** for the complete schema and connections, then select any
+  table on the map to inspect it.
+- Select a table to inspect Details, Relationships, Indexes and Source in the
+  desktop right panel. Phones use a bottom sheet. Selection preserves zoom.
+- Switch between **Names**, **Keys** and **All fields**. Connectors bind to actual
+  foreign-key rows when visible, with native table ports for hidden rows.
+- Drag tables after automatic layout. Positions are saved per host account.
+- Refresh and Settings are visible in the top bar. Field detail, Fit and Inspector
+  stay beside the current view; other exploration options share one menu.
 
-Connected delivery currently targets Serverpod 4.0.4 and refreshes manually.
-The source is the generated schema target, not the live database catalog. Table
-details, migration comparison and upstream Serverpod tooling integration remain
-planned. The workspace packages are not yet published.
+Authored `.spy.yaml` files can be previewed and opened through a host callback.
+The included connected host opens repository source; an embedding host can supply
+an IDE action. Framework tables and SQL-only imports may have no model source.
+The supplied dataset is a fixture: Lens receives the host project's own generated
+schema. All 19 column types in Serverpod 4.0.4 are covered by contract tests, and
+complete resolved table metadata is retained in the inspector, including advanced
+index/constraint attributes and vector dimensions.
+
+The generated Serverpod target remains authoritative. YAML-only imports disclose
+partial inference; migration ZIP imports prefer resolved definitions.
+
+The connected integration targets Serverpod 4.0.4. It reads the generated target,
+not the live database catalog. Migration comparison, upstream development-tool
+installation and package publication remain future work.
+
+## Verify locally
+
+```sh
+tool/verify.sh
+```
+
+Set `FLUTTER_BIN` and `DART_BIN` if the SDK is outside PATH. The runner checks
+analysis, formatting and all five Dart/Flutter package suites. Backend tests use
+managed embedded PostgreSQL and need no Docker. See the verification report for
+measured coverage and remaining browser/device checks.
 
 ## Further reading
 
 - [Architecture and integration plan](docs/PLAN.md)
-- [Feature plan and remaining work](docs/FEATURE_PLAN.md) · [Roadmap](docs/ROADMAP.md)
-- [Deployment and judge access](docs/DEPLOYMENT.md)
-- [Verification results](docs/VERIFICATION.md)
+- [Deployment and judge access](docs/DEPLOYMENT.md) · [Project description](docs/PROJECT_DESCRIPTION.md)
+- [Verification results](docs/VERIFICATION.md) · [Security review](docs/SECURITY_REVIEW.md)
 - [Sample dataset provenance](docs/elog-schema.md)
 
 Vyuh extensions require their own license/entitlement. PostgreSQL parser notices

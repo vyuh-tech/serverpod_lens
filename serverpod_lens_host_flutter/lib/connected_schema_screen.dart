@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 import 'package:serverpod_lens/serverpod_lens.dart';
 import 'package:serverpod_lens_client/serverpod_lens_client.dart' as api;
@@ -135,46 +136,72 @@ class ConnectedSchemaView extends StatelessWidget {
           ),
         );
       }
-      final checked = connection.checkedAt?.toLocal();
-      final time = checked == null
-          ? ''
-          : TimeOfDay.fromDateTime(checked).format(context);
       return Column(
         children: [
           if (connection.loading)
             const LinearProgressIndicator(
               semanticsLabel: 'Checking for schema updates',
             ),
-          Material(
-            color: connection.error == null
-                ? Theme.of(context).colorScheme.surfaceContainerLow
-                : Theme.of(context).colorScheme.errorContainer,
-            child: Semantics(
-              liveRegion: true,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: Text(
-                    connection.error ??
-                        'Current target · Checked $time · Refresh to check for schema changes',
-                    style: connection.error == null
-                        ? null
-                        : TextStyle(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onErrorContainer,
-                          ),
+          if (connection.error != null)
+            Material(
+              color: Theme.of(context).colorScheme.errorContainer,
+              child: Semantics(
+                liveRegion: true,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Text(
+                      connection.error!,
+                      style: connection.error == null
+                          ? null
+                          : TextStyle(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onErrorContainer,
+                            ),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
           Expanded(
-            child: SchemaViewer(graph: graph, importActions: actions),
+            child: SchemaViewer(
+              graph: graph,
+              importActions: actions,
+              storageKey: 'serverpod_lens/$accountId',
+              sourcePaths: connection.sourcePaths,
+              modelSources: connection.modelSources,
+              onOpenModel: (path) async {
+                final parts = path.split('/');
+                if (!isSafeModelPath(path)) return;
+                const base = String.fromEnvironment(
+                  'LENS_SOURCE_BASE_URL',
+                  defaultValue: 'https://github.com/vyuh-tech/serverpod_lens/blob/main/serverpod_lens_server/',
+                );
+                final baseUri = Uri.parse(base);
+                if (baseUri.scheme != 'https' ||
+                    !baseUri.hasAuthority ||
+                    baseUri.userInfo.isNotEmpty) {
+                  throw const FormatException(
+                    'Model source base must be an HTTPS URL.',
+                  );
+                }
+                final uri = baseUri.resolve(
+                  parts.map(Uri.encodeComponent).join('/'),
+                );
+                if (!await launchUrl(uri) && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Could not open the model source.'),
+                    ),
+                  );
+                }
+              },
+            ),
           ),
         ],
       );

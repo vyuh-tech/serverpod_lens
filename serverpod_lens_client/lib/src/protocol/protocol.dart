@@ -1372,6 +1372,21 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == Map<String, String>) {
+      return (data as Map).map(
+            (k, v) => MapEntry(deserialize<String>(k), deserialize<String>(v)),
+          )
+          as T;
+    }
+    if (t == _isc.getType<Map<String, String>?>()) {
+      return (data != null
+              ? (data as Map).map(
+                  (k, v) =>
+                      MapEntry(deserialize<String>(k), deserialize<String>(v)),
+                )
+              : null)
+          as T;
+    }
     if (t == List<_ip7yl2xa.SchemaColumn>) {
       return (data as List)
               .map((e) => deserialize<_ip7yl2xa.SchemaColumn>(e))

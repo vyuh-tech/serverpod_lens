@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:serverpod_lens_flutter/screens/schema_map_screen.dart';
+import 'package:serverpod_lens/serverpod_lens.dart';
 import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
 
 void main() {
@@ -40,9 +41,12 @@ void main() {
       await tester.binding.setSurfaceSize(const Size(390, 844));
       await tester.runAsync(() async {
         await tester.pumpWidget(
-          const MaterialApp(
+          MaterialApp(
             localizationsDelegates: GlobalMaterialLocalizations.delegates,
-            home: SchemaMapScreen(asset: 'test-schema'),
+            home: SchemaMapScreen(
+              asset: 'test-schema',
+              viewStore: MemorySchemaViewStore(),
+            ),
           ),
         );
         await Future<void>.delayed(const Duration(milliseconds: 500));
@@ -53,21 +57,21 @@ void main() {
       expect(find.byType(DiagramCanvas), findsOneWidget);
       expect(
         tester.getSize(find.byType(DiagramCanvas)).height,
-        greaterThan(750),
+        greaterThan(650),
       );
       expect(find.byType(TextField), findsNothing);
-      await tester.tap(find.byTooltip('Browse schemas'));
+      await tester.tap(find.byTooltip('Browse tables'));
       await tester.pumpAndSettle();
       expect(find.byType(TextField), findsOneWidget);
       await tester.enterText(find.byType(TextField), 'no_such_table');
-      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 150));
       expect(find.text('No matching tables'), findsOneWidget);
-      await tester.tap(find.byTooltip('Close schema browser'));
+      await tester.tapAt(const Offset(385, 200));
       await tester.pumpAndSettle();
       expect(find.byType(TextField), findsNothing);
       expect(
         tester.getSize(find.byType(DiagramCanvas)).height,
-        greaterThan(750),
+        greaterThan(650),
       );
 
       for (final size in [
@@ -82,7 +86,7 @@ void main() {
       }
       expect(find.byType(TextField), findsOneWidget);
       expect(find.text('No matching tables'), findsOneWidget);
-      await tester.tap(find.byTooltip('Schema view settings'));
+      await tester.tap(find.byTooltip('Settings'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Animation'));
       await tester.pumpAndSettle();
@@ -110,17 +114,17 @@ void main() {
       await tester.tap(find.text('Done'));
       await tester.pumpAndSettle();
       final width = tester.getSize(find.byType(DiagramCanvas)).width;
-      await tester.tap(find.byTooltip('Collapse schema browser'));
+      await tester.tap(find.byTooltip('Browse tables'));
       await tester.pumpAndSettle();
       expect(find.byType(TextField), findsNothing);
       expect(
         tester.getSize(find.byType(DiagramCanvas)).width,
         greaterThan(width + 270),
       );
-      await tester.tap(find.byTooltip('Browse schemas'));
+      await tester.tap(find.byTooltip('Browse tables'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), '');
-      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 150));
       expect(find.text('No matching tables'), findsNothing);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());

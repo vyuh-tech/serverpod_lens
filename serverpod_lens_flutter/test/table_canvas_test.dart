@@ -105,10 +105,13 @@ void main() {
         table.name,
         '${table.name}-columns',
       )!;
+      final fieldPort = shape.ports.firstWhere(
+        (port) => !port.id.contains('::table-edge/'),
+      );
       final cellId =
-          '${shape.ports.first.id.substring(0, shape.ports.first.id.length - 3)}::key';
+          '${fieldPort.id.substring(0, fieldPort.id.length - 3)}::key';
       expect(
-        shape.ports.first.offset,
+        fieldPort.offset,
         closeTo(
           nativeTable.cells
                   .firstWhere(

@@ -6,11 +6,16 @@ abstract final class SchemaExtractor {
     String definition, {
     required String source,
     bool projectOnly = false,
-  }) => SchemaGraph.fromJson(
-    SchemaDefinitionReader.read(
-      definition,
-      source: source,
-      projectOnly: projectOnly,
-    ),
-  );
+  }) {
+    if (definition.length > 8 * 1024 * 1024) {
+      throw const FormatException('Schema JSON exceeds the 8 MiB text limit.');
+    }
+    return SchemaGraph.fromJson(
+      SchemaDefinitionReader.read(
+        definition,
+        source: source,
+        projectOnly: projectOnly,
+      ),
+    );
+  }
 }
