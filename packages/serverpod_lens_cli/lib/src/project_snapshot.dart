@@ -18,7 +18,6 @@ final class ProjectSnapshotLoader {
     : _runner = runner ?? Process.run;
   final Directory directory;
   final TargetRunner _runner;
-  (DateTime, int, String, List<TableDefinition>)? _target;
   late final _models = ModelSourceIndex(projectDirectory: directory.path);
 
   String get packageName {
@@ -46,63 +45,52 @@ final class ProjectSnapshotLoader {
         'Generated Serverpod protocol is missing. Generate the project with Serverpod first, then run Lens.',
       );
     }
-    final stat = protocol.statSync();
-    final cached = _target;
+    // Every explicit refresh reads the current native target, including dependencies.
     late List<TableDefinition> tables;
-    if (cached != null &&
-        cached.$1 == stat.modified &&
-        cached.$2 == stat.size &&
-        cached.$3 == name) {
-      tables = cached.$4;
-    } else {
-      final utility = File(
-        path.join(
-          directory.path,
-          '.dart_tool/serverpod_lens/extract_target.dart',
-        ),
-      );
-      await utility.parent.create(recursive: true);
-      await utility.writeAsString('''
+    final utility = File(
+      path.join(
+        directory.path,
+        '.dart_tool/serverpod_lens/extract_target.dart',
+      ),
+    );
+    await utility.parent.create(recursive: true);
+    await utility.writeAsString('''
 import 'dart:convert';
 import 'package:$name/src/generated/protocol.dart';
 void main() => print('LENS_TARGET_JSON=' + jsonEncode({'tables': Protocol().getTargetTableDefinitions()}));
 ''');
-      final result = await _runner(
-        Platform.environment['DART_BIN'] ??
-            (path.basename(Platform.resolvedExecutable).startsWith('dart')
-                ? path.join(
-                    path.dirname(Platform.resolvedExecutable),
-                    Platform.isWindows ? 'dart.exe' : 'dart',
-                  )
-                : 'dart'),
-        ['run', utility.path],
-        workingDirectory: directory.path,
+    final result = await _runner(
+      Platform.environment['DART_BIN'] ??
+          (path.basename(Platform.resolvedExecutable).startsWith('dart')
+              ? path.join(
+                  path.dirname(Platform.resolvedExecutable),
+                  Platform.isWindows ? 'dart.exe' : 'dart',
+                )
+              : 'dart'),
+      ['run', utility.path],
+      workingDirectory: directory.path,
+    );
+    if (result.exitCode != 0) {
+      throw const FormatException(
+        'Could not read the generated target. Run flutter pub get in your workspace and check Serverpod generation.',
       );
-      if (result.exitCode != 0) {
-        throw const FormatException(
-          'Could not read the generated target. Run flutter pub get in your workspace and check Serverpod generation.',
-        );
-      }
-      final lines = const LineSplitter().convert(result.stdout.toString());
-      final encoded = lines
-          .where((line) => line.startsWith('LENS_TARGET_JSON='))
-          .singleOrNull;
-      if (encoded == null) {
-        throw const FormatException(
-          'No target schema returned by the project.',
-        );
-      }
-      final json = jsonDecode(
-        encoded.substring('LENS_TARGET_JSON='.length),
-      ) as Map<String, dynamic>;
-      tables = (json['tables'] as List)
-          .map(
-            (raw) =>
-                TableDefinition.fromJson(Map<String, dynamic>.from(raw as Map)),
-          )
-          .toList();
-      _target = (stat.modified, stat.size, name, tables);
     }
+    final lines = const LineSplitter().convert(result.stdout.toString());
+    final encoded = lines
+        .where((line) => line.startsWith('LENS_TARGET_JSON='))
+        .singleOrNull;
+    if (encoded == null) {
+      throw const FormatException('No target schema returned by the project.');
+    }
+    final json = jsonDecode(
+      encoded.substring('LENS_TARGET_JSON='.length),
+    ) as Map<String, dynamic>;
+    tables = (json['tables'] as List)
+        .map(
+          (raw) =>
+              TableDefinition.fromJson(Map<String, dynamic>.from(raw as Map)),
+        )
+        .toList();
     final models = _models.read();
     return LensSchemaSource(projectId: name).read(
       tables,

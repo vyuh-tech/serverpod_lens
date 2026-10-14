@@ -75,48 +75,87 @@ void main() {
       );
     },
   );
-  test(
-    'unchanged generation reuses target but source edits invalidate snapshots',
-    () async {
-      var runs = 0;
-      final table = TableDefinition(
-        name: 'customers',
-        schema: 'public',
-        module: 'shop',
-        columns: [],
-        foreignKeys: [],
-        indexes: [],
-      );
-      final loader = ProjectSnapshotLoader(
-        project,
-        runner: (executable, arguments, {workingDirectory}) async {
-          runs++;
-          return ProcessResult(
-            0,
-            0,
-            'LENS_TARGET_JSON=${jsonEncode({
-              'tables': [table],
-            })}',
-            '',
-          );
-        },
-      );
-      final first = await loader.read();
-      final second = await loader.read(knownRevision: first.revision);
-      expect(second.graph, isNull);
-      expect(runs, 1);
-      File('${project.path}/lib/src/models/customer.spy.yaml')
-          .writeAsStringSync(
-            'class: Customer\ntable: customers\nfields:\n  name: String\n  email: String\n',
-          );
-      final changed = await loader.read(knownRevision: first.revision);
-      expect(changed.graph, isNotNull);
-      expect(changed.revision, isNot(first.revision));
-      expect(runs, 1);
-      File('${project.path}/lib/src/generated/protocol.dart')
-          .writeAsStringSync('// changed generated target');
-      await loader.read();
-      expect(runs, 2);
-    },
-  );
+  test('explicit reads recheck the native target and source changes', () async {
+    var runs = 0;
+    final table = TableDefinition(
+      name: 'customers',
+      schema: 'public',
+      module: 'shop',
+      columns: [],
+      foreignKeys: [],
+      indexes: [],
+    );
+    final loader = ProjectSnapshotLoader(
+      project,
+      runner: (executable, arguments, {workingDirectory}) async {
+        runs++;
+        return ProcessResult(
+          0,
+          0,
+          'LENS_TARGET_JSON=${jsonEncode({
+            'tables': [table],
+          })}',
+          '',
+        );
+      },
+    );
+    final first = await loader.read();
+    final second = await loader.read(knownRevision: first.revision);
+    expect(second.graph, isNull);
+    expect(runs, 2);
+    File('${project.path}/lib/src/models/customer.spy.yaml').writeAsStringSync(
+      'class: Customer\ntable: customers\nfields:\n  name: String\n  email: String\n',
+    );
+    final changed = await loader.read(knownRevision: first.revision);
+    expect(changed.graph, isNotNull);
+    expect(changed.revision, isNot(first.revision));
+    expect(runs, 3);
+    File('${project.path}/lib/src/generated/protocol.dart')
+        .writeAsStringSync('// changed generated target');
+    await loader.read();
+    expect(runs, 4);
+  });
+  test('manual refresh sees dependency changes without a protocol timestamp change', () async {
+    var name = 'customers';
+    final loader = ProjectSnapshotLoader(
+      project,
+      runner: (_, _, {workingDirectory}) async => ProcessResult(
+        0,
+        0,
+        'LENS_TARGET_JSON=${jsonEncode({
+          'tables': [TableDefinition(name: name, schema: 'public', module: 'shop', columns: [], foreignKeys: [], indexes: [])],
+        })}',
+        '',
+      ),
+    );
+    final first = await loader.read();
+    File('${project.path}/pubspec.lock')
+        .writeAsStringSync('dependency changed');
+    name = 'orders';
+    final refreshed = await loader.read(knownRevision: first.revision);
+    expect(refreshed.graph!.tables.single.name, 'public.orders');
+    expect(refreshed.revision, isNot(first.revision));
+  });
+  test('manual refresh sees same-size protocol edits with preserved timestamps', () async {
+    var name = 'customers';
+    final loader = ProjectSnapshotLoader(
+      project,
+      runner: (_, _, {workingDirectory}) async => ProcessResult(
+        0,
+        0,
+        'LENS_TARGET_JSON=${jsonEncode({
+          'tables': [TableDefinition(name: name, schema: 'public', module: 'shop', columns: [], foreignKeys: [], indexes: [])],
+        })}',
+        '',
+      ),
+    );
+    final first = await loader.read();
+    final protocol = File('${project.path}/lib/src/generated/protocol.dart');
+    final stamp = protocol.lastModifiedSync();
+    protocol.writeAsStringSync('// changed');
+    protocol.setLastModifiedSync(stamp);
+    name = 'orders';
+    final refreshed = await loader.read(knownRevision: first.revision);
+    expect(refreshed.graph!.tables.single.name, 'public.orders');
+  });
 }
