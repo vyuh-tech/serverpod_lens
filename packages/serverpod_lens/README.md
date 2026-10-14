@@ -12,28 +12,21 @@ the licensed diagram extensions.
 dart pub token add https://pub.vyuh.tech
 ```
 
-Add the Git dependency and overrides to your application's `pubspec.yaml`:
+Add the published package to your application's `pubspec.yaml`:
 
 ```yaml
 dependencies:
   serverpod_lens:
-    git:
-      url: https://github.com/vyuh-tech/serverpod_lens.git
-      path: packages/serverpod_lens
-      ref: main
+    hosted: https://pub.vyuh.tech
+    version: ^0.1.0
 
 dependency_overrides:
-  serverpod_lens_schema:
-    git:
-      url: https://github.com/vyuh-tech/serverpod_lens.git
-      path: packages/serverpod_lens_schema
-      ref: main
   base_menu: 0.2.0
 ```
 
-Then run `flutter pub get`. Pin both Git references to a commit for reproducible
-builds. The schema override resolves the companion package from Git; the
-`base_menu` override avoids an upstream archive with missing workspace paths.
+Then run `flutter pub get`. The `base_menu` override avoids an upstream archive
+with missing workspace paths. Both Lens packages are published with the
+`internal` tier and require registry access.
 
 ## Use
 

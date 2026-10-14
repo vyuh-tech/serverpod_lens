@@ -1,4 +1,4 @@
-## 0.1.0 (unreleased)
+## 0.1.0
 
 - Read-only Flutter schema viewer using native Vyuh Diagram tables and connectors.
 - Schema and table navigation, field search, relationship inspection, and model source.

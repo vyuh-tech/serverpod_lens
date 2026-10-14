@@ -6,18 +6,20 @@ metadata. It has no Flutter or Serverpod runtime dependency.
 
 ## Install
 
-Requires Dart 3.13+.
+Requires Dart 3.13+ and a registry token with access to internal packages.
+
+```sh
+dart pub token add https://pub.vyuh.tech
+```
 
 ```yaml
 dependencies:
   serverpod_lens_schema:
-    git:
-      url: https://github.com/vyuh-tech/serverpod_lens.git
-      path: packages/serverpod_lens_schema
-      ref: main
+    hosted: https://pub.vyuh.tech
+    version: ^0.1.0
 ```
 
-Run `dart pub get`. Pin the Git reference to a commit for reproducible builds.
+Run `dart pub get`. The package is published with the `internal` tier.
 
 ## Read a definition
 

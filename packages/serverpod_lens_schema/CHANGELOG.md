@@ -1,4 +1,4 @@
-## 0.1.0 (unreleased)
+## 0.1.0
 
 - Plain Dart graph and reader for resolved Serverpod database definitions.
 - Qualified table identities, fields, foreign keys, indexes, and resolved metadata.
