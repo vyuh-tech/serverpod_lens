@@ -52,7 +52,7 @@ void verifySchemaFiles(Directory schema, Map<String, dynamic> files) {
     throw StateError('Bundled schema files changed. Rebuild the release.');
   }
   for (final entry in files.entries) {
-    final path = entry.key as String;
+    final path = entry.key;
     if (path.startsWith('/') || path.split('/').contains('..')) {
       throw StateError('Invalid schema file path.');
     }
