@@ -1,7 +1,7 @@
 # Verification — 2026-10-14
 
-This report covers the local monorepo. No Cloud deployment or package publication
-was performed. The public demo still runs an earlier release.
+This report records the local monorepo baseline and the deployed large-schema
+Cloud demo. Package publication is a separate workflow.
 
 ## Automated checks
 
@@ -102,8 +102,8 @@ all vulnerabilities. Optional Cloud authentication retains its existing built-in
 Serverpod/project-scope tests. Local Lens is intentionally loopback only.
 
 Vyuh 3.5.1 still exposes its generic connection hover decoration; admission rules
-prevent connection editing. Cloud packaging was updated but has not been deployed
-or production verified. Physical devices, other browser engines and screen readers
+prevent connection editing. The Cloud demo is now deployed and checked in Chromium.
+Physical devices, other browser engines and screen readers
 remain outside this pass. Standalone CLI distribution and upstream `serverpod lens`
 integration remain future work; the supported command today is `serverpod run lens`.
 
@@ -164,3 +164,25 @@ Marching dashes inherit the native connector color and theme adaptation. Their
 solid base remains visible at 35% opacity beneath brighter moving strokes. A new
 regression test checks inherited color, the 0.2× default (eight-second cycle), and
 base contrast; the supported speed range includes 0.1× for slower motion.
+
+## Hosted large-schema demo
+
+Serverpod Cloud now serves `44fd46c` at
+https://serverpod-lens.serverpod.space/, replacing the earlier build at the same
+URL. Cloud reports a successful build and rollout. The served Flutter JavaScript
+matches the fresh release build.
+
+- The connected demo uses the existing read-only account and built-in authentication.
+- Its snapshot contains 156 tables, 122 source paths and 122 original model sources.
+- Chromium checks cover login, schema navigation, Fields, Relationships and Source.
+- The Source panel shows `elog_activities.spy.yaml` with its original repository path.
+- Source assets are retained under Cloud's supported `assets/` payload; they are
+  exposed through the protected endpoint, not the public web routes.
+- All 25 backend tests pass, including four host-source regression tests.
+- Workspace analysis is clean; changed Dart files are formatted. Generated code
+  and database models were not edited, and no new migration was required.
+
+The source regression initially returned empty maps in a simulated compiled
+runtime. It now passes while preserving authored-source precedence in development.
+The deployment archive contains the server, schema package and compiled frontend;
+local password files, test databases and unrelated packages are excluded.

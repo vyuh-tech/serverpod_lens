@@ -1,60 +1,52 @@
-# Optional Cloud demo and judge access
+# Hosted demo
 
-## Current hosted demo
+## Live large-schema example
 
 - App: https://serverpod-lens.serverpod.space/
 - API: https://serverpod-lens.api.serverpod.space/
-- Deployed source: `ef75cb9` (the earlier UI release).
-- Judge username: `test`; supply its password separately.
+- Deployed source: `44fd46c`.
+- Demo username: `test`; its password is supplied with the submission.
 
-The new release is local and awaits explicit deployment authorization. Serverpod
-Cloud hosts both the backend and compiled Flutter frontend; Cloudflare is not
-required.
+The latest build replaces the earlier deployment in the existing `serverpod-lens`
+Cloud project. Deploying subsequent builds to that project keeps the same URL.
+Serverpod Cloud hosts both the server and compiled Flutter app.
 
-## Development and access
+## Deploy an update
 
-Run `serverpod start` from `examples/large_schema/server` for the optional connected demo. The connected app uses
-`http://localhost:8092`, the API uses 8080, and the packaged web app uses 8082.
-Built-in email/JWT authentication manages registration, login and password reset.
-Development verification codes appear in server logs.
-
-New accounts require an operator grant. From the server package:
+Install workspace dependencies with the entitled Vyuh registry account, then:
 
 ```sh
-dart run bin/grant_schema_access.dart <account-uuid>
+cd examples/large_schema/server
+serverpod run flutter_build
+serverpod cloud deploy
 ```
 
-Sign out and back in afterward. The command preserves existing scopes; there is
-no public grant endpoint. The demo account is provisioned only when the operator
-sets `LENS_DEMO_PASSWORD`. Startup never resets an existing password or regrants
-access. Keep all credentials out of source, videos and deployment archives.
+The pre-deploy hooks rebuild the authored-model payload and write the Cloud API
+address into the Flutter assets. Cloud includes only the server and its shared
+schema dependency from the workspace. Its compiled runtime retains sources in
+`assets/lens-models`; the existing reader preserves their original `lib/` paths.
 
-## Release preparation
+Inspect an upload without changing the hosted application:
 
-1. Run `tool/verify.sh` from the workspace root.
-2. Build the connected frontend using the entitled Vyuh registry account and the
-   server's `flutter_build` script.
-3. Inspect the Cloud upload archive and confirm it includes `web/app` and the pure
-   Dart schema package and internal launcher manifest, with no local database, password files or registry tokens.
-4. The configured `scloud.yaml` pre-deploy hook writes the public API URL through
-   `tool/write_flutter_config.dart` into `web/app/assets/assets/config.json`.
-5. Deploy only after authorization, then check app and API at the public URLs.
+```sh
+serverpod cloud deploy --wet-run --output /tmp/lens-deployment.zip
+```
 
-Keep Cloud-managed JWT/password hash secrets; do not replace them with development
-values. Cloud supplies the managed database and email configuration. Production
-email delivery and operator grants need verification in that environment.
+Local database files, passwords and registry credentials must stay out of uploads.
+Cloud supplies its own runtime configuration; keep its existing signing and
+password-hashing secrets when updating the app.
 
-## Judge walkthrough after deployment
+## Access and checks
 
-Sign in with the read-only judge account. Expand a schema and choose a table;
-follow its connections, inspect fields/indexes/source, and open All schemas to
-navigate the complete map. Check Settings and manual Refresh. Sign out and verify
-an ungranted account cannot see the schema. Check desktop and phone layouts and
-browser errors at the actual hosted URL.
+The shared demo uses Serverpod email/JWT authentication and a project read scope.
+Creating an account does not grant schema access. The demo-account provisioner
+only runs when `LENS_DEMO_PASSWORD` is configured; it never resets an existing
+password or regrants access.
 
-Record the public demo, pin the submitted source revision and supply judge access
-with the final submission. Keep the tested build available during judging.
+The deployed example is verified for login, 156-table snapshots, schema navigation,
+Fields, Relationships and original model Source. See [verification](VERIFICATION.md).
+Production signup email delivery is outside this pass. The repository is private;
+reviewers need repository access for GitHub source links.
 
-Local Lens uses `serverpod run lens` and has no authentication or Cloud dependency.
-The relocated Docker build context must include its shared Dart packages; do not
-upload the entire Flutter workspace or local CLI build caches.
+Cloud is only for the shared demonstration. Local `serverpod run lens` needs no
+login, database, running application server or Cloud account.

@@ -94,7 +94,9 @@ and enum declarations are not supplied by the current target-table extraction.
 
 The optional Cloud example owns built-in Serverpod authentication, project read
 scopes and generated transport. The shared schema package contains no auth scope
-or endpoint. Cloud deployment and package publication require separate authorization.
+or endpoint. Cloud deployment and package publication require separate authorization. The large
+example packages its authored models under `assets/lens-models` before deployment,
+so the compiled Cloud runtime can use the same source reader and repository paths.
 
 ## Architecture audit — 2026-10-14
 
@@ -112,6 +114,6 @@ The removed IDE credential remains in older Git history; it was not rotated by
 these source changes. Large full maps still have measured native SDK performance
 limits. Native Layered is disabled on web scopes of at least 100 tables; Force has
 a bounded iteration budget. The SDK's generic connection hover decoration remains.
-Cross-version Serverpod compatibility, standalone CLI distribution, production
-Cloud verification and a literal upstream `serverpod lens` command remain future
-work. See [verification](VERIFICATION.md) and [security review](SECURITY_REVIEW.md).
+Cross-version Serverpod compatibility, standalone CLI distribution and a literal
+upstream `serverpod lens` command remain future work. The large-schema Cloud
+demo is deployed; its production checks are recorded in the verification report. See [verification](VERIFICATION.md) and [security review](SECURITY_REVIEW.md).
