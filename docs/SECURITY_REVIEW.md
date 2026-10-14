@@ -78,3 +78,16 @@ is fresh on every manual refresh, preventing the reproduced cache failures.
 Diagnostics retain generic HTTP errors and report sanitized local failure details.
 The optional SQL parser is excluded from the native viewer's clean release output.
 See the [architecture audit](PLAN.md#architecture-audit--2026-10-14).
+
+## Final repository cleanup
+
+Removed the unused Docker Compose configuration, which also contained inline
+local database/Redis credentials. Development and tests use embedded PostgreSQL;
+Redis is disabled in the retained example configurations. Current runtime data
+from the retired root server was archived outside the repository after its
+orphaned processes were stopped. The examples and local Lens launcher remain.
+
+Old commits still contain removed credential values; this cleanup does not rotate
+credentials in any shared deployment. Duplicate submission copy, an unused image,
+scaffold endpoint documentation and obsolete schema-export helpers were removed.
+Transport roundtrip assertions continue to use the shared schema extractor.

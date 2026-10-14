@@ -22,7 +22,6 @@ opencode.json
 
 # Offline schema-import tools and generated local exports
 __pycache__/
-/docs/serverpod-schema.json
 
 # Browser SQL parser build dependencies
 node_modules/
@@ -32,6 +31,3 @@ build/
 
 # Flutter generated plugin metadata
 .flutter-plugins-dependencies
-
-# Retained local runtime from before the monorepo move; stop before removing.
-/serverpod_lens_server/

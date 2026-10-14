@@ -127,3 +127,12 @@ publication was started by this consolidation.
 The standalone schema release manifest passes `dart pub publish --dry-run` with
 zero warnings. This check used a temporary copy; repository manifests still keep
 `publish_to: none`, and no package was published.
+
+## Final obsolete-file cleanup
+
+Retired the old root runtime and archived its data outside the repo; removed the
+root `tools/` folder and old root build output. Removed eight obsolete tracked
+files, including unused Docker configuration and schema export wrappers. Shared
+schema/transport regression assertions remain in place. This cleanup passes
+fatal-info analysis, all 21 backend tests, and live schema delivery from both
+local examples (19 and 156 tables). `tool/lens/` remains the local launcher.

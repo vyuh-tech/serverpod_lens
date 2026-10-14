@@ -2,11 +2,10 @@ import 'dart:convert';
 import 'package:test/test.dart';
 import 'package:serverpod_lens_schema/serverpod_lens_schema.dart' as plain;
 import 'package:serverpod_lens_server/src/generated/protocol.dart' as protocol;
-import 'package:serverpod_lens_server/src/schema/schema_extractor.dart';
 
 void main() {
   test('preserves resolved types, modules and composite constraints', () {
-    final graph = SchemaExtractor.fromDefinitionJson(
+    final graph = plain.SchemaExtractor.fromDefinitionJson(
       jsonEncode({
         'tables': [
           {
