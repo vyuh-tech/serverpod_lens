@@ -61,5 +61,8 @@ clear protected viewer state; ordinary refresh failures retain the last valid
 graph and report the error.
 
 Cloud builds package authored models under `assets/lens-models` for the compiled
-runtime. Generated clients, authentication, scopes, and deployment configuration
-remain in the example rather than the reusable packages.
+runtime. `tool/build_cloud_release.dart` builds Flutter against the published Lens
+releases and bundles the registry-downloaded schema for Cloud compilation. It
+records package archive hashes and rejects workspace-source substitution.
+Generated clients, authentication, scopes, and deployment configuration remain
+in the example rather than the reusable packages.

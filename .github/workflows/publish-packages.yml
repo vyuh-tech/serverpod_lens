@@ -57,7 +57,9 @@ jobs:
       - name: Check formatting
         run: >-
           dart format --output=none --set-exit-if-changed
-          tool/check_publication.dart tool/publication_policy.dart tool/test
+          tool/check_publication.dart tool/publication_policy.dart
+          tool/build_cloud_release.dart tool/cloud_release.dart tool/test
+          examples/large_schema/server/tool/check_release_build.dart
           packages/serverpod_lens/lib packages/serverpod_lens/test
           packages/serverpod_lens/tool packages/serverpod_lens/example
           packages/serverpod_lens_schema/lib packages/serverpod_lens_schema/test
@@ -65,8 +67,8 @@ jobs:
           tool/lens/lib tool/lens/bin tool/lens/test tool/lens/viewer/lib
           tool/lens/imports/lib tool/lens/imports/test
 
-      - name: Test publication policy
-        run: dart test tool/test/publication_policy_test.dart
+      - name: Test publication and release tooling
+        run: dart test tool/test
 
       - name: Test schema package
         working-directory: packages/serverpod_lens_schema

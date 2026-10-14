@@ -10,6 +10,7 @@ environment:
 resolution: workspace
 
 dependencies:
+  crypto: ^3.0.7
   serverpod_lens_schema:
     path: ../../../packages/serverpod_lens_schema
   serverpod: 4.0.4

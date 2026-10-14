@@ -46,6 +46,11 @@ unchanged.
 
 ## Packages and examples
 
+Both packages are published as **0.1.0** on
+[pub.vyuh.tech](https://pub.vyuh.tech) in the **internal** tier. Installing them
+requires registry access. See each package's README for the hosted dependency
+declaration and API examples.
+
 | Path | Contents |
 | --- | --- |
 | [serverpod_lens](packages/serverpod_lens/) | Flutter viewer and host integration |
@@ -74,6 +79,11 @@ Package publication uses the manual
 It defaults to a dry run. Publishing requires a `PUB_VYUH_TOKEN` secret with
 `package:publish` permission; a repository secret overrides one with the same
 name at organization level.
+
+To rebuild the Cloud demo from the published packages, run
+`dart run tool/build_cloud_release.dart`. It prepares an isolated build outside
+the checkout and prints the deployment directory. See the
+[Cloud build instructions](examples/large_schema/README.md#cloud-demo).
 
 Lens code is [MIT licensed](LICENSE). Third-party dependencies retain their own
 licenses.

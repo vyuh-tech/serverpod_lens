@@ -43,16 +43,30 @@ codes appear in server logs.
 [Open the hosted application](https://serverpod-lens.serverpod.space/).
 Username: `test`. Password: `test123!`.
 
-Build and deploy from `server/`:
+From the repository root, with registry access configured:
 
 ```sh
-serverpod run flutter_build
+dart run tool/build_cloud_release.dart
+```
+
+The tool builds Flutter using the published Lens **0.1.0** releases from
+`https://pub.vyuh.tech`. It checks their archive hashes and bundles the downloaded
+schema package in the backend workspace because
+[Cloud does not support custom package registries](https://docs.serverpod.dev/cloud/reference/private-dependencies).
+Local Lens package source and registry credentials are excluded from the build.
+
+Change to the prepared server directory printed by the tool, then run:
+
+```sh
+serverpod cloud deploy --wet-run
 serverpod cloud deploy
 ```
 
-The deployment hooks package authored models under `assets/lens-models` and
-configure the web build's Cloud API address. Deployments to the existing
-`serverpod-lens` Cloud project retain the demo URL.
+Deployment hooks verify the bundled schema, package authored models under
+`assets/lens-models`, and configure the Cloud API address. The build's package
+versions and archive hashes are recorded in `/lens-build.json`. Deployments to
+the existing `serverpod-lens` project retain the demo URL. Remove the temporary
+build directory when the deployment is complete.
 
 The demo account is provisioned when `LENS_DEMO_PASSWORD` is configured on the
 server. Existing accounts are left unchanged on restart.

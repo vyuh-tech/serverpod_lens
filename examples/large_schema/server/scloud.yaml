@@ -1,16 +1,8 @@
-# This file configures your Serverpod Cloud project.
-# It is automatically generated and updated by the `scloud` command.
-# 
-# Useful commands:
-# - Deploy: `scloud deploy`
-# - Get Help: `scloud help`
-#
-# For full documentation, visit: https://docs.serverpod.dev/cloud
-
 project:
   projectId: "serverpod-lens"
   scripts:
     pre_deploy:
+      - dart run tool/check_release_build.dart
       - dart run tool/package_model_sources.dart
       - dart tool/write_flutter_config.dart https://serverpod-lens.api.serverpod.space/
     post_deploy: []
