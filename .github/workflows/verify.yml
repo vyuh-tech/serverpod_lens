@@ -1,0 +1,63 @@
+name: Verify Lens
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lens-verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup tested Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.5'
+          cache: true
+
+      - name: Configure registry access
+        env:
+          PUB_VYUH_TOKEN: ${{ secrets.PUB_VYUH_TOKEN }}
+        run: |
+          if [[ -z "$PUB_VYUH_TOKEN" ]]; then
+            echo "Verification requires registry access for the licensed diagram extensions."
+            exit 1
+          fi
+          dart pub token add https://pub.vyuh.tech --env-var PUB_VYUH_TOKEN
+
+      - name: Resolve locked workspace
+        env:
+          PUB_VYUH_TOKEN: ${{ secrets.PUB_VYUH_TOKEN }}
+        run: flutter pub get --enforce-lockfile
+
+      - name: Analyze, check formatting, and run all Dart and Flutter suites
+        run: tool/verify.sh
+
+      - name: Setup Node for the PostgreSQL parser tests
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: tool/lens/imports/tool/package-lock.json
+
+      - name: Verify the native PostgreSQL parser
+        working-directory: tool/lens/imports/tool
+        run: |
+          npm ci
+          npm test
+
+      - name: Check published dependency advisories
+        run: python3 tool/audit_dependencies.py

@@ -72,7 +72,9 @@ tool/verify.sh
 ```
 
 This runs analysis, formatting checks, and the Dart/Flutter test suites. Server
-tests use managed embedded PostgreSQL.
+tests use managed embedded PostgreSQL. The verification workflow runs these
+checks, PostgreSQL parser tests, and public dependency advisory checks on pushes
+to `main` and pull requests.
 
 Package publication uses the manual
 [Publish internal Lens packages workflow](.github/workflows/publish-packages.yml).
