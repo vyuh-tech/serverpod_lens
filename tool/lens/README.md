@@ -1,9 +1,8 @@
 # Lens local launcher
 
-Open a Serverpod project's schema locally without starting its server, logging in,
-or deploying to Cloud. The command reads the current generated `Protocol`, maps
-it through `serverpod_lens_schema`, and serves the shared Flutter viewer.
-It never reads application records or connects to the project database.
+The local launcher reads a Serverpod project's generated `Protocol` and model
+sources, then serves the shared Flutter viewer on a loopback URL. It does not
+start the application server or connect to its database.
 
 ## In this repository
 
@@ -21,9 +20,8 @@ serverpod:
     lens: dart run serverpod_lens_cli:serverpod_lens --project .
 ```
 
-A literal `serverpod lens` command needs upstream CLI integration. Lens uses
-[`serverpod run`](https://docs.serverpod.dev/tools/run-scripts) today, without
-replacing Serverpod or adding a shell alias that intercepts its commands.
+The command uses Serverpod's
+[`run` scripts](https://docs.serverpod.dev/tools/run-scripts).
 
 From the repository root you can also run:
 
@@ -51,8 +49,6 @@ requests, writes and links escaping the fixed web directory are rejected.
 Local viewing intentionally has no login; do not expose it through a public proxy.
 The optional Cloud example uses Serverpod authentication separately.
 
-This is an internal MIT workspace tool, not a public product package. Run it from this
-checkout today. Standalone registry installation and a bundled/versioned viewer
-release remain packaging work; licensed viewer dependencies still prevent a
-normal pub.dev viewer release. The package does not install credentials or change
-Serverpod's global CLI.
+Run the launcher from this checkout. It requires Flutter and access to the
+licensed Vyuh extensions. The launcher is workspace tooling and is not published
+as a standalone package.

@@ -1,8 +1,7 @@
 # Shop Serverpod example
 
-A complete Serverpod server/client project with four authored models:
-customers, products, orders and order items. Serverpod generates all model and
-client code. Its framework tables are included in the target as well.
+A Serverpod project with customers, products, orders, and order items. Its
+resolved schema also includes Serverpod's framework tables.
 
 ```sh
 # From the repository root:
@@ -11,14 +10,11 @@ cd examples/shop/server
 serverpod run lens
 ```
 
-Lens prints a local URL and reads this project's actual generated target. It does
-not require this example's server or database to be running. The shared tooling
-viewer displays all fields, key bindings, indexes and matching model source.
+Lens prints a loopback URL and reads the project's generated schema and model
+sources. The server and database can remain stopped.
 
-`dart run bin/dump_lens.dart` demonstrates the reusable schema extractor directly.
-`dart test` verifies the real generated target, its three foreign keys and four
-source mappings. No schema fixture or hand-written generated code substitutes for
-Serverpod generation.
+From `server/`, run `dart run bin/dump_lens.dart` to print the extracted graph or
+`dart test` to check the generated target and source mappings.
 
 To develop the shop server itself, copy `server/config/passwords.example.yaml` to `server/config/passwords.yaml`,
 replace the placeholder passwords, and use

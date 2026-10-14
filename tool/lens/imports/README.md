@@ -1,12 +1,11 @@
 # Optional schema imports
 
-Internal adapters and regression tests for uploaded ZIP/YAML models and PostgreSQL
-SQL/AST imports. Native Lens uses the configured project's generated Serverpod
-target; its browser host does not import this tooling package.
+Adapters for ZIP archives, YAML models, and PostgreSQL SQL/AST imports. This
+workspace package is separate from the local viewer's generated-target reader.
 
-The SQL parser's worker/WASM assets and license notices live here, so embedding
-the core viewer does not bundle them. YAML inference is explicitly partial and
-is never the authoritative native Serverpod compiler.
+The SQL parser's worker/WASM assets and license notices live here. YAML imports
+infer a partial schema; use Serverpod's resolved definitions for the generated
+database schema.
 
 ```sh
 # From this folder:
@@ -17,4 +16,4 @@ npm ci
 npm test
 ```
 
-This workspace module is unpublished and has no independent release planned.
+This package is internal workspace tooling.

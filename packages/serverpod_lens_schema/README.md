@@ -1,44 +1,70 @@
-# Serverpod Lens Schema
+# serverpod_lens_schema
 
-Plain Dart models and a reader for Serverpod resolved database definitions.
-No Flutter, Serverpod runtime or generated client dependency is required.
+Plain Dart models and extraction for Serverpod database schemas. The package
+maps resolved definitions to tables, columns, foreign keys, indexes, and their
+metadata. It has no Flutter or Serverpod runtime dependency.
+
+## Install
+
+Requires Dart 3.13+.
+
+```yaml
+dependencies:
+  serverpod_lens_schema:
+    git:
+      url: https://github.com/vyuh-tech/serverpod_lens.git
+      path: packages/serverpod_lens_schema
+      ref: main
+```
+
+Run `dart pub get`. Pin the Git reference to a commit for reproducible builds.
+
+## Read a definition
 
 ```dart
 import 'package:serverpod_lens_schema/serverpod_lens_schema.dart';
 
-final graph = SchemaGraph.fromJson(
-  SchemaDefinitionReader.read(definitionJson, source: 'My project'),
-);
+SchemaGraph readSchema(String definitionJson) {
+  return SchemaExtractor.fromDefinitionJson(
+    definitionJson,
+    source: 'My project',
+  );
+}
 ```
 
-Supply the resulting graph to the Flutter `serverpod_lens` viewer, or use the
-models in another host. Tables retain fields, foreign keys, indexes and complete
-resolved metadata. Database schemas and Serverpod modules remain distinct.
+Input is Serverpod's resolved database definition JSON. Extraction is tested
+against the Serverpod 4.0.4 database contract. Database schemas and Serverpod
+modules retain separate identities.
 
-The input is Serverpod's resolved definition JSON, rather than authored YAML.
-Compatibility is tested against Serverpod 4.0.4's database contract.
-
-This package is available in the Git repository and has not been published.
-For installation and publication status see the repository README.
-
-License: MIT. Vyuh dependencies belong to the separate Flutter viewer package.
+Pass the graph to the [Flutter viewer](../serverpod_lens/), serialize it with
+`toJson()`, or query it in another Dart host.
 
 ## Current-target snapshots
 
-Convert a host's native definitions to plain maps, then share the same extractor:
+`LensSchemaSource` accepts serialized table definitions from a host's generated
+`Protocol`. The host supplies the Serverpod types; the schema package receives
+plain maps.
 
 ```dart
-final snapshot = LensSchemaSource(projectId: 'shop').read(
-  Protocol().getTargetTableDefinitions().map((table) => table.toJson()).toList(),
-  knownRevision: previousRevision,
-);
+LensSchemaSnapshot readTarget(
+  List<Map<String, dynamic>> tables, {
+  String? knownRevision,
+}) {
+  final source = LensSchemaSource(projectId: 'shop');
+  return source.read(tables, knownRevision: knownRevision);
+}
 ```
 
-`Protocol` belongs to the host's Serverpod project. This package itself has no
-Serverpod SDK dependency. It deduplicates qualified tables, hashes deterministic
-revisions and omits unchanged payloads. `LensSchemaSnapshot.fromJson` and
-`LensSnapshotState` provide one validation/state policy for local and Cloud hosts.
+Snapshots deduplicate qualified table identities and compute deterministic
+revisions. An unchanged revision omits the graph and source bodies.
+`LensSnapshotState` validates and applies snapshots.
 
-Import `package:serverpod_lens_schema/io.dart` explicitly for `ModelSourceIndex`.
-Filesystem code stays out of the primary web-compatible library. Login/access
-scopes remain entirely with a hosted application.
+## Model sources
+
+Import `package:serverpod_lens_schema/io.dart` for `ModelSourceIndex`, which reads
+authored model files from a project directory. Filesystem indexing is separate
+from the primary, web-compatible library.
+
+See the [package example](example/main.dart) for definition-file extraction.
+
+[MIT license](LICENSE).

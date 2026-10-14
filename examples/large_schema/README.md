@@ -1,46 +1,66 @@
-# Large Serverpod schema example
+# Large-schema example
 
-The retained sample Serverpod project resolves 156 tables, including recreated
-backend fixtures and framework/auth tables. It demonstrates full-schema navigation
-and the same shared adapter used by the shop example.
+A Serverpod project with 156 resolved database tables and 122 authored model
+sources. It supplies the local Lens viewer and the connected Cloud demo.
+
+## Local schema viewer
+
+From the repository root, after configuring Vyuh registry access:
 
 ```sh
-# From the repository root:
 flutter pub get
 cd examples/large_schema/server
 serverpod run lens
 ```
 
-The local Lens viewer has no login and does not need the application server.
+Open the printed loopback URL. This command reads the generated schema without
+starting the application server or connecting to its database.
 
-`server/`, `client/` and `flutter/` also form the optional connected Cloud demo.
-That workflow uses Serverpod's built-in email/JWT authentication and a project
-read scope because it shares schema/source information with other users.
-See [connected demo setup](server/README.md). Cloud is not required for local use.
+## Connected application
 
-## Update the hosted demo
-
-The connected example replaces the existing `serverpod-lens` Cloud deployment.
-Build its Flutter app before deploying from the server directory:
+`server/`, `client/`, and `flutter/` form the authenticated application.
+From `server/`, run:
 
 ```sh
-# From the repository root, after installing workspace dependencies:
-cd examples/large_schema/server
+serverpod start
+```
+
+Serverpod manages the development database, generation, and Flutter app.
+Open **http://localhost:8092**.
+
+The application uses built-in email/JWT authentication and the
+`schema:read:serverpod_lens` scope. New accounts need an operator to grant access:
+
+```sh
+dart run bin/grant_schema_access.dart <account-uuid>
+```
+
+Sign out and back in after granting the scope. Development email verification
+codes appear in server logs.
+
+## Cloud demo
+
+[Open the hosted application](https://serverpod-lens.serverpod.space/).
+Username: `test`. Password: `test123!`.
+
+Build and deploy from `server/`:
+
+```sh
 serverpod run flutter_build
 serverpod cloud deploy
 ```
 
-The deployment hooks package the authored models and write the Cloud API address
-into the built app. Serverpod
-Cloud packages the server and its schema dependency from the workspace; the
-Flutter viewer is served as prebuilt web assets. Authentication belongs to this
-shared demo, and the local `serverpod run lens` workflow remains login-free.
+The deployment hooks package authored models under `assets/lens-models` and
+configure the web build's Cloud API address. Deployments to the existing
+`serverpod-lens` Cloud project retain the demo URL.
 
-Demo: https://serverpod-lens.serverpod.space/
+The demo account is provisioned when `LENS_DEMO_PASSWORD` is configured on the
+server. Existing accounts are left unchanged on restart.
 
-The database fixtures are example code, not part of the reusable Lens packages.
-Generated server/client code is relocated intact and remains owned by Serverpod.
+## Tests
 
-The recreated models originate from the earlier external SQL fixture import. The
-external source project is never modified by Lens. These examples are provided to
-exercise extraction/navigation; real users supply their own Serverpod target.
+From `server/`, run `dart test`. Tests use managed embedded PostgreSQL.
+From `flutter/`, run `flutter test`.
+
+The fixture models exercise schema extraction and navigation. Generated server
+and client files belong to this example and are maintained by Serverpod.

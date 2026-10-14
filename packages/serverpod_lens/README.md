@@ -1,33 +1,18 @@
-# Serverpod Lens package
+# serverpod_lens
 
-An embeddable read-only schema viewer for Serverpod development tools.
-Import `package:serverpod_lens/serverpod_lens.dart` and pass a `SchemaGraph` to
-`SchemaViewer`. The host owns schema delivery, authentication and refresh;
-the package owns interpretation and visualization.
+A read-only Flutter viewer for Serverpod database schemas, built with Vyuh
+Diagram. It displays tables, columns, foreign keys, indexes, and model source.
 
-```dart
-final graph = SchemaExtractor.fromDefinitionJson(
-  resolvedDefinitionJson,
-  source: 'My Serverpod project',
-);
-SchemaViewer(graph: graph)
+## Install
+
+Requires Flutter 3.47+, Dart 3.13+, and a Vyuh registry token that grants access to
+the licensed diagram extensions.
+
+```sh
+dart pub token add https://pub.vyuh.tech
 ```
 
-Supply a new graph to refresh the view. Optional `onImport` and `importActions`
-let a host add source controls. No asset or generated client is required.
-Advanced native integration is available through `diagram.dart`; ordinary hosts
-use `SchemaViewer`. Snapshot delivery can use `SchemaSnapshotController` to share
-manual refresh, unchanged-state preservation and request lifetime behavior.
-Optional archive/YAML/SQL imports are maintained separately under
-`../../tool/lens/imports/`; the core viewer does not bundle their SQL assets.
-
-The CLI's shared local viewer and two Serverpod projects under `examples/`
-demonstrate the package. The host owns schema delivery and manual refresh.
-The optional connected Cloud demo owns authentication; local CLI usage has no login.
-
-## Install from Git
-
-Until the shared schema package is published, use these dependencies in a host:
+Add the Git dependency and overrides to your application's `pubspec.yaml`:
 
 ```yaml
 dependencies:
@@ -46,28 +31,50 @@ dependency_overrides:
   base_menu: 0.2.0
 ```
 
-Pin `ref` to a reviewed commit for reproducible builds. The `base_menu` override
-is currently needed for an upstream package archive issue. Dependency overrides
-in this package are not inherited by consumers.
+Then run `flutter pub get`. Pin both Git references to a commit for reproducible
+builds. The schema override resolves the companion package from Git; the
+`base_menu` override avoids an upstream archive with missing workspace paths.
 
-Authenticate with Vyuh's licensed extension registry before `flutter pub get`.
-The projects in `../../examples/` use the shared extraction and viewer packages.
+## Use
 
-## Package release status
+Pass a resolved Serverpod database definition as a JSON string:
 
-The reusable packages under `packages/` are the plain schema library and Flutter
-viewer. The launcher is internal tooling under `tool/lens/`. Generated Serverpod
-clients and demo applications stay unpublished.
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:serverpod_lens/serverpod_lens.dart';
 
-Both package manifests target `https://pub.vyuh.tech` with the `internal` tier.
-The GitHub Actions **Publish internal Lens packages** workflow is manual only and
-starts in dry-run mode. It validates both packages, then publishes the schema
-before the viewer when publication is explicitly selected on `main`. It creates
-no Git tags. See [publishing](../../docs/PUBLISHING.md) for the steps.
+Widget schemaView(String definitionJson) {
+  final graph = SchemaExtractor.fromDefinitionJson(
+    definitionJson,
+    source: 'My project',
+  );
+  return SchemaViewer(graph: graph);
+}
+```
 
-No package has been published by this setup. Git installation remains available.
-The viewer requires Vyuh's licensed extension registry, so its current dependencies
-do not support pub.dev distribution. Publishing packages is separate from deploying
-the optional Serverpod Cloud demo.
+The host loads the schema and supplies a new graph when it changes. It also owns
+authentication and any network requests.
 
-License: MIT for Lens code; third-party dependencies retain their own licenses.
+`SchemaViewer` provides table and column search, schema navigation, relationship
+highlighting, inspectors, layouts, a minimap, and view preferences. Dragging
+tables changes their displayed positions only.
+
+## Host integration
+
+- `sourcePaths` maps qualified table names to model paths.
+- `modelSources` supplies model text for the Source tab.
+- `onOpenModel` lets the host open a model in an editor or repository.
+- `storageKey` identifies the project/account for saved view positions.
+- `onImport` and `importActions` let the host provide import controls.
+- `SchemaSnapshotController` handles manual refresh, snapshot validation, and
+  request lifetime for hosts that use Lens snapshots.
+
+Advanced native diagram integration is exported from
+`package:serverpod_lens/diagram.dart`.
+
+The [shop example](../../examples/shop/) and
+[connected large-schema demo](../../examples/large_schema/) use this viewer.
+The [local launcher](../../tool/lens/) serves it in a browser.
+
+Lens code is [MIT licensed](LICENSE). Vyuh extensions require their own registry
+access and license.

@@ -1,76 +1,79 @@
 # Serverpod Lens
 
-**Understand the backend your Serverpod models create.**
-
-Lens turns Serverpod's generated schema into an interactive, read-only map.
-Browse schemas and tables, inspect fields and keys, and follow relationships.
-It reads model definitions, never application records.
+A read-only schema viewer for Serverpod projects. Browse tables, inspect fields
+and indexes, follow foreign keys, and view the model source.
 
 ## Try the demo
 
-[Open Serverpod Lens](https://serverpod-lens.serverpod.space/) — explore a
-156-table example hosted on Serverpod Cloud.
+[Open the Cloud demo](https://serverpod-lens.serverpod.space/).
+Sign in with username `test` and password `test123!`.
 
-**Demo login:** username `test`, password `test123!`.
-
-This URL stays the same when we deploy updates to the same Cloud project.
-Cloud and authentication are only needed for the shared demo.
+The demo contains 156 tables and uses Serverpod authentication.
+[Watch the two-minute walkthrough](https://youtu.be/KS58H6Fy5Hw).
 
 ![Serverpod Lens schema explorer](docs/schema-map.png)
 
 ## Run locally
 
+Requires Flutter 3.47+, Dart 3.13+, Serverpod 4.0.4, and access to
+[Vyuh's licensed diagram extensions](packages/serverpod_lens/README.md).
+
 From the repository root:
 
 ```sh
+dart pub token add https://pub.vyuh.tech
 flutter pub get
 cd examples/shop/server
 serverpod run lens
 ```
 
-Open the browser URL printed in the terminal. Local Lens requires no login,
-Cloud account, running application server or database. Refresh manually after
-Serverpod regenerates your models.
+Open the loopback URL printed in the terminal. Local Lens reads the project's
+generated schema without starting its server or connecting to its database.
+After Serverpod regenerates your models, click Refresh to load the changes.
 
-Requires Flutter 3.47+, Dart 3.13+, Serverpod 4.0.4 and
-[Vyuh extension access](packages/serverpod_lens/README.md).
-[Local tool setup](tool/lens/README.md).
+The launcher runs from this checkout. See [local tool setup](tool/lens/README.md).
 
-## How it works
+## Explore a schema
 
-```mermaid
-flowchart LR
-    models[".spy.yaml models"] --> target["Serverpod generated schema"]
-    target --> adapter["Lens schema reader"]
-    adapter --> viewer["Flutter viewer / Vyuh Diagram"]
-    command["serverpod run lens"] --> adapter
-    command -->|"Local browser URL"| viewer
+- Search for a table or column, or browse **All schemas → schema → tables**.
+- Select a table to highlight its relationships and inspect its fields, keys,
+  indexes, and model source.
+- Follow incoming and outgoing relationships from the inspector.
+- Choose a layout, move tables, and adjust the minimap, connections, and theme.
+
+Moving tables changes the view. Model definitions and database records remain
+unchanged.
+
+## Packages and examples
+
+| Path | Contents |
+| --- | --- |
+| [serverpod_lens](packages/serverpod_lens/) | Flutter viewer and host integration |
+| [serverpod_lens_schema](packages/serverpod_lens_schema/) | Plain Dart schema graph, reader, and snapshots |
+| [Shop example](examples/shop/) | Customers, products, orders, and order items |
+| [Large-schema example](examples/large_schema/) | 156-table Serverpod project and connected Cloud demo |
+| [Local launcher](tool/lens/) | CLI and browser host |
+| [Optional imports](tool/lens/imports/) | ZIP, YAML, and PostgreSQL SQL adapters |
+
+Serverpod supplies the resolved database schema. Lens maps it to a graph, and
+Vyuh Diagram renders the tables and connections. See [architecture](docs/PLAN.md).
+
+## Development
+
+After installing workspace dependencies, run:
+
+```sh
+tool/verify.sh
 ```
 
-Serverpod resolves the models; Lens exposes their structure; Vyuh provides the
-native diagram, layouts, connections, zoom and minimap. Moving a table changes
-only its position in the view.
+This runs analysis, formatting checks, and the Dart/Flutter test suites. Server
+tests use managed embedded PostgreSQL.
 
-Browse **All schemas → schema → tables**. Select a table to highlight its
-connections and inspect Details, Fields, Relationships, Indexes and Source.
-Both panels collapse and resize. Choose automatic layouts or arrange tables
-manually, and switch between light and dark themes.
+Package publication uses the manual
+[Publish internal Lens packages workflow](.github/workflows/publish-packages.yml).
+It defaults to a dry run. Publishing requires a `PUB_VYUH_TOKEN` secret with
+`package:publish` permission; a repository secret overrides one with the same
+name at organization level.
 
-## Packages
-
-| Package | Role |
-| --- | --- |
-| [serverpod_lens](packages/serverpod_lens/) | Reusable Flutter viewer: `SchemaViewer(graph: graph)` |
-| [serverpod_lens_schema](packages/serverpod_lens_schema/) | Plain Dart schema graph, definition reader and snapshot policy |
-
-## Examples
-
-- [Shop](examples/shop/): customers, products, orders and order items, plus framework tables.
-- [Large schema](examples/large_schema/): 156 tables and the connected Cloud demo.
-
-Both examples use the same packages. `packages/` contains reusable code;
-`examples/` contains Serverpod applications; `tool/lens/` contains the local launcher.
-
-**Our goal:** make schema exploration a native part of the Serverpod development workflow.
-
-[MIT license](LICENSE) · [Architecture](docs/PLAN.md) · [Verification](docs/VERIFICATION.md)
+Lens code is [MIT licensed](LICENSE). Third-party dependencies retain their own
+licenses.

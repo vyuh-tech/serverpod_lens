@@ -1,119 +1,65 @@
 # Architecture
 
-Lens reads a configured Serverpod project's generated database target and presents
-it through a shared Flutter viewer. The local workflow uses a loopback browser;
-the authenticated Cloud app is an optional example.
-
-## Two reusable packages
-
-| Module | Interface | Responsibility |
-| --- | --- | --- |
-| `serverpod_lens_schema` | `SchemaExtractor`, `LensSchemaSource`, `LensSchemaSnapshot`, `LensSnapshotState` | Plain definition mapping, qualified identities, deterministic revisions and snapshot validation |
-| `serverpod_lens` | `SchemaViewer`, `SchemaSnapshotController`, theme controls | Shared exploration UI, request lifetime and native Vyuh presentation |
-
-The schema package depends on public Dart libraries. Its primary entry point has
-no Flutter, Serverpod SDK or filesystem import. `io.dart` explicitly provides
-bounded authored-source indexing. Advanced native diagram integration is available
-from the viewer's `diagram.dart`; ordinary hosts use `SchemaViewer`.
-
-## Internal tools and examples
-
 ```text
-packages/
-  serverpod_lens_schema/
-  serverpod_lens/
-tool/lens/
-  bin/ + lib/            internal Dart launcher
-  viewer/                shared browser host
-  imports/               optional ZIP/YAML/SQL adapters and preserved tests
-examples/
-  shop/server + client
-  large_schema/server + client + flutter
+Serverpod generated database definition
+  → serverpod_lens_schema: SchemaGraph
+  → serverpod_lens: SchemaViewer
+  → native Vyuh Diagram tables and connections
 ```
 
-Internal tools and example applications retain their workspace manifests. They
-have no independent publication planned. Generated code belongs to the examples.
-The Shop example has four authored models; the large fixture has 156 target tables
-and an optional authenticated host. Both use the same schema interpretation.
+## Schema package
 
-## Local flow
+`packages/serverpod_lens_schema/` contains the plain Dart graph, definition
+reader, relationship queries, and snapshot policy. Its main library has no
+Flutter, Serverpod runtime, or filesystem dependency. `io.dart` provides authored
+model-source indexing.
 
-```mermaid
-flowchart LR
-    models["Serverpod models"] --> target["Generated native target"]
-    target --> data["Plain definition data"]
-    data --> schema["Shared schema and snapshot policy"]
-    schema --> viewer["Shared Flutter viewer"]
-    command["serverpod run lens"] --> target
-    command --> browser["Loopback browser URL"]
-    browser --> viewer
-```
+The resolved database target defines tables and persisted fields. Non-table
+models and source-only fields are outside that target. YAML imports provide
+partial inference through separate tooling.
 
-The configured Serverpod script starts only Lens. A utility imports the project's
-own `Protocol` and serializes its current definitions. The CLI passes plain maps to
-the schema package; no second native model decoder is installed in that path.
-Application server startup and database access are unnecessary for local viewing.
+`LensSchemaSource` accepts serialized native table definitions, deduplicates
+qualified identities, and produces deterministic snapshots. Unchanged revisions
+omit graph and source bodies. `LensSnapshotState` validates incoming snapshots.
 
-Initial HTTP delivery reuses the startup snapshot. Manual Refresh rereads the native
-target and authored sources, including dependency changes; overlapping requests
-share one read. Equal revisions omit graph/source bodies. Both Flutter hosts use
-one snapshot controller to validate project identity, retain unchanged graph state,
-handle request overlap/disposal and preserve valid state after ordinary failures.
-The Cloud adapter alone classifies access failures and clears protected state.
+## Viewer package
 
-The internal web build uses a content fingerprint of viewer/package source,
-manifests, the dependency lockfile and Dart version. A stale build is rebuilt into
-clean output, preventing removed assets from surviving Flutter incremental builds.
-`--rebuild` remains available, including for Flutter-only SDK changes. Explicit
-`--web-dir` builds are operator supplied and bypass automatic build checks.
+`packages/serverpod_lens/` accepts a `SchemaGraph`. It maps database semantics to
+Vyuh's native table shapes, field ports, connectors, and layouts. Vyuh owns
+rendering, camera movement, dragging, minimap, and transient effects.
 
-## Native Vyuh ownership
+Lens owns the schema browser, inspectors, source display, and view preferences.
+`SchemaSnapshotController` shares refresh and request-lifetime handling across
+hosts. Hosts own data loading, authentication, and model-opening callbacks.
 
-Vyuh supplies table shapes, field ports, connectors, layouts, dragging, selection,
-transient effects, camera bounds, grid and minimap. Lens maps schema semantics and
-owns the surrounding browser/inspector. It does not install an editable schema UI
-or a custom diagram renderer.
+The viewer blocks schema edits. Saved preferences contain view geometry rather
+than credentials or model source. Large web scopes disable the native layered
+layout at 100 tables; force layout uses a bounded iteration count.
 
-All schemas → schema → tables is the navigation hierarchy. Selection emphasizes
-the table and its immediate connections; solid lines remain beneath outward
-marching dashes. One native effect path owns emphasis. Closing/collapsing/resizing
-panels, searchable fields, source display and System/Light/Dark remain shared UI.
+## Local host
 
-`SchemaBrowser` owns tree expansion, search and scroll independently of the canvas.
-Every level uses `SchemaTreeRow` with one full-width hover/selection surface.
-Chevrons fold branches; row labels choose schema scope or inspect a table. Search
-temporarily reveals matching branches and restores the previous tree when cleared.
-Moving shapes changes view geometry, never the project's models or records.
+`tool/lens/` contains the launcher and browser host. `serverpod run lens` invokes
+the configured script in an example project.
 
-## Optional imports and Cloud
+The launcher reads the project's current generated `Protocol` in a Dart
+subprocess and serves the shared viewer on IPv4 loopback. It starts no
+application server and makes no database connection. Each manual refresh
+rereads the target and authored sources; overlapping refreshes share one read.
 
-ZIP/YAML/SQL parsing is internal optional tooling. Its worker/WASM assets and license
-notices are outside the native viewer. YAML inference remains explicitly partial;
-Serverpod's generated database target is authoritative. Non-table model inventory
-and enum declarations are not supplied by the current target-table extraction.
+Viewer builds are cached by source, dependency, lockfile, and Dart SDK
+fingerprints. `--rebuild` forces a fresh build. Optional ZIP, YAML, and SQL
+adapters and their parser assets live under `tool/lens/imports/`.
 
-The optional Cloud example owns built-in Serverpod authentication, project read
-scopes and generated transport. The shared schema package contains no auth scope
-or endpoint. Cloud deployment and package publication require separate authorization. The large
-example packages its authored models under `assets/lens-models` before deployment,
-so the compiled Cloud runtime can use the same source reader and repository paths.
+## Examples and Cloud host
 
-## Architecture audit — 2026-10-14
+`examples/shop/` and `examples/large_schema/` are Serverpod projects with generated
+servers and clients. Each uses the same extraction and viewer packages.
 
-The audit at `29ec3f7` led to these completed changes:
+The large-schema example also hosts the connected demo. Serverpod authentication
+and a project read scope protect schema and model-source delivery. Auth failures
+clear protected viewer state; ordinary refresh failures retain the last valid
+graph and report the error.
 
-- Removed the separately packaged backend; retained one neutral extraction implementation.
-- Relocated the CLI/browser host to internal tooling and isolated optional imports.
-- Shared snapshot validation and refresh lifetime across local and Cloud hosts.
-- Removed the obsolete document-opacity emphasis path; preserved native effect coverage.
-- Added dependency/equal-timestamp refresh regressions and actual native subprocess coverage.
-- Removed the inline IDE password and corrected example launch paths.
-- Added build content invalidation, clean output and sanitized local failure reporting.
-
-The removed IDE credential remains in older Git history; it was not rotated by
-these source changes. Large full maps still have measured native SDK performance
-limits. Native Layered is disabled on web scopes of at least 100 tables; Force has
-a bounded iteration budget. The SDK's generic connection hover decoration remains.
-Cross-version Serverpod compatibility, standalone CLI distribution and a literal
-upstream `serverpod lens` command remain future work. The large-schema Cloud
-demo is deployed; its production checks are recorded in the verification report. See [verification](VERIFICATION.md) and [security review](SECURITY_REVIEW.md).
+Cloud builds package authored models under `assets/lens-models` for the compiled
+runtime. Generated clients, authentication, scopes, and deployment configuration
+remain in the example rather than the reusable packages.
