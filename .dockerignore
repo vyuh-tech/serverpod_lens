@@ -6,4 +6,4 @@
 **/config/firebase_service_account_key.json
 **/node_modules
 **/build
-serverpod_lens_cli/viewer
+packages/serverpod_lens_cli/viewer

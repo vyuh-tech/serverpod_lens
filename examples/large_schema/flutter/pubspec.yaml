@@ -18,7 +18,7 @@ dependencies:
   serverpod_auth_idp_flutter: 4.0.4
   cupertino_icons: ^1.0.8
   serverpod_lens:
-    path: ../../../serverpod_lens
+    path: ../../../packages/serverpod_lens
   serverpod_lens_client:
     path: ../client
 dev_dependencies:

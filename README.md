@@ -44,14 +44,14 @@ selection, effects, pan/zoom and the minimap. Moving a table changes only its vi
 
 | Package | Responsibility |
 | --- | --- |
-| [serverpod_lens](serverpod_lens/) | Reusable Flutter viewer; embed `SchemaViewer(graph: graph)` |
-| [serverpod_lens_schema](serverpod_lens_schema/) | Plain Dart graph and resolved-definition reader |
-| [serverpod_lens_backend](serverpod_lens_backend/) | Shared Serverpod target and source extraction |
-| [serverpod_lens_cli](serverpod_lens_cli/) | Local launcher and browser link |
+| [serverpod_lens](packages/serverpod_lens/) | Reusable Flutter viewer; embed `SchemaViewer(graph: graph)` |
+| [serverpod_lens_schema](packages/serverpod_lens_schema/) | Plain Dart graph and resolved-definition reader |
+| [serverpod_lens_backend](packages/serverpod_lens_backend/) | Shared Serverpod target and source extraction |
+| [serverpod_lens_cli](packages/serverpod_lens_cli/) | Local launcher and browser link |
 
 These are repository packages; none has been published. The viewer's licensed
-Vyuh extensions require registry access. See [installation](serverpod_lens/README.md)
-and [CLI setup](serverpod_lens_cli/README.md). Lens code is [MIT licensed](LICENSE).
+Vyuh extensions require registry access. See [installation](packages/serverpod_lens/README.md)
+and [CLI setup](packages/serverpod_lens_cli/README.md). Lens code is [MIT licensed](LICENSE).
 
 ## Two Serverpod examples
 
@@ -64,10 +64,11 @@ Both projects use the same extraction and viewer packages. Their generated
 server/client code belongs to the examples, not the reusable viewer.
 
 ```text
-serverpod_lens/           Flutter viewer package
-serverpod_lens_schema/    Plain Dart schema contract
-serverpod_lens_backend/   Serverpod extraction package
-serverpod_lens_cli/       Local launcher and shared tooling viewer
+packages/
+  serverpod_lens/          Flutter viewer package
+  serverpod_lens_schema/   Plain Dart schema contract
+  serverpod_lens_backend/  Serverpod extraction library (no running service)
+  serverpod_lens_cli/      Local launcher and shared tooling viewer
 examples/
   shop/                  Serverpod server + generated client
   large_schema/          Serverpod server + client + optional Cloud app

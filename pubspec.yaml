@@ -3,11 +3,11 @@ publish_to: none
 environment:
   sdk: '^3.13.0'
 workspace:
-  - serverpod_lens
-  - serverpod_lens_schema
-  - serverpod_lens_backend
-  - serverpod_lens_cli
-  - serverpod_lens_cli/viewer
+  - packages/serverpod_lens
+  - packages/serverpod_lens_schema
+  - packages/serverpod_lens_backend
+  - packages/serverpod_lens_cli
+  - packages/serverpod_lens_cli/viewer
   - examples/large_schema/server
   - examples/large_schema/client
   - examples/large_schema/flutter

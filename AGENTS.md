@@ -18,7 +18,7 @@ Serverpod migration definition
                  └─ DiagramCanvas (native movement/effects; schema edits blocked)
 ```
 
-- Reusable package code stays at the repository root: `serverpod_lens`,
+- Reusable package code stays under `packages/`: `serverpod_lens`,
   `serverpod_lens_schema`, `serverpod_lens_backend`, and `serverpod_lens_cli`.
 - `examples/shop/` and `examples/large_schema/` are real Serverpod projects. Their
   generated server/client code belongs to those projects. The large fixture's 122

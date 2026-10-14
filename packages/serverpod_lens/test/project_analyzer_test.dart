@@ -176,7 +176,9 @@ void main() {
 
   test('analyzes an uploaded Serverpod project zip', () {
     // Reuse this repo's own server migration as a realistic fixture.
-    final migrations = Directory('../examples/large_schema/server/migrations');
+    final migrations = Directory(
+      '../../examples/large_schema/server/migrations',
+    );
     final versionDirs =
         migrations
             .listSync()

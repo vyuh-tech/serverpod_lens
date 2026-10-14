@@ -83,3 +83,7 @@ migration comparison are outside this release.
 The CLI works from this checkout. Standalone installation, registry publication
 and integration into upstream Serverpod tooling remain release work. No packages
 are published and no Cloud deployment is authorized by this restructure.
+
+Reusable code lives in `packages/`. Actual application servers and generated
+clients live only in `examples/`; the backend adapter package is a library, not
+a deployed service. The root pubspec manages both through one Dart workspace.

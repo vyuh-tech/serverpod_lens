@@ -6,7 +6,7 @@ for name,block in re.findall(r'^  (\w+):\n(.*?)(?=^  \w+:|^sdks:)',s,re.M|re.S):
  version=re.search(r'^    version: "([^"]+)"',block,re.M)
  if version and 'source: hosted' in block and 'pub.dev' in block:
   queries.append({'package':{'name':name,'ecosystem':'Pub'},'version':version.group(1)})
-n=json.loads(pathlib.Path('serverpod_lens/tool/sql/package-lock.json').read_text())
+n=json.loads(pathlib.Path('packages/serverpod_lens/tool/sql/package-lock.json').read_text())
 for path,p in n.get('packages',{}).items():
  if path.startswith('node_modules/') and p.get('version'):
   queries.append({'package':{'name':path.split('node_modules/')[-1],'ecosystem':'npm'},'version':p['version']})

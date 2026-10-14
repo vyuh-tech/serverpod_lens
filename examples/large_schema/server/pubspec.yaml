@@ -11,7 +11,7 @@ resolution: workspace
 dependencies:
   serverpod_lens_backend: ^0.1.0
   serverpod_lens_schema:
-    path: ../../../serverpod_lens_schema
+    path: ../../../packages/serverpod_lens_schema
   serverpod: 4.0.4
   serverpod_auth_idp_server: 4.0.4
   serverpod_cloud_storage: 4.0.4

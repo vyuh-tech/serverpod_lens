@@ -32,14 +32,14 @@ dependencies:
   serverpod_lens:
     git:
       url: https://github.com/vyuh-tech/serverpod_lens.git
-      path: serverpod_lens
+      path: packages/serverpod_lens
       ref: main
 
 dependency_overrides:
   serverpod_lens_schema:
     git:
       url: https://github.com/vyuh-tech/serverpod_lens.git
-      path: serverpod_lens_schema
+      path: packages/serverpod_lens_schema
       ref: main
   base_menu: 0.2.0
 ```
@@ -49,11 +49,11 @@ is currently needed for an upstream package archive issue. Dependency overrides
 in this package are not inherited by consumers.
 
 Authenticate with Vyuh's licensed extension registry before `flutter pub get`.
-The projects in `../examples/` use the shared extraction and viewer packages.
+The projects in `../../examples/` use the shared extraction and viewer packages.
 
 ## Package release status
 
-The root packages are the schema reader, Serverpod adapter, Flutter viewer and
+The reusable packages under `packages/` are the schema reader, Serverpod adapter, Flutter viewer and
 local CLI. Generated Serverpod clients and demo applications stay unpublished.
 
 The schema package has version, README, changelog, example and MIT license files.

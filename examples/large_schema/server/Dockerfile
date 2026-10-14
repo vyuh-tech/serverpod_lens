@@ -2,14 +2,14 @@
 # docker build -f examples/large_schema/server/Dockerfile .
 FROM dart:3.13.0 AS build
 WORKDIR /app
-COPY serverpod_lens_schema serverpod_lens_schema
-COPY serverpod_lens_backend serverpod_lens_backend
-COPY serverpod_lens_cli serverpod_lens_cli
+COPY packages/serverpod_lens_schema packages/serverpod_lens_schema
+COPY packages/serverpod_lens_backend packages/serverpod_lens_backend
+COPY packages/serverpod_lens_cli packages/serverpod_lens_cli
 COPY examples/large_schema/server examples/large_schema/server
 # The server's Dart-only workspace excludes Flutter hosts and the tooling viewer.
 RUN printf '%s\n' 'name: _' 'environment:' '  sdk: ^3.13.0' 'workspace:' \
-  '  - serverpod_lens_schema' '  - serverpod_lens_backend' \
-  '  - serverpod_lens_cli' '  - examples/large_schema/server' > pubspec.yaml
+  '  - packages/serverpod_lens_schema' '  - packages/serverpod_lens_backend' \
+  '  - packages/serverpod_lens_cli' '  - examples/large_schema/server' > pubspec.yaml
 RUN dart pub get
 WORKDIR /app/examples/large_schema/server
 RUN dart build cli --target bin/main.dart --output build
