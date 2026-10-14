@@ -24,15 +24,32 @@ Future<void> main() async {
       'Cloud must compile the bundled registry schema. $rebuild',
     );
   }
-  final files = release['schemaFiles'] as Map;
+  verifySchemaFiles(
+    schema,
+    (release['schemaFiles'] as Map).cast<String, dynamic>(),
+  );
+  final script = File('web/app/main.dart.js');
+  if (!script.existsSync()) {
+    throw StateError('Incomplete release build. $rebuild');
+  }
+  if (sha256.convert(script.readAsBytesSync()).toString() !=
+      release['webBuildSha256']) {
+    throw StateError('Flutter build changed. $rebuild');
+  }
+  stdout.writeln('Verified bundled registry schema and Flutter build.');
+}
+
+void verifySchemaFiles(Directory schema, Map<String, dynamic> files) {
   final actualFiles = schema
       .listSync(recursive: true, followLinks: false)
       .whereType<File>()
       .map((file) => file.path.substring(schema.path.length + 1))
+      .where((path) => !path.startsWith('.dart_tool/'))
       .toSet();
-  if (actualFiles.length != files.length ||
+  if (files.isEmpty ||
+      actualFiles.length != files.length ||
       !actualFiles.containsAll(files.keys.cast<String>())) {
-    throw StateError('Bundled schema files changed. $rebuild');
+    throw StateError('Bundled schema files changed. Rebuild the release.');
   }
   for (final entry in files.entries) {
     final path = entry.key as String;
@@ -42,16 +59,9 @@ Future<void> main() async {
     final file = File('${schema.path}/$path');
     if (!file.existsSync() ||
         sha256.convert(file.readAsBytesSync()).toString() != entry.value) {
-      throw StateError('Published schema file changed: $path. $rebuild');
+      throw StateError(
+        'Published schema file changed: $path. Rebuild the release.',
+      );
     }
   }
-  final script = File('web/app/main.dart.js');
-  if (files.isEmpty || !script.existsSync()) {
-    throw StateError('Incomplete release build. $rebuild');
-  }
-  if (sha256.convert(script.readAsBytesSync()).toString() !=
-      release['webBuildSha256']) {
-    throw StateError('Flutter build changed. $rebuild');
-  }
-  stdout.writeln('Verified bundled registry schema and Flutter build.');
 }

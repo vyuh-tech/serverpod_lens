@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:crypto/crypto.dart';
 import 'package:test/test.dart';
 
+import '../../examples/large_schema/server/tool/check_release_build.dart'
+    as guard;
 import '../cloud_release.dart';
 
 void main() {
@@ -80,5 +83,30 @@ void main() {
         .toString();
     writeManifest(configFile, config);
     expect(() => publishedLensRoots(frontend, repo), throwsStateError);
+  });
+
+  test('schema verification permits pub workspace metadata', () {
+    final schema = Directory('${temporary.path}/schema')..createSync();
+    final file = File('${schema.path}/lib/schema.dart');
+    file.parent.createSync();
+    file.writeAsStringSync('published source');
+    final manifest = {
+      'lib/schema.dart': sha256.convert(file.readAsBytesSync()).toString(),
+    };
+    final metadata = File('${schema.path}/.dart_tool/pub/workspace_ref.json');
+    metadata.parent.createSync(recursive: true);
+    metadata.writeAsStringSync('{}');
+    expect(() => guard.verifySchemaFiles(schema, manifest), returnsNormally);
+    file.writeAsStringSync('changed source');
+    expect(() => guard.verifySchemaFiles(schema, manifest), throwsStateError);
+  });
+
+  test('schema verification rejects extra source files', () {
+    final schema = Directory('${temporary.path}/schema')..createSync();
+    File('${schema.path}/extra.dart').writeAsStringSync('extra source');
+    expect(
+      () => guard.verifySchemaFiles(schema, {'lib/schema.dart': 'missing'}),
+      throwsStateError,
+    );
   });
 }
