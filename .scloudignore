@@ -22,21 +22,21 @@
 # session.serverpod.getPassword('myKey');
 #
 # Run `scloud password --help` for more information.
-config/passwords.yaml
-config/google_client_secret.json
-config/firebase_service_account_key.json
+**/config/passwords.yaml
+**/config/google_client_secret.json
+**/config/firebase_service_account_key.json
 
 # Ignoring all config files, these are automatically managed by Serverpod Cloud.
-config/production.yaml
-config/staging.yaml
-config/development.yaml
-config/test.yaml
+**/config/production.yaml
+**/config/staging.yaml
+**/config/development.yaml
+**/config/test.yaml
 
 # Opting out of ignoring generated files.
-!lib/src/generated/**
+!**/lib/src/generated/**
 
 # Opting out of ignoring web files.
-!web/**
+!**/web/**
 
 # Opting out of ignoring the .scloud directory.
 !.scloud/**
