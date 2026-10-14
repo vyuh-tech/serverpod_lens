@@ -8,7 +8,6 @@ import 'package:serverpod_lens_schema/serverpod_lens_schema.dart';
 import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
 import 'package:vyuh_diagram_core/extension_api.dart' show DiagramCamera;
 
-import '../schema/schema_context.dart';
 import '../schema/schema_catalog.dart';
 import '../schema/schema_canvas.dart';
 import '../schema/schema_view_store.dart';

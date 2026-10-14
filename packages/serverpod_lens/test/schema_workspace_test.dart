@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:serverpod_lens/serverpod_lens.dart';
+import 'package:serverpod_lens/diagram.dart';
 import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
 import 'package:vyuh_diagram_core/extension_api.dart'
     show DiagramCameraGeometry;

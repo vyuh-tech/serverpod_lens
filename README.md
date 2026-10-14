@@ -45,13 +45,11 @@ selection, effects, pan/zoom and the minimap. Moving a table changes only its vi
 | Package | Responsibility |
 | --- | --- |
 | [serverpod_lens](packages/serverpod_lens/) | Reusable Flutter viewer; embed `SchemaViewer(graph: graph)` |
-| [serverpod_lens_schema](packages/serverpod_lens_schema/) | Plain Dart graph and resolved-definition reader |
-| [serverpod_lens_backend](packages/serverpod_lens_backend/) | Shared Serverpod target and source extraction |
-| [serverpod_lens_cli](packages/serverpod_lens_cli/) | Local launcher and browser link |
+| [serverpod_lens_schema](packages/serverpod_lens_schema/) | Plain Dart graph, resolved-definition reader and snapshot policy |
 
-These are repository packages; none has been published. The viewer's licensed
+These are the two reusable product packages; none has been published. The viewer's licensed
 Vyuh extensions require registry access. See [installation](packages/serverpod_lens/README.md)
-and [CLI setup](packages/serverpod_lens_cli/README.md). Lens code is [MIT licensed](LICENSE).
+and [local tool setup](tool/lens/README.md). Lens code is [MIT licensed](LICENSE).
 
 ## Two Serverpod examples
 
@@ -60,15 +58,18 @@ and [CLI setup](packages/serverpod_lens_cli/README.md). Lens code is [MIT licens
 - **[Large schema](examples/large_schema/):** 156 tables. Also contains the optional
   connected Cloud demo with Serverpod authentication and project read scopes.
 
-Both projects use the same extraction and viewer packages. Their generated
+Both projects use the same schema and viewer packages. The launcher and optional
+imports are internal workspace tools, with no separate publication planned. Their generated
 server/client code belongs to the examples, not the reusable viewer.
 
 ```text
 packages/
   serverpod_lens/          Flutter viewer package
-  serverpod_lens_schema/   Plain Dart schema contract
-  serverpod_lens_backend/  Serverpod extraction library (no running service)
-  serverpod_lens_cli/      Local launcher and shared tooling viewer
+  serverpod_lens_schema/   Plain Dart extraction and schema contract
+tool/
+  lens/                   Internal local launcher
+    viewer/               Shared browser host
+    imports/              Optional legacy import adapters and their tests
 examples/
   shop/                  Serverpod server + generated client
   large_schema/          Serverpod server + client + optional Cloud app

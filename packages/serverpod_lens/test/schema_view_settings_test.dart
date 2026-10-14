@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:serverpod_lens/serverpod_lens.dart';
+import 'package:serverpod_lens/diagram.dart';
 import 'package:serverpod_lens/src/screens/schema_view_settings.dart';
 import 'package:vyuh_diagram_extension_connectors/vyuh_diagram_extension_connectors.dart';
 import 'package:vyuh_diagram_extension_minimap/vyuh_diagram_extension_minimap.dart';

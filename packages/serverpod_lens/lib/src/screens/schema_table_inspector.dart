@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:serverpod_lens_schema/serverpod_lens_schema.dart';
 
-import '../schema/schema_context.dart';
 import 'schema_relationships_panel.dart';
 
 /// The same read-only inspector is used in the desktop panel and mobile sheet.

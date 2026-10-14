@@ -18,8 +18,9 @@ Serverpod migration definition
                  └─ DiagramCanvas (native movement/effects; schema edits blocked)
 ```
 
-- Reusable package code stays under `packages/`: `serverpod_lens`,
-  `serverpod_lens_schema`, `serverpod_lens_backend`, and `serverpod_lens_cli`.
+- Reusable code stays under `packages/serverpod_lens/` and
+  `packages/serverpod_lens_schema/`. The local launcher and browser host are
+  internal tooling under `tool/lens/`; optional imports stay in `tool/lens/imports/`.
 - `examples/shop/` and `examples/large_schema/` are real Serverpod projects. Their
   generated server/client code belongs to those projects. The large fixture's 122
   recreated models are examples, not the viewer's source of truth.
@@ -30,7 +31,9 @@ Serverpod migration definition
   diagram renderers. Keep source reading, semantic mapping and screen UI separate.
 
 The reusable viewer accepts a plain graph from its host. Shared Serverpod
-extraction belongs to `serverpod_lens_backend`; CLI and screen logic stay separate.
+extraction and snapshot validation belong to `serverpod_lens_schema`. Native
+Serverpod types and access scopes belong to the example adapters; CLI and screen
+logic stay separate. Filesystem indexing is an explicit `io.dart` entry point.
 Local Lens uses `serverpod run lens` and has no authentication or Cloud requirement.
 The optional connected Cloud example uses built-in Serverpod authentication and
 project read scopes. Build shared/multiuser host backends with Serverpod.

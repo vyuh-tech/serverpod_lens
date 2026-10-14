@@ -1,9 +1,9 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod/protocol.dart' show TableDefinition;
-import 'package:serverpod_lens_backend/serverpod_lens_backend.dart';
+import 'package:serverpod_lens_schema/serverpod_lens_schema.dart';
 import '../generated/protocol.dart';
 
-/// Example transport adapter; reusable extraction lives in Lens's backend package.
+/// Example transport adapter; reusable extraction lives in Lens's schema package.
 abstract final class HostSchemaSource {
   static const projectId = 'serverpod_lens';
   static const readScope = Scope('schema:read:serverpod_lens');
@@ -16,7 +16,7 @@ abstract final class HostSchemaSource {
   }) => SchemaSnapshot.fromJson(
     _source
         .read(
-          tables,
+          tables.map((table) => table.toJson()).toList(),
           knownRevision: knownRevision,
           sourcePaths: sourcePaths,
           modelSources: modelSources,

@@ -3,13 +3,12 @@
 FROM dart:3.13.0 AS build
 WORKDIR /app
 COPY packages/serverpod_lens_schema packages/serverpod_lens_schema
-COPY packages/serverpod_lens_backend packages/serverpod_lens_backend
-COPY packages/serverpod_lens_cli packages/serverpod_lens_cli
+COPY tool/lens tool/lens
 COPY examples/large_schema/server examples/large_schema/server
 # The server's Dart-only workspace excludes Flutter hosts and the tooling viewer.
 RUN printf '%s\n' 'name: _' 'environment:' '  sdk: ^3.13.0' 'workspace:' \
-  '  - packages/serverpod_lens_schema' '  - packages/serverpod_lens_backend' \
-  '  - packages/serverpod_lens_cli' '  - examples/large_schema/server' > pubspec.yaml
+  '  - packages/serverpod_lens_schema' \
+  '  - tool/lens' '  - examples/large_schema/server' > pubspec.yaml
 RUN dart pub get
 WORKDIR /app/examples/large_schema/server
 RUN dart build cli --target bin/main.dart --output build

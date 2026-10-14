@@ -5,9 +5,9 @@ environment:
 workspace:
   - packages/serverpod_lens
   - packages/serverpod_lens_schema
-  - packages/serverpod_lens_backend
-  - packages/serverpod_lens_cli
-  - packages/serverpod_lens_cli/viewer
+  - tool/lens
+  - tool/lens/viewer
+  - tool/lens/imports
   - examples/large_schema/server
   - examples/large_schema/client
   - examples/large_schema/flutter

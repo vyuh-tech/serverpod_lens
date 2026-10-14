@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../schema/schema_context.dart';
+import 'package:serverpod_lens_schema/serverpod_lens_schema.dart';
 
 /// Shared relationship content for the desktop inspector and mobile sheet.
 class SchemaRelationshipsPanel extends StatelessWidget {

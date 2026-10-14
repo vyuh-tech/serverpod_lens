@@ -22,3 +22,23 @@ This package is available in the Git repository and has not been published.
 For installation and publication status see the repository README.
 
 License: MIT. Vyuh dependencies belong to the separate Flutter viewer package.
+
+## Current-target snapshots
+
+Convert a host's native definitions to plain maps, then share the same extractor:
+
+```dart
+final snapshot = LensSchemaSource(projectId: 'shop').read(
+  Protocol().getTargetTableDefinitions().map((table) => table.toJson()).toList(),
+  knownRevision: previousRevision,
+);
+```
+
+`Protocol` belongs to the host's Serverpod project. This package itself has no
+Serverpod SDK dependency. It deduplicates qualified tables, hashes deterministic
+revisions and omits unchanged payloads. `LensSchemaSnapshot.fromJson` and
+`LensSnapshotState` provide one validation/state policy for local and Cloud hosts.
+
+Import `package:serverpod_lens_schema/io.dart` explicitly for `ModelSourceIndex`.
+Filesystem code stays out of the primary web-compatible library. Login/access
+scopes remain entirely with a hosted application.

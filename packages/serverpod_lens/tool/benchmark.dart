@@ -6,6 +6,7 @@ import 'dart:js_interop';
 
 import 'package:flutter/material.dart';
 import 'package:serverpod_lens/serverpod_lens.dart';
+import 'package:serverpod_lens/diagram.dart';
 import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
 import 'package:serverpod_lens/src/schema/schema_canvas.dart';
 

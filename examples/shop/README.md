@@ -15,7 +15,7 @@ Lens prints a local URL and reads this project's actual generated target. It doe
 not require this example's server or database to be running. The shared tooling
 viewer displays all fields, key bindings, indexes and matching model source.
 
-`dart run bin/dump_lens.dart` demonstrates the reusable backend adapter directly.
+`dart run bin/dump_lens.dart` demonstrates the reusable schema extractor directly.
 `dart test` verifies the real generated target, its three foreign keys and four
 source mappings. No schema fixture or hand-written generated code substitutes for
 Serverpod generation.

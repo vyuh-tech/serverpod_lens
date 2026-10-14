@@ -15,9 +15,11 @@ SchemaViewer(graph: graph)
 
 Supply a new graph to refresh the view. Optional `onImport` and `importActions`
 let a host add source controls. No asset or generated client is required.
-`ProjectAnalyzer` imports Serverpod ZIPs and partial YAML; `PostgresSchemaImporter`
-imports SQL on web or PostgreSQL 17 ASTs on any platform. Import results retain
-warnings so the host can disclose partial results before rendering them.
+Advanced native integration is available through `diagram.dart`; ordinary hosts
+use `SchemaViewer`. Snapshot delivery can use `SchemaSnapshotController` to share
+manual refresh, unchanged-state preservation and request lifetime behavior.
+Optional archive/YAML/SQL imports are maintained separately under
+`../../tool/lens/imports/`; the core viewer does not bundle their SQL assets.
 
 The CLI's shared local viewer and two Serverpod projects under `examples/`
 demonstrate the package. The host owns schema delivery and manual refresh.
@@ -53,8 +55,8 @@ The projects in `../../examples/` use the shared extraction and viewer packages.
 
 ## Package release status
 
-The reusable packages under `packages/` are the schema reader, Serverpod adapter, Flutter viewer and
-local CLI. Generated Serverpod clients and demo applications stay unpublished.
+The reusable packages under `packages/` are the plain schema library and Flutter
+viewer. The launcher is internal tooling under `tool/lens/`. Generated Serverpod clients and demo applications stay unpublished.
 
 The schema package has version, README, changelog, example and MIT license files.
 `publish_to: none` remains a deliberate safeguard until an actual release is

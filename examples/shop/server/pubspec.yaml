@@ -4,10 +4,10 @@ resolution: workspace
 environment:
   sdk: ^3.13.0
 dependencies:
+  serverpod_lens_schema: ^0.1.0
   serverpod: 4.0.4
-  serverpod_lens_backend: ^0.1.0
 dev_dependencies:
-  serverpod_lens_cli: ^0.1.0
+  serverpod_lens_cli: any
   serverpod_test: 4.0.4
   test: ^1.31.1
   lints: ^6.0.0

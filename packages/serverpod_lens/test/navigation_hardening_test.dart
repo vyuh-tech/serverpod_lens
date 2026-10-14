@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:serverpod_lens/serverpod_lens.dart';
+import 'package:serverpod_lens/diagram.dart';
 import 'package:vyuh_diagram_core/vyuh_diagram_core.dart';
 import 'package:vyuh_diagram_extension_table/extension_api.dart';
 

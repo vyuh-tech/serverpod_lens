@@ -7,6 +7,10 @@ issue_tracker: https://github.com/vyuh-tech/serverpod_lens/issues
 resolution: workspace
 environment:
   sdk: ^3.13.0
+dependencies:
+  crypto: ^3.0.7
+  path: ^1.9.1
+  yaml: ^3.1.4
 dev_dependencies:
   test: ^1.31.1
   lints: ^6.0.0

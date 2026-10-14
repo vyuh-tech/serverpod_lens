@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:serverpod_lens/serverpod_lens.dart';
+import 'package:serverpod_lens/diagram.dart';
 import 'package:vyuh_diagram_extension_connectors/vyuh_diagram_extension_connectors.dart';
 import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
 

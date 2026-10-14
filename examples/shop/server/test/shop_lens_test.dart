@@ -1,5 +1,6 @@
 import 'package:shop_server/src/generated/protocol.dart';
-import 'package:serverpod_lens_backend/serverpod_lens_backend.dart';
+import 'package:serverpod_lens_schema/serverpod_lens_schema.dart';
+import 'package:serverpod_lens_schema/io.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -9,7 +10,10 @@ void main() {
       final models = ModelSourceIndex().read();
       final source = LensSchemaSource(projectId: 'shop');
       final snapshot = source.read(
-        Protocol().getTargetTableDefinitions(),
+        Protocol()
+            .getTargetTableDefinitions()
+            .map((table) => table.toJson())
+            .toList(),
         sourcePaths: models.paths,
         modelSources: models.sources,
       );
@@ -25,7 +29,10 @@ void main() {
         contains('class: Order'),
       );
       final unchanged = source.read(
-        Protocol().getTargetTableDefinitions(),
+        Protocol()
+            .getTargetTableDefinitions()
+            .map((table) => table.toJson())
+            .toList(),
         knownRevision: snapshot.revision,
         sourcePaths: models.paths,
         modelSources: models.sources,

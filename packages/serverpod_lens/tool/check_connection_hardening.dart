@@ -2,7 +2,7 @@
 // Compile for the Flutter engine; this is not a plain Dart VM program.
 import 'dart:io';
 
-import 'package:serverpod_lens/serverpod_lens.dart';
+import 'package:serverpod_lens/diagram.dart';
 
 import '../test/support/connection_checks.dart';
 
