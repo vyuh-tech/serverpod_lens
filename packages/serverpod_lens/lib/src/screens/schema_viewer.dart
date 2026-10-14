@@ -83,16 +83,30 @@ class _SchemaViewerState extends State<SchemaViewer> {
   @override
   void didUpdateWidget(covariant SchemaViewer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (identical(widget.graph, oldWidget.graph)) return;
-    _rememberView();
     final projectChanged =
         oldWidget.storageKey != widget.storageKey ||
         oldWidget.graph.source != widget.graph.source;
+    if (!projectChanged && identical(widget.graph, oldWidget.graph)) return;
+    _saveDebounce?.cancel();
+    if (projectChanged) {
+      // The current controller still belongs to the previous host/account.
+      // Flush its pending geometry under the previous key before resetting.
+      unawaited(
+        _persist(
+          viewStore: oldWidget.viewStore,
+          storageKey: oldWidget.storageKey ?? oldWidget.graph.source,
+        ),
+      );
+    } else {
+      _rememberView();
+    }
     _index();
     if (projectChanged) {
       _savedViews.clear();
       _schema = null;
       _inspected.value = null;
+      _inspectorVisible = false;
+      _saveError = false;
       _replaceController(null);
       unawaited(_initialize());
     } else {
@@ -140,16 +154,29 @@ class _SchemaViewerState extends State<SchemaViewer> {
     };
   }
 
-  Future<void> _persist() async {
+  Future<void> _persist({
+    SchemaViewStore? viewStore,
+    String? storageKey,
+  }) async {
     _rememberView();
+    final generation = _generation;
+    final store = viewStore ?? widget.viewStore;
+    final key = storageKey ?? _storageKey;
+    // A store may serialize asynchronously. Detach the map so a subsequent
+    // account switch cannot clear or replace the value being written.
+    final value = {
+      'version': 1,
+      'views': Map<String, Map<String, dynamic>>.from(_savedViews),
+    };
     try {
-      await widget.viewStore.write(_storageKey, {
-        'version': 1,
-        'views': _savedViews,
-      });
-      if (mounted && _saveError) setState(() => _saveError = false);
+      await store.write(key, value);
+      if (mounted && generation == _generation && _saveError) {
+        setState(() => _saveError = false);
+      }
     } catch (_) {
-      if (mounted) setState(() => _saveError = true);
+      if (mounted && generation == _generation) {
+        setState(() => _saveError = true);
+      }
     }
   }
 

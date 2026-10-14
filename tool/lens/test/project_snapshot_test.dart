@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -158,6 +159,74 @@ void main() {
     final refreshed = await loader.read(knownRevision: first.revision);
     expect(refreshed.graph!.tables.single.name, 'public.orders');
   });
+  test(
+    'a stalled extraction times out and the next refresh can retry',
+    () async {
+      var stalled = true;
+      final loader = ProjectSnapshotLoader(
+        project,
+        extractionTimeout: const Duration(milliseconds: 30),
+        runner: (_, _, {workingDirectory}) => stalled
+            ? Completer<ProcessResult>().future
+            : Future.value(
+                ProcessResult(0, 0, 'LENS_TARGET_JSON={"tables":[]}', ''),
+              ),
+      );
+      await expectLater(
+        loader.read(),
+        throwsA(
+          isA<FormatException>().having(
+            (e) => e.message,
+            'message',
+            contains('timed out'),
+          ),
+        ),
+      );
+      stalled = false;
+      expect((await loader.read()).graph!.tables, isEmpty);
+    },
+  );
+  test(
+    'timeout terminates a real extractor process instead of leaving it running',
+    () async {
+      File(
+        '${project.path}/pubspec.yaml',
+      ).writeAsStringSync('name: shop_server\nenvironment:\n  sdk: ^3.13.0\n');
+      final dart = Platform.environment['DART_BIN'] ?? 'dart';
+      final dependencies = await Process.run(dart, [
+        'pub',
+        'get',
+        '--offline',
+      ], workingDirectory: project.path);
+      expect(dependencies.exitCode, 0);
+      File('${project.path}/lib/src/generated/protocol.dart')
+          .writeAsStringSync('''
+import 'dart:io';
+class Protocol {
+  List<Object> getTargetTableDefinitions() {
+    File('.dart_tool/extractor.pid').writeAsStringSync(pid.toString());
+    sleep(const Duration(seconds: 30));
+    return [];
+  }
+}
+''');
+      final loader = ProjectSnapshotLoader(
+        project,
+        extractionTimeout: const Duration(seconds: 3),
+      );
+      await expectLater(loader.read(), throwsFormatException);
+      final pidFile = File('${project.path}/.dart_tool/extractor.pid');
+      expect(
+        pidFile.existsSync(),
+        isTrue,
+        reason: 'The extractor must have started.',
+      );
+      if (Platform.isLinux) {
+        final pid = int.parse(pidFile.readAsStringSync());
+        expect(Directory('/proc/$pid').existsSync(), isFalse);
+      }
+    },
+  );
   test(
     'actual Shop generated protocol is loaded by the native subprocess',
     () async {

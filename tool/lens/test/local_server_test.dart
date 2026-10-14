@@ -59,6 +59,27 @@ void main() {
     },
   );
   test(
+    'closing a browser during an asset download leaves the local server usable',
+    () async {
+      final asset = File('${web.path}/large.wasm')
+          .openSync(mode: FileMode.write);
+      asset.truncateSync(32 * 1024 * 1024);
+      asset.closeSync();
+      final response = await (await client.getUrl(
+        server.url.resolve('large.wasm'),
+      )).close();
+      await response.first;
+      client.close(force: true);
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      client = HttpClient();
+      final next = await (await client.getUrl(
+        server.url.resolve('lens/schema'),
+      )).close();
+      expect(next.statusCode, 200);
+      await next.drain<void>();
+    },
+  );
+  test(
     'manual refresh checks the target and omits unchanged payload',
     () async {
       final response = await (await client.getUrl(

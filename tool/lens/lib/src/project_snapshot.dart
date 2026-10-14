@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -14,11 +15,52 @@ typedef TargetRunner = Future<ProcessResult> Function(
 
 /// Reads the current generated target without starting Serverpod or touching its DB.
 final class ProjectSnapshotLoader {
-  ProjectSnapshotLoader(this.directory, {TargetRunner? runner})
-    : _runner = runner ?? Process.run;
+  ProjectSnapshotLoader(
+    this.directory, {
+    this.runner,
+    this.extractionTimeout = const Duration(seconds: 45),
+  }) {
+    if (extractionTimeout <= Duration.zero) {
+      throw ArgumentError.value(extractionTimeout, 'extractionTimeout');
+    }
+  }
   final Directory directory;
-  final TargetRunner _runner;
+  final TargetRunner? runner;
+  final Duration extractionTimeout;
   late final _models = ModelSourceIndex(projectDirectory: directory.path);
+
+  Future<ProcessResult> _runTarget(
+    String executable,
+    List<String> arguments, {
+    String? workingDirectory,
+  }) async {
+    final targetRunner = runner;
+    if (targetRunner != null) {
+      return targetRunner(
+        executable,
+        arguments,
+        workingDirectory: workingDirectory,
+      ).timeout(extractionTimeout);
+    }
+    final process = await Process.start(
+      executable,
+      arguments,
+      workingDirectory: workingDirectory,
+    );
+    await process.stdin.close();
+    final output = utf8.decoder.bind(process.stdout).join();
+    final errors = utf8.decoder.bind(process.stderr).join();
+    final result = Future.wait<Object>([process.exitCode, output, errors]);
+    try {
+      final values = await result.timeout(extractionTimeout);
+      return ProcessResult(process.pid, values[0] as int, values[1], values[2]);
+    } on TimeoutException {
+      // A Future timeout alone leaves the extractor alive and consuming CPU.
+      process.kill(ProcessSignal.sigkill);
+      await result;
+      rethrow;
+    }
+  }
 
   String get packageName {
     final manifest = File(path.join(directory.path, 'pubspec.yaml'));
@@ -59,17 +101,24 @@ import 'dart:convert';
 import 'package:$name/src/generated/protocol.dart';
 void main() => print('LENS_TARGET_JSON=' + jsonEncode({'tables': Protocol().getTargetTableDefinitions()}));
 ''');
-    final result = await _runner(
-      Platform.environment['DART_BIN'] ??
-          (path.basename(Platform.resolvedExecutable).startsWith('dart')
-              ? path.join(
-                  path.dirname(Platform.resolvedExecutable),
-                  Platform.isWindows ? 'dart.exe' : 'dart',
-                )
-              : 'dart'),
-      ['run', utility.path],
-      workingDirectory: directory.path,
-    );
+    late ProcessResult result;
+    try {
+      result = await _runTarget(
+        Platform.environment['DART_BIN'] ??
+            (path.basename(Platform.resolvedExecutable).startsWith('dart')
+                ? path.join(
+                    path.dirname(Platform.resolvedExecutable),
+                    Platform.isWindows ? 'dart.exe' : 'dart',
+                  )
+                : 'dart'),
+        ['run', utility.path],
+        workingDirectory: directory.path,
+      );
+    } on TimeoutException {
+      throw const FormatException(
+        'Schema extraction timed out. Check project generation and retry Refresh.',
+      );
+    }
     if (result.exitCode != 0) {
       throw const FormatException(
         'Could not read the generated target. Run flutter pub get in your workspace and check Serverpod generation.',

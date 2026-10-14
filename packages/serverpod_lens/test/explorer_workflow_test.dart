@@ -265,6 +265,43 @@ void main() {
     },
   );
   testWidgets(
+    'account switches with a reused graph save and restore isolated layouts',
+    (tester) async {
+      wide(tester);
+      final store = MemorySchemaViewStore();
+      final graph = fixture();
+      await tester.pumpWidget(host(graph, store));
+      await settle(tester);
+      final alice = canvas(tester);
+      alice.select(['public.orders']);
+      await settle(tester);
+      alice.edits.move(const DiagramPoint(77, 91), ids: ['public.orders']);
+      final frame = alice.scene.shapeById('public.orders')!.source.frame;
+      // Switch before the save debounce fires, without disposing the viewer.
+      await tester.pumpWidget(host(graph, store, account: 'bob'));
+      await settle(tester);
+      final bob = canvas(tester);
+      expect(identical(alice, bob), isFalse);
+      expect(bob.selection, isNot(isA<ElementSelection>()));
+      expect(find.byType(TabBar), findsNothing);
+      expect(
+        bob.scene.shapeById('public.orders')!.source.frame.left,
+        isNot(frame.left),
+      );
+      await tester.pumpWidget(host(graph, store));
+      await settle(tester);
+      final restored = canvas(tester).scene
+          .shapeById('public.orders')!
+          .source
+          .frame;
+      expect(restored.left, frame.left);
+      expect(restored.top, frame.top);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await settle(tester);
+      expect(tester.takeException(), isNull);
+    },
+  );
+  testWidgets(
     'dragged positions persist across remount and accounts remain isolated',
     (tester) async {
       final store = MemorySchemaViewStore();

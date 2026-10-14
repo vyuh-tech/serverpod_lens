@@ -40,6 +40,8 @@ Generate a new Serverpod project before using Lens. After changing models, let
 Serverpod regeneration finish and click Refresh. No automatic schema polling is
 installed. Every manual refresh rereads the current native target; simultaneous
 refreshes share that read. The launcher does not invoke Serverpod generation or startup.
+Extraction stops after 45 seconds if the native subprocess stalls. The last
+valid schema remains available, and Refresh can retry.
 
 ## Safety and distribution
 
