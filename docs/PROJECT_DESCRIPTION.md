@@ -60,7 +60,8 @@ application and brings visual schema exploration into their existing workflow.
 
 Two complete Serverpod projects demonstrate the same packages: a small shop and
 an existing large schema. Generated server/client code lives in the examples.
-The reader, schema extractor, viewer and CLI remain reusable repository packages.
+Two reusable packages hold the schema logic and Flutter viewer. The local launcher
+and optional import adapters are internal tools in the same workspace.
 They are not yet published or installed as an official Serverpod CLI command.
 
 ## Verified evidence

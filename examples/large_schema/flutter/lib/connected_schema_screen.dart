@@ -186,7 +186,7 @@ class ConnectedSchemaView extends StatelessWidget {
                 if (!isSafeModelPath(path)) return;
                 const base = String.fromEnvironment(
                   'LENS_SOURCE_BASE_URL',
-                  defaultValue: 'https://github.com/vyuh-tech/serverpod_lens/blob/main/serverpod_lens_server/',
+                  defaultValue: 'https://github.com/vyuh-tech/serverpod_lens/blob/main/examples/large_schema/server/',
                 );
                 final baseUri = Uri.parse(base);
                 if (baseUri.scheme != 'https' ||

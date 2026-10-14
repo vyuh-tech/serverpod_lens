@@ -55,6 +55,7 @@ final class ProjectSnapshotLoader {
     );
     await utility.parent.create(recursive: true);
     await utility.writeAsString('''
+import 'dart:convert';
 import 'package:$name/src/generated/protocol.dart';
 void main() => print('LENS_TARGET_JSON=' + jsonEncode({'tables': Protocol().getTargetTableDefinitions()}));
 ''');

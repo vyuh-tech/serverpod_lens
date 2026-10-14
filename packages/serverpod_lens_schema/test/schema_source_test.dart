@@ -95,4 +95,31 @@ void main() {
       expect(aliases.paths['public.alias_spy'], endsWith('.spy'));
     },
   );
+  test('source edits with equal size and timestamp remain visible', () {
+    final root = Directory.systemTemp.createTempSync('lens-source-edit-');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final file = File('${root.path}/lib/customer.spy.yaml')
+      ..parent.createSync(recursive: true)
+      ..writeAsStringSync('class: Before\ntable: customers\n');
+    final index = ModelSourceIndex(projectDirectory: root.path);
+    expect(index.read().sources['public.customers'], contains('Before'));
+    final timestamp = file.lastModifiedSync();
+    file.writeAsStringSync('class: After!\ntable: customers\n');
+    file.setLastModifiedSync(timestamp);
+    expect(index.read().sources['public.customers'], contains('After!'));
+  });
+  test('definition object key order does not alter identity or revisions', () {
+    final definition = table();
+    final reordered = {
+      for (final key in definition.keys.toList().reversed) key: definition[key],
+    };
+    final source = LensSchemaSource(projectId: 'shop');
+    final first = source.read([definition]);
+    final second = source.read([
+      reordered,
+      definition,
+    ], knownRevision: first.revision);
+    expect(second.revision, first.revision);
+    expect(second.graph, isNull);
+  });
 }

@@ -60,7 +60,7 @@ See the [architecture](../../../docs/PLAN.md) for responsibilities and native Vy
 
 ## Offline demo and verification
 
-For the independent demo, run `flutter run -d chrome` in `serverpod_lens_flutter`.
+For local viewing, use `serverpod run lens` in this server folder.
 It accepts project ZIPs, migration definitions, YAML and PostgreSQL SQL. Resolved
 Serverpod definitions are authoritative; YAML-only inference is partial.
 

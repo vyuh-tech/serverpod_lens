@@ -32,5 +32,11 @@ void main() {
     cache.markBuilt(stamp);
     lock.writeAsStringSync('after');
     expect(cache.isCurrent(cache.fingerprint()), isFalse);
+    final stale = File('${root.path}/build/web/stale.wasm')
+      ..writeAsStringSync('old asset');
+    cache.clearOutput();
+    expect(stale.existsSync(), isFalse);
+    expect(source.existsSync(), isTrue);
+    expect(cache.isCurrent(cache.fingerprint()), isFalse);
   });
 }

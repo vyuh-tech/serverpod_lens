@@ -35,7 +35,7 @@ access. Keep all credentials out of source, videos and deployment archives.
 2. Build the connected frontend using the entitled Vyuh registry account and the
    server's `flutter_build` script.
 3. Inspect the Cloud upload archive and confirm it includes `web/app` and the pure
-   Dart schema and backend packages, with no local database, password files or registry tokens.
+   Dart schema package and internal launcher manifest, with no local database, password files or registry tokens.
 4. The configured `scloud.yaml` pre-deploy hook writes the public API URL through
    `tool/write_flutter_config.dart` into `web/app/assets/assets/config.json`.
 5. Deploy only after authorization, then check app and API at the public URLs.

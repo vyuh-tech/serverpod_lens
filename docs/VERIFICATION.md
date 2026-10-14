@@ -9,16 +9,18 @@ was performed. The public demo still runs an earlier release.
 
 | Suite | Passed |
 | --- | ---: |
-| Plain Dart schema reader | 5 |
-| Shared Serverpod extraction adapter | 5 |
-| Local launcher and HTTP safety | 7 |
+| Plain Dart schema, extraction and snapshot policy | 17 |
+| Internal launcher, real native subprocess and HTTP safety | 13 |
 | Large-example backend, including embedded PostgreSQL | 21 |
 | Shop generated-target integration | 1 |
-| Reusable Flutter viewer | 104 |
+| Reusable Flutter viewer | 84 |
+| Optional ZIP/YAML/SQL import tooling | 17 |
 | Optional connected Flutter demo | 15 |
-| **Total** | **158** |
+| **Dart/Flutter total** | **168** |
+| Optional PostgreSQL parser source tests (Node) | 5 |
 
-The shared local Flutter viewer builds successfully for release web. Both actual
+The shared local Flutter viewer builds successfully for release web. Its clean
+output contains no SQL worker/WASM files; the optional imports package owns them. Both actual
 Serverpod examples use the shared packages. The Shop protocol and initial migration
 were produced by the native Serverpod generator; generated code was not hand edited.
 Its four authored tables have three foreign keys and four indexes. The complete
@@ -37,18 +39,19 @@ dart run serverpod_lens_cli:serverpod_lens --project examples/large_schema/serve
 
 Local viewing needs no login, running application server or database. The launcher
 reads the generated target in a Dart subprocess, then serves the shared viewer.
-Unchanged generated targets reuse extracted definitions; manual refresh still
-checks authored source changes. There is no background schema polling.
+Every manual refresh rereads the native target and authored sources, including
+dependency changes and edits with preserved timestamps; overlapping HTTP reads
+share one extraction. There is no background schema polling.
 
 Launcher tests cover initial snapshot reuse, explicit refresh, source and generated
-target cache invalidation, revision-based payload omission, cross-origin/Host
+fresh target reads, dependency/equal-timestamp changes, revision-based payload omission, cross-origin/Host
 rejection, unsupported writes and static-file path/link containment. Source indexing
 accepts `.spy.yaml`, `.spy.yml` and `.spy`, prunes generated folders and rejects
 ambiguous ownership. Serverpod generation remains responsible for model validity.
 
 ## Viewer acceptance
 
-Local Chromium checks passed against both examples: no login, table selection,
+Post-consolidation local Chromium checks passed against both examples: no login, table selection,
 Fields search, Source display, inspector dismissal without a placeholder, browser
 collapse/expand, one manual refresh and no background polling. No uncaught browser
 errors were recorded. Mounted-widget tests separately cover themes and layouts.
@@ -91,7 +94,7 @@ scope. No custom renderer or vendored SDK modification was introduced.
 
 ## Security and remaining scope
 
-The dependency audit queried 268 locked public packages and returned no OSV
+The post-consolidation dependency audit queried 268 locked public packages and returned no OSV
 advisories. This excludes private SDK dependencies and does not prove absence of
 all vulnerabilities. Optional Cloud authentication retains its existing built-in
 Serverpod/project-scope tests. Local Lens is intentionally loopback only.
@@ -101,3 +104,26 @@ prevent connection editing. Cloud packaging was updated but has not been deploye
 or production verified. Physical devices, other browser engines and screen readers
 remain outside this pass. Standalone CLI distribution and upstream `serverpod lens`
 integration remain future work; the supported command today is `serverpod run lens`.
+
+## Consolidation regressions
+
+The actual Shop subprocess test caught a missing utility import that injected
+runner tests could not detect; it failed before the fix and now passes. Fresh
+native reads are also tested against dependency changes and protocol edits with
+preserved timestamps. Source reads handle equal-size/equal-timestamp edits.
+Snapshot revisions ignore map key ordering while retaining array order.
+
+Build-stamp tests cover changed source/dependencies and removal of stale output
+assets. `serverpod run lens` rebuilt the internal viewer and printed a working
+loopback URL after the move. Generated server/client code was not hand edited.
+The native-effect suite remains; five tests for the obsolete document-opacity
+implementation were removed, and importer tests moved with their implementation.
+
+The inline IDE password was removed and launch paths/source links corrected.
+Older Git history still contains the removed value; no credential was rotated in
+any running/shared database. No application server, Cloud deployment or package
+publication was started by this consolidation.
+
+The standalone schema release manifest passes `dart pub publish --dry-run` with
+zero warnings. This check used a temporary copy; repository manifests still keep
+`publish_to: none`, and no package was published.

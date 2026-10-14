@@ -158,4 +158,17 @@ void main() {
     final refreshed = await loader.read(knownRevision: first.revision);
     expect(refreshed.graph!.tables.single.name, 'public.orders');
   });
+  test(
+    'actual Shop generated protocol is loaded by the native subprocess',
+    () async {
+      final sample = Directory('../../examples/shop/server').absolute;
+      final snapshot = await ProjectSnapshotLoader(sample).read();
+      final shop = snapshot.graph!.tables
+          .where((table) => table.name.startsWith('public.shop_'))
+          .toList();
+      expect(shop, hasLength(4));
+      expect(shop.expand((table) => table.foreignKeys), hasLength(3));
+      expect(snapshot.modelSources, hasLength(4));
+    },
+  );
 }

@@ -84,6 +84,7 @@ Future<void> main(List<String> arguments) async {
       stdout.writeln(
         'Building the shared Lens viewer. Flutter and Vyuh extension access are required.',
       );
+      cache.clearOutput();
       final process = await Process.start(
         args['flutter-bin'] as String,
         ['build', 'web', '--release', '--no-wasm-dry-run'],

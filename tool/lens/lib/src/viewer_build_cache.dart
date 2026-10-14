@@ -48,6 +48,12 @@ final class ViewerBuildCache {
           .existsSync() &&
       _stamp.existsSync() &&
       _stamp.readAsStringSync().trim() == fingerprint;
+  void clearOutput() {
+    // Flutter may leave removed assets in an existing web output directory.
+    final web = Directory(path.join(viewerDirectory.path, 'build/web'));
+    if (web.existsSync()) web.deleteSync(recursive: true);
+  }
+
   void markBuilt(String fingerprint) {
     _stamp.parent.createSync(recursive: true);
     _stamp.writeAsStringSync(fingerprint);

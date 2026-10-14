@@ -17,7 +17,7 @@ no undiscovered vulnerabilities exist. No external scanner report was supplied.
   paths, duplicates, linked and encrypted schema entries are rejected. No archive
   files are extracted to the filesystem.
 - **Unbounded text imports:** JSON is limited to 8 MiB of text; YAML to 1 MiB per
-  file and 32 MiB total. The demo checks the file size before reading. SQL retains
+  file and 32 MiB total. The optional import adapter checks bounded input sizes. SQL retains
   its 2-million-character limit and worker timeout; SQL is parsed, never executed.
 - **Source URL validation:** the shared relative model-path validator rejects
   traversal and control characters. Repository source opening requires an HTTPS
@@ -36,8 +36,8 @@ no undiscovered vulnerabilities exist. No external scanner report was supplied.
   and limits file size. Delivery filters paths/sources to the authorized target.
 - View preferences are scoped by account and contain view geometry, not credentials
   or model source bodies. Native schema editing remains blocked.
-- Local password configuration is ignored by Git; no credential values were
-  printed during the review. No recordings or debug artifacts were added to the repo.
+- Local password configuration is ignored by Git. No recordings or debug
+  artifacts were added to the repo.
 
 ## Dependencies
 
@@ -68,9 +68,13 @@ The optional Cloud demonstration retains Serverpod login and project scopes.
 
 ## Follow-up architecture audit
 
-The subsequent source audit found an inline database credential in the tracked
-VS Code task and stale IDE paths. This finding is pending remediation; the earlier
-ignored-password checks did not cover that IDE environment configuration. See the
-[architecture audit](PLAN.md#architecture-audit--2026-10-14). No credential value is
-included in these reports. The dependency advisory result does not cover this
-configuration issue.
+The inline database credential was removed from the tracked VS Code task, and IDE
+launch paths were corrected. Older Git commits still contain the removed value;
+these changes do not replace a credential in any running/shared database. That
+replacement remains an operator task if the credential is still in use.
+
+Snapshot validation/request lifetime is now shared. The local native-target read
+is fresh on every manual refresh, preventing the reproduced cache failures.
+Diagnostics retain generic HTTP errors and report sanitized local failure details.
+The optional SQL parser is excluded from the native viewer's clean release output.
+See the [architecture audit](PLAN.md#architecture-audit--2026-10-14).

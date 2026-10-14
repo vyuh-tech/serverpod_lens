@@ -56,7 +56,8 @@ The projects in `../../examples/` use the shared extraction and viewer packages.
 ## Package release status
 
 The reusable packages under `packages/` are the plain schema library and Flutter
-viewer. The launcher is internal tooling under `tool/lens/`. Generated Serverpod clients and demo applications stay unpublished.
+viewer. The launcher is internal tooling under `tool/lens/`. Generated Serverpod
+clients and demo applications stay unpublished.
 
 The schema package has version, README, changelog, example and MIT license files.
 `publish_to: none` remains a deliberate safeguard until an actual release is
