@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:serverpod_lens_client/serverpod_lens_client.dart' as api;
 
+import 'package:serverpod_lens/serverpod_lens.dart' show LensThemeButton;
+
 import 'demo_sign_in.dart';
 
 /// Responsive presentation around Serverpod's authentication flows.
@@ -105,10 +107,19 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                 ),
               );
-              return Row(
+              return Stack(
                 children: [
-                  if (wide) const Expanded(child: _SchemaWelcome()),
-                  Expanded(child: form),
+                  Row(
+                    children: [
+                      if (wide) const Expanded(child: _SchemaWelcome()),
+                      Expanded(child: form),
+                    ],
+                  ),
+                  const Positioned(
+                    top: 12,
+                    right: 12,
+                    child: SafeArea(child: LensThemeButton()),
+                  ),
                 ],
               );
             },

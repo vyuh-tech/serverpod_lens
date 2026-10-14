@@ -5,6 +5,10 @@ import 'package:serverpod_lens_schema/serverpod_lens_schema.dart'
 /// Database schemas group tables; Serverpod modules remain separate metadata.
 final class SchemaCatalog {
   SchemaCatalog(this.graph) {
+    if (graph.tables.map((table) => table.name).toSet().length !=
+        graph.tables.length) {
+      throw ArgumentError('Duplicate table identities');
+    }
     _sorted = List.of(graph.tables)..sort((a, b) => a.name.compareTo(b.name));
     for (final table in _sorted) {
       _search[table.name] =

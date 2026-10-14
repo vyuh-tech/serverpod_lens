@@ -6,6 +6,9 @@ import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 import 'package:serverpod_flutter/serverpod_flutter.dart';
 import 'package:serverpod_lens_client/serverpod_lens_client.dart' as api;
 
+import 'package:serverpod_lens/serverpod_lens.dart'
+    show LensThemeController, LensThemeScope;
+
 import 'connected_schema_screen.dart';
 import 'auth_screen.dart';
 
@@ -31,45 +34,64 @@ class HostApp extends StatefulWidget {
 
 class _HostAppState extends State<HostApp> {
   late Future<api.Client> _client = initializeClient();
+  final _appearance = LensThemeController();
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_appearance.restore());
+  }
 
   @override
-  Widget build(BuildContext context) => MaterialApp(
-    title: 'Serverpod Lens',
-    debugShowCheckedModeBanner: false,
-    localizationsDelegates: GlobalMaterialLocalizations.delegates,
-    theme: _theme(Brightness.light),
-    darkTheme: _theme(Brightness.dark),
-    home: FutureBuilder<api.Client>(
-      future: _client,
-      builder: (context, snapshot) {
-        final client = snapshot.data;
-        if (client == null) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Serverpod Lens')),
-            body: Center(
-              child: snapshot.hasError
-                  ? FilledButton(
-                      onPressed: () =>
-                          setState(() => _client = initializeClient()),
-                      child: const Text('Retry connection'),
-                    )
-                  : const CircularProgressIndicator(
-                      semanticsLabel: 'Restoring session',
-                    ),
-            ),
-          );
-        }
-        return ValueListenableBuilder(
-          valueListenable: client.auth.authInfoListenable,
-          builder: (context, auth, _) => auth == null
-              ? AuthScreen(client: client)
-              : ConnectedSchemaScreen(
-                  key: ValueKey(auth.authUserId.toString()),
-                  client: client,
-                  accountId: auth.authUserId.toString(),
+  void dispose() {
+    _appearance.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => LensThemeScope(
+    controller: _appearance,
+    child: ValueListenableBuilder<ThemeMode>(
+      valueListenable: _appearance,
+      builder: (_, mode, _) => MaterialApp(
+        title: 'Serverpod Lens',
+        themeMode: mode,
+        debugShowCheckedModeBanner: false,
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
+        theme: _theme(Brightness.light),
+        darkTheme: _theme(Brightness.dark),
+        home: FutureBuilder<api.Client>(
+          future: _client,
+          builder: (context, snapshot) {
+            final client = snapshot.data;
+            if (client == null) {
+              return Scaffold(
+                appBar: AppBar(title: const Text('Serverpod Lens')),
+                body: Center(
+                  child: snapshot.hasError
+                      ? FilledButton(
+                          onPressed: () =>
+                              setState(() => _client = initializeClient()),
+                          child: const Text('Retry connection'),
+                        )
+                      : const CircularProgressIndicator(
+                          semanticsLabel: 'Restoring session',
+                        ),
                 ),
-        );
-      },
+              );
+            }
+            return ValueListenableBuilder(
+              valueListenable: client.auth.authInfoListenable,
+              builder: (context, auth, _) => auth == null
+                  ? AuthScreen(client: client)
+                  : ConnectedSchemaScreen(
+                      key: ValueKey(auth.authUserId.toString()),
+                      client: client,
+                      accountId: auth.authUserId.toString(),
+                    ),
+            );
+          },
+        ),
+      ),
     ),
   );
 }

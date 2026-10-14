@@ -9,19 +9,16 @@ import 'support/context_fixture.dart';
 
 Future<void> settle(WidgetTester tester) async {
   await tester.runAsync(
-    () => Future<void>.delayed(const Duration(milliseconds: 150)),
+    () => Future<void>.delayed(const Duration(milliseconds: 180)),
   );
   await tester.pump();
-  await tester.pump(const Duration(milliseconds: 500));
-  await tester.runAsync(
-    () => Future<void>.delayed(const Duration(milliseconds: 150)),
-  );
-  await tester.pumpAndSettle();
+  await tester.pump(const Duration(milliseconds: 600));
+  await tester.pump();
 }
 
 void main() {
   testWidgets(
-    'relationships cross schemas and Back restores the prior table area',
+    'relationship navigation crosses real schema scopes without a Back workflow',
     (tester) async {
       tester.view.devicePixelRatio = 1;
       tester.view.physicalSize = const Size(1440, 1000);
@@ -38,52 +35,36 @@ void main() {
         ),
       );
       final graph = contextFixture();
-      final store = MemorySchemaViewStore();
       await tester.pumpWidget(
         MaterialApp(
           localizationsDelegates: GlobalMaterialLocalizations.delegates,
-          home: SchemaViewer(graph: graph, viewStore: store),
+          home: SchemaViewer(graph: graph, viewStore: MemorySchemaViewStore()),
         ),
       );
+      await settle(tester);
+      await tester.tap(find.widgetWithText(ListTile, 'auth'));
       await settle(tester);
       var controller = tester
           .widget<DiagramCanvas>(find.byType(DiagramCanvas))
           .controller;
+      expect(controller.document.elementById('sales.orders'), isNull);
       controller.select(['auth.users']);
       await settle(tester);
-      await tester.tap(find.text('Explore this table'));
-      await settle(tester);
-      await tester.tap(find.byTooltip('Table references'));
-      await settle(tester);
-      await tester.tap(find.text('Show references'));
-      await settle(tester);
-      controller = tester
-          .widget<DiagramCanvas>(find.byType(DiagramCanvas))
-          .controller;
-      expect(controller.document.elementById('auth.users'), isNotNull);
-      expect(controller.document.elementById('sales.orders'), isNotNull);
-      final camera = controller.camera;
-      tester.view.physicalSize = const Size(390, 844);
-      await tester.pumpAndSettle();
-      await tester.tap(find.byTooltip('Table details'));
-      await settle(tester);
-      await tester.ensureVisible(find.text('Relationships'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Relationships'));
+      await tester.ensureVisible(find.widgetWithText(Tab, 'Relationships'));
+      await tester.tap(find.widgetWithText(Tab, 'Relationships'));
       await settle(tester);
       expect(find.text('sales.orders → auth.users'), findsOneWidget);
       await tester.tap(find.text('sales.orders → auth.users'));
       await settle(tester);
-      expect(find.text('sales.orders'), findsWidgets);
-      expect(find.byTooltip('Back'), findsOneWidget);
-      await tester.tap(find.byTooltip('Back'));
-      await settle(tester);
       controller = tester
           .widget<DiagramCanvas>(find.byType(DiagramCanvas))
           .controller;
-      expect(controller.camera.zoom, camera.zoom);
-      expect(find.text('auth.users'), findsWidgets);
-      expect(controller.document.elementById('auth.users'), isNotNull);
+      expect((controller.selection as ElementSelection).elementIds, {
+        'sales.orders',
+      });
+      expect(controller.document.elementById('auth.users'), isNull);
+      expect(controller.document.elementById('sales.orders'), isNotNull);
+      expect(find.byTooltip('Back'), findsNothing);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
       await settle(tester);

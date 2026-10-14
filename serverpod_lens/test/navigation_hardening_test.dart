@@ -8,65 +8,54 @@ import 'package:vyuh_diagram_extension_table/extension_api.dart';
 import 'support/navigation_fixture.dart';
 
 void main() {
-  test('overview batches remain deterministic and schema-qualified', () {
-    final navigation = SchemaNavigation(fixture());
-    expect(navigation.overview(limit: 2).graph.tables.map((t) => t.name), [
+  test('schema catalogs are deterministic and schema-qualified', () {
+    final catalog = SchemaCatalog(fixture());
+    expect(catalog.tables().take(2).map((t) => t.name), [
       'audit.log',
       'public.child0',
     ]);
-    expect(navigation.overview(limit: 2).hiddenCount, 4);
-    expect(
-      navigation.overview(schema: 'audit').graph.tables.map((t) => t.name),
-      ['audit.log'],
-    );
-    expect(navigation.overview(limit: 24).graph.tables, hasLength(6));
-  });
-  test('bounded exploration indexes high-degree nodes without discarding source relations', () {
-    final graph = fixture(neighbors: 1000);
-    final nav = SchemaNavigation(graph);
-    final area = nav.around({'public.users'}, limit: 8);
-    expect(area.graph.tables, hasLength(9));
-    expect(area.hiddenCount, 993);
-    final orders = nav.around({'public.orders'}, limit: 0).graph.tables.single;
-    expect(orders.foreignKeys.map((key) => key.refTable), [
-      'public.users',
-      'external.unavailable',
-    ]);
-    expect(jsonEncode(graph.toJson()), contains('external.unavailable'));
+    expect(catalog.tables(schema: 'audit').map((t) => t.name), ['audit.log']);
+    expect(catalog.tables(), hasLength(6));
+    expect(catalog.schemaCounts, {'audit': 1, 'public': 5});
   });
   test(
-    'directions, two-hop exploration, cycles and explicit reveals are bounded',
+    'high-degree relationship lookup retains the complete source semantics',
     () {
-      final nav = SchemaNavigation(fixture(neighbors: 0));
+      final graph = fixture(neighbors: 1000);
+      final context = SchemaContext(graph);
+      expect(context.neighborhood(['public.users']).tables, hasLength(1002));
       expect(
-        nav
-            .around({'public.users'}, direction: RelationDirection.outgoing)
-            .graph
-            .tables
-            .map((t) => t.name),
-        ['public.users'],
+        context.external([
+          'public.users',
+        ], direction: RelationDirection.incoming),
+        hasLength(1001),
       );
       expect(
-        nav.around({'public.users'}, hops: 2).graph.tables.map((t) => t.name),
-        contains('audit.log'),
+        context.tables['public.orders']!.foreignKeys.map((fk) => fk.refTable),
+        ['public.users', 'external.unavailable'],
       );
-      expect(
-        nav
-            .around({'public.users'}, limit: 0, revealed: {'public.orders'})
-            .graph
-            .tables
-            .map((t) => t.name),
-        ['public.users', 'public.orders'],
-      );
-      expect(nav.around({'unknown'}).graph.tables, isEmpty);
-      expect(() => nav.around({}, hops: 3), throwsRangeError);
-      expect(() => nav.overview(limit: -1), throwsRangeError);
+      expect(jsonEncode(graph.toJson()), contains('external.unavailable'));
     },
   );
+  test('directions, two-hop traversal and missing targets remain correct', () {
+    final context = SchemaContext(fixture(neighbors: 0));
+    expect(
+      context.neighborhood([
+        'public.users',
+      ], direction: RelationDirection.outgoing).tables,
+      {'public.users'},
+    );
+    expect(
+      context.neighborhood(['public.users'], hops: 2).tables,
+      contains('audit.log'),
+    );
+    expect(context.neighborhood(['unknown']).tables, isEmpty);
+    expect(() => context.neighborhood([], hops: 3), throwsRangeError);
+  });
   test('duplicate table identities are rejected', () {
     final graph = fixture();
     expect(
-      () => SchemaNavigation(
+      () => SchemaCatalog(
         graph.copyWith(tables: [graph.tables.first, graph.tables.first]),
       ),
       throwsArgumentError,
@@ -196,11 +185,15 @@ void main() {
   test('view storage isolates accounts and returns detached data', () async {
     final store = MemorySchemaViewStore();
     await store.write('project/alice', {
-      'groups': ['commerce'],
+      'positions': {
+        'public.orders': [10, 20],
+      },
     });
     expect(await store.read('project/bob'), isNull);
     final a = await store.read('project/alice');
-    a!['groups'] = [];
-    expect((await store.read('project/alice'))!['groups'], ['commerce']);
+    a!['positions'] = {};
+    expect((await store.read('project/alice'))!['positions'], {
+      'public.orders': [10, 20],
+    });
   });
 }

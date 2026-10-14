@@ -90,6 +90,11 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Animation'));
       await tester.pumpAndSettle();
+      expect(find.text('Animation opacity'), findsOneWidget);
+      await tester.tap(find.text('Marching dashes'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Off').last);
+      await tester.pumpAndSettle();
       expect(find.text('Animation opacity'), findsNothing);
       await tester.tap(find.text('Off'));
       await tester.pumpAndSettle();

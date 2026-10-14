@@ -26,11 +26,11 @@ import diagnostics and the host integration. The separate offline demo accepts
 Serverpod migration/project files and PostgreSQL SQL without requiring a backend.
 SQL parsing runs locally in a browser worker and never executes the input.
 
-The collapsible Schemas browser opens a selected table alone. References reveals
-its neighborhood; All schemas opens the complete graph for broader exploration. A right
-inspector shows fields, relationships, indexes and authored YAML. Names/Keys/All
-fields control diagram detail; manual positions persist per account. Refresh is
-manual, and Settings remains visible in the toolbar.
+The collapsible Schemas browser shows the project's actual schemas and their tables.
+All schemas opens the complete graph; selecting a schema shows its tables. Selecting
+a node highlights immediate connections while unrelated nodes fade. The inspector
+separates Details, Fields, Relationships, Indexes and authored Source. Manual positions
+persist per account, refresh stays manual, and Settings includes System/Light/Dark.
 
 Settings let developers show relationship labels when useful and configure
 snapping, layout, connection style and animation. Phones use a drawer to preserve
@@ -71,7 +71,7 @@ credentials and verification codes out of the recording.
 | --- | --- | --- |
 | 0–12s | Connected schema overview | “Serverpod projects can grow into hundreds of related tables. Lens helps developers understand those relationships without opening every model file.” |
 | 12–28s | Sign in and browse schemas | “This Flutter app signs in through Serverpod. The backend checks project access and returns its resolved schema, including framework and auth modules.” |
-| 28–53s | Search, select a table, follow relationships | “Search a table or column, focus its incoming and outgoing links, and expand the neighborhood to answer which tables depend on it.” |
+| 28–53s | Search, select a table, follow relationships | “Search a table or column, focus its incoming and outgoing links, and inspect its immediate connections to answer which tables depend on it.” |
 | 53–70s | Right inspector and field detail | “Inspect fields, relationships, indexes and YAML in the side panel. Switch from keys to all fields, and explore only the connections needed for your question.” |
 | 70–87s | Refresh while focused | “Refresh checks the generated target. When the schema is unchanged, Lens keeps the current map and avoids rebuilding it.” |
 | 87–100s | Ungranted account/access screen | “Authentication alone does not expose the schema. A separate account without the project scope is denied access.” |

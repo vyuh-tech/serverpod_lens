@@ -11,5 +11,6 @@ export 'src/schema/schema_catalog.dart';
 export 'src/schema/schema_context.dart';
 export 'src/schema/schema_view_interactions.dart';
 
-export 'src/schema/schema_navigation.dart';
 export 'src/schema/schema_view_store.dart';
+
+export 'src/screens/lens_theme.dart';

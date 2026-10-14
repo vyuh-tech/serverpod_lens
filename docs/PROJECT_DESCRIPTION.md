@@ -16,9 +16,9 @@ It brings schema exploration into the Serverpod development workflow, using the
 schema the project already defines.
 
 Start with a simple schema-and-table browser. Select one table to understand its
-fields, keys, indexes and source. Reveal its references when you need more context,
-follow incoming or outgoing connections, or open **All schemas** to explore the
-complete map. The right-side inspector keeps details close to the diagram, and
+fields, keys, indexes and source. Its immediate connections stay clear while unrelated nodes fade.
+Follow incoming or outgoing relationships, choose a schema, or open **All schemas**
+to explore the complete map. The right-side inspector keeps details close to the diagram, and
 manual refresh preserves valid exploration state as the generated schema changes.
 
 This helps teams answer practical questions: where user information connects to
@@ -43,7 +43,7 @@ documentation and submission writing. Lens itself does not provide an AI feature
 ## Short description
 
 Serverpod Lens transforms the schema generated from `.spy.yaml` models into an
-interactive, read-only map. Explore one table, reveal its references, inspect
+interactive, read-only map. Select a table, follow its connections, inspect
 fields and source, or navigate the complete schema. Built with Serverpod, Flutter
 and Vyuh Diagram, Lens helps teams understand the data structure behind their
 application and brings visual schema exploration into their existing workflow.
@@ -54,7 +54,7 @@ application and brings visual schema exploration into their existing workflow.
    endpoint; the shared reader converts it into a plain Dart graph.
 2. A Flutter host embeds `SchemaViewer(graph: graph)`, adding its own authentication,
    refresh controls and optional model-source action.
-3. Developers browse the project schema, inspect a table and reveal the connections
+3. Developers browse the project schema, inspect a table and follow the connections
    relevant to their task.
 
 The included connected host demonstrates this integration. The sample data is a
@@ -64,13 +64,13 @@ inside official Serverpod development tools.
 
 ## Verified evidence
 
-- **127 automated tests** cover extraction, native rendering, navigation,
+- **138 automated tests** cover extraction, native rendering, navigation,
   persistence, authorization, manual refresh and import protections.
 - Contract checks exercise **all 19 database column types** and every foreign-key
   action in the installed **Serverpod 4.0.4** SDK. Complete resolved table metadata
   is retained, including advanced index/constraint attributes and vector dimensions.
 - Large-schema regressions use a **396-table sample** and a synthetic table with
-  **1,000 neighbors** to check bounded exploration.
+  **1,000 neighbors** to check indexed traversal and focus behavior.
 - Local checks exercise registration, login, password reset, JWT refresh and
   sign-out, plus denial of schema access without the project read scope.
 

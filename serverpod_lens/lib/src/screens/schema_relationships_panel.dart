@@ -8,15 +8,11 @@ class SchemaRelationshipsPanel extends StatelessWidget {
     super.key,
     required this.graph,
     required this.members,
-    required this.onClose,
     required this.onSelect,
-    this.group,
   });
 
   final SchemaContext graph;
   final Set<String> members;
-  final SchemaGroup? group;
-  final VoidCallback onClose;
   final ValueChanged<String> onSelect;
 
   @override
@@ -46,9 +42,7 @@ class SchemaRelationshipsPanel extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        group == null
-                            ? 'Table relationships'
-                            : '${group!.name} relationships',
+                        'Table relationships',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 6),
@@ -59,19 +53,9 @@ class SchemaRelationshipsPanel extends StatelessWidget {
                     ],
                   ),
                 ),
-                IconButton(
-                  tooltip: 'Close relationships',
-                  onPressed: onClose,
-                  icon: const Icon(Icons.close),
-                ),
               ],
             ),
           ),
-          if (group?.note.isNotEmpty == true)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-              child: Text(group!.note),
-            ),
           const Divider(height: 1),
           Expanded(
             child: relations.isEmpty

@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:serverpod_lens/serverpod_lens.dart'
+    show LensThemeController, LensThemeScope;
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'screens/schema_map_screen.dart';
@@ -66,19 +70,43 @@ ThemeData _buildTheme(Brightness brightness) {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final _appearance = LensThemeController();
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_appearance.restore());
+  }
+
+  @override
+  void dispose() {
+    _appearance.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Serverpod Lens',
-      localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      debugShowCheckedModeBanner: false,
-      theme: _buildTheme(Brightness.light),
-      darkTheme: _buildTheme(Brightness.dark),
-      themeMode: ThemeMode.system,
-      home: const SchemaMapScreen(),
+    return LensThemeScope(
+      controller: _appearance,
+      child: ValueListenableBuilder<ThemeMode>(
+        valueListenable: _appearance,
+        builder: (_, mode, _) => MaterialApp(
+          title: 'Serverpod Lens',
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          debugShowCheckedModeBanner: false,
+          theme: _buildTheme(Brightness.light),
+          darkTheme: _buildTheme(Brightness.dark),
+          themeMode: mode,
+          home: const SchemaMapScreen(),
+        ),
+      ),
     );
   }
 }

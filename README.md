@@ -12,6 +12,8 @@ reusable viewer displays a plain Dart graph using Vyuh Diagram.
 
 ![Serverpod Lens schema explorer](docs/schema-map.png)
 
+[Light mode preview](docs/schema-map-light.png)
+
 ## Architecture
 
 The diagram shows schema data flowing through the connected host and the optional
@@ -147,20 +149,23 @@ demo, run `flutter run -d chrome` from `serverpod_lens_flutter` instead.
 
 - Browse **All schemas → schema → tables**. Expand/collapse arrows control the
   tree independently; clicking a schema opens its overview. Search tables and fields.
-- The initial preview is bounded; complete overviews and reference expansion are
-  explicit actions.
-- Select a table in the tree to open that table alone. Use **References** to
-  reveal a bounded neighborhood or all references, choose incoming/outgoing links
-  and expand to two hops. Follow a relationship or go Back.
-- Click **All schemas** for the complete schema and connections, then select any
-  table on the map to inspect it.
-- Select a table to inspect Details, Relationships, Indexes and Source in the
-  desktop right panel. Phones use a bottom sheet. Selection preserves zoom.
-- Switch between **Names**, **Keys** and **All fields**. Connectors bind to actual
-  foreign-key rows when visible, with native table ports for hidden rows.
-- Drag tables after automatic layout. Positions are saved per host account.
-- Refresh and Settings are visible in the top bar. Field detail, Fit and Inspector
-  stay beside the current view; other exploration options share one menu.
+- **All schemas** shows the complete map and connections; selecting a schema
+  shows every table in that database schema. Serverpod modules remain metadata.
+- Select a table from the tree or map to highlight it and its immediate neighbors.
+  Unrelated nodes fade; native dashes flow toward connected neighbors. Clicking
+  a node preserves pan and zoom; tree navigation brings its table into view.
+- The inspector separates **Details**, **Fields**, **Relationships**, **Indexes**
+  and **Source**. Fields has search and type/key badges. Relationship links select
+  their destination; Source shows the filename, path, code and open action.
+- Clearing selection restores the overview and keeps the desktop inspector space
+  stable. Phones open the same inspector in a bottom sheet.
+- Compact native cards show primary and foreign keys; the complete field metadata
+  remains in the inspector. Connectors anchor to actual key rows.
+- Drag tables after native automatic layout. Positions are saved per host account.
+- Fit, Auto layout, Refresh, Settings and Sign out are available in the header.
+  Enabling the native minimap shows its expanded map and zoom controls.
+- Choose **System**, **Light** or **Dark** in Settings → Appearance. The same
+  persisted theme applies to authentication and both connected/offline hosts.
 
 Authored `.spy.yaml` files can be previewed and opened through a host callback.
 The included connected host opens repository source; an embedding host can supply

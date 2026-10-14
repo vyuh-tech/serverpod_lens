@@ -17,7 +17,7 @@ Future<void> settle(WidgetTester tester) async {
   await tester.runAsync(
     () => Future<void>.delayed(const Duration(milliseconds: 100)),
   );
-  await tester.pumpAndSettle();
+  await tester.pump(const Duration(milliseconds: 450));
 }
 
 DiagramController canvas(WidgetTester tester) =>
@@ -95,8 +95,8 @@ void main() {
       final controller = canvas(tester);
       controller.select(['public.orders']);
       await settle(tester);
-      await tester.ensureVisible(find.text('Indexes'));
-      await tester.tap(find.text('Indexes'));
+      await tester.ensureVisible(find.widgetWithText(Tab, 'Indexes'));
+      await tester.tap(find.widgetWithText(Tab, 'Indexes'));
       await settle(tester);
       expect(find.text('No indexes in this snapshot'), findsOneWidget);
       controller.select(['public.users']);
@@ -107,7 +107,9 @@ void main() {
       await settle(tester);
       expect(find.text('Schemas'), findsOneWidget);
       expect(find.byType(TabBar), findsNothing);
-      await tester.tap(find.byTooltip('Table details'));
+      controller.clearSelection();
+      await settle(tester);
+      controller.select(['public.orders']);
       await settle(tester);
       expect(find.byType(TabBar), findsOneWidget);
       await tester.pumpWidget(const SizedBox.shrink());
@@ -115,38 +117,30 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
-  testWidgets('tree selects one table before explicit reference expansion', (
-    tester,
-  ) async {
-    wide(tester);
-    await tester.pumpWidget(host(fixture(), MemorySchemaViewStore()));
-    await settle(tester);
-    await tester.tap(find.byKey(const ValueKey('toggle-schema:public')));
-    await settle(tester);
-    await tester.tap(find.byKey(const ValueKey('table:public.orders')));
-    await settle(tester);
-    expect(
-      canvas(tester).document.elements
-          .whereType<ShapeElement>()
-          .map((shape) => shape.id),
-      ['public.orders'],
-    );
-    await tester.tap(find.byTooltip('Table references'));
-    await settle(tester);
-    await tester.tap(find.text('Show references'));
-    await settle(tester);
-    expect(canvas(tester).document.elementById('public.users'), isNotNull);
-    await tester.tap(find.byTooltip('Table references'));
-    await settle(tester);
-    await tester.tap(find.text('Selected table only'));
-    await settle(tester);
-    expect(
-      canvas(tester).document.elements.whereType<ShapeElement>(),
-      hasLength(1),
-    );
-    await tester.pumpWidget(const SizedBox.shrink());
-    await settle(tester);
-  });
+  testWidgets(
+    'tree selects within the schema without rebuilding the surrounding graph',
+    (tester) async {
+      wide(tester);
+      await tester.pumpWidget(host(fixture(), MemorySchemaViewStore()));
+      await settle(tester);
+      final original = canvas(tester);
+      await tester.tap(find.byKey(const ValueKey('toggle-schema:public')));
+      await settle(tester);
+      await tester.tap(find.byKey(const ValueKey('table:public.orders')));
+      await settle(tester);
+      expect(identical(canvas(tester), original), isTrue);
+      expect(
+        original.document.elements.whereType<ShapeElement>(),
+        hasLength(fixture().tables.length),
+      );
+      expect((original.selection as ElementSelection).elementIds, {
+        'public.orders',
+      });
+      expect(find.byTooltip('Table references'), findsNothing);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await settle(tester);
+    },
+  );
   testWidgets(
     'All schemas explicitly opens the complete graph with selectable tables',
     (tester) async {
@@ -171,7 +165,7 @@ void main() {
       await settle(tester);
     },
   );
-  testWidgets('node selection preserves zoom and opens four-tab inspector', (
+  testWidgets('node selection preserves zoom and opens five-tab inspector', (
     tester,
   ) async {
     wide(tester);
@@ -194,14 +188,20 @@ void main() {
     expect(controller.camera.center, const DiagramPoint(250, 150));
     for (final label in [
       'Basic information',
+      'Fields',
       'Relationships',
       'Indexes',
       'Source',
     ]) {
-      expect(find.text(label), findsOneWidget);
+      expect(
+        label == 'Basic information'
+            ? find.text(label)
+            : find.widgetWithText(Tab, label),
+        findsOneWidget,
+      );
     }
     await tester.ensureVisible(find.text('Source'));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 450));
     await tester.tap(find.text('Source'));
     await settle(tester);
     expect(find.text('class: Order\ntable: orders\n'), findsOneWidget);
@@ -327,7 +327,7 @@ void main() {
   );
 
   testWidgets(
-    'deleted tables and removed relationships never leave a stale selection or stale Back view',
+    'deleted tables and removed relationships never leave a stale selection',
     (tester) async {
       wide(tester);
       final store = MemorySchemaViewStore();
@@ -336,8 +336,7 @@ void main() {
       await settle(tester);
       canvas(tester).select(['public.users']);
       await settle(tester);
-      await tester.tap(find.text('Explore this table'));
-      await settle(tester);
+
       final changed = graph.copyWith(
         tables: graph.tables.where((t) => t.name != 'public.users').toList(),
       );
@@ -350,38 +349,30 @@ void main() {
     },
   );
   testWidgets(
-    'all detail levels are reachable from the viewer without schema edits',
+    'compact cards retain full schema metadata while fields live in the inspector',
     (tester) async {
       wide(tester);
       await tester.pumpWidget(host(fixture(), MemorySchemaViewStore()));
       await settle(tester);
-      for (final label in ['Names', 'All fields', 'Keys']) {
-        await tester.tap(find.byTooltip('Diagram detail level'));
-        await tester.pumpAndSettle();
-        await tester.tap(
-          find.widgetWithText(CheckedPopupMenuItem<SchemaDetailLevel>, label),
-        );
-        await settle(tester);
-        final shape =
-            canvas(tester).document.elementById('public.orders')!
-                as ShapeElement;
-        expect((shape.values['schema'] as Map)['columns'], hasLength(3));
-        expect(
-          canvas(tester)
-                  .resolvedTable('public.orders', 'public.orders-columns')
-                  ?.cells
-                  .length ??
-              0,
-          label == 'Names'
-              ? 0
-              : label == 'Keys'
-              ? 6
-              : 9,
-        );
-      }
+      final controller = canvas(tester);
+      final shape =
+          controller.document.elementById('public.orders')! as ShapeElement;
+      expect((shape.values['schema'] as Map)['columns'], hasLength(3));
+      expect(
+        controller
+            .resolvedTable('public.orders', 'public.orders-columns')
+            ?.cells
+            .length,
+        6,
+      );
+      controller.select(['public.orders']);
+      await settle(tester);
+      await tester.tap(find.widgetWithText(Tab, 'Fields'));
+      await settle(tester);
+      expect(find.text('description'), findsOneWidget);
+      expect(find.byTooltip('Diagram detail level'), findsNothing);
       await tester.pumpWidget(const SizedBox.shrink());
       await settle(tester);
-      expect(tester.takeException(), isNull);
     },
   );
   for (final size in [

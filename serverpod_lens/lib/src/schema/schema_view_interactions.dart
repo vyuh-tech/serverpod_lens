@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:mobx/mobx.dart';
 import 'package:vyuh_diagram_core/adapter.dart'
     show DiagramTransaction, ReplaceElementStep;
@@ -86,9 +88,8 @@ enum SchemaConnectionStyle {
 
 /// View preferences survive opening another project during this session.
 final class SchemaViewPreferences {
-  // Selection should not start a continuous repaint loop on large schemas.
-  // Native relationship effects remain available as an explicit view setting.
-  final _animation = Observable(SchemaAnimation.off);
+  // Only incident relationships animate; idle overviews do not.
+  final _animation = Observable(SchemaAnimation.dashes);
   final _speed = Observable(1.0);
   final _reverse = Observable(false);
   final _density = Observable(12);
@@ -156,7 +157,7 @@ final class SchemaViewPreferences {
       period: period,
       reverse: reverse,
       color: kind == SchemaAnimation.dashes
-          ? const DiagramColor(0xff737373)
+          ? const DiagramColor(0xff60a5fa)
           : color,
       count: density,
       size: particleSize,
@@ -325,27 +326,84 @@ void applySchemaConnections(
   );
 }
 
-/// Play native effects on visible relationships touching selected tables.
+/// Native selection presentation: related tables remain readable, unrelated
+/// elements fade, and selected connections flow toward the neighboring node.
+/// No schema, document opacity, positions, camera or history are changed.
 ReactionDisposer watchSchemaSelection(
   DiagramController controller, {
   SchemaViewPreferences? preferences,
+  bool disableAnimations = false,
 }) {
   final settings = preferences ?? SchemaViewPreferences();
-  return reaction((_) => (controller.selection, settings.effect), (state) {
-    if (!controller.isAttached) return;
-    controller.effects.stopAll();
-    final (selection, effect) = state;
-    if (selection is! ElementSelection || effect == null) return;
-    final ids = selection.elementIds;
-    for (final edge
-        in controller.document.elements.whereType<ConnectorElement>()) {
-      if (!edge.isVisible) continue;
-      final start = edge.start;
-      final end = edge.end;
-      if ((start is BoundEndpoint && ids.contains(start.elementId)) ||
-          (end is BoundEndpoint && ids.contains(end.elementId))) {
-        controller.effects.play(effect, on: edge.id);
-      }
-    }
-  });
+  return reaction(
+    (_) => (controller.selection, settings.effect, controller.isAttached),
+    (state) {
+      final (selection, effect, attached) = state;
+      if (!attached) return;
+      scheduleMicrotask(() {
+        if (controller.isDisposed ||
+            !controller.isAttached ||
+            controller.selection != selection) {
+          return;
+        }
+        controller.effects.stopAll();
+        final ids = switch (selection) {
+          ElementSelection(:final elementIds) => elementIds,
+          StorySelection(:final elementId) => {elementId},
+          _ => const <String>{},
+        };
+        final roots = ids
+            .where((id) => controller.document.elementById(id) is ShapeElement)
+            .toSet();
+        if (roots.isEmpty) return;
+        final related = {...roots};
+        final touching = <ConnectorElement>[];
+        for (final edge
+            in controller.document.elements.whereType<ConnectorElement>()) {
+          if (!edge.isVisible) continue;
+          final start = edge.start;
+          final end = edge.end;
+          if ((start is BoundEndpoint && roots.contains(start.elementId)) ||
+              (end is BoundEndpoint && roots.contains(end.elementId))) {
+            touching.add(edge);
+            if (start is BoundEndpoint) related.add(start.elementId);
+            if (end is BoundEndpoint) related.add(end.elementId);
+          }
+        }
+        final touchingIds = touching.map((edge) => edge.id).toSet();
+        for (final element in controller.document.elements) {
+          final dim = element is ShapeElement
+              ? !related.contains(element.id)
+              : element is ConnectorElement &&
+                    !touchingIds.contains(element.id);
+          if (dim) {
+            controller.effects.play(
+              Effect.fade(
+                dim: element is ShapeElement ? .22 : .08,
+                // Native timing applies MediaQuery's reduced-motion end state.
+                // Effect periods must remain positive even in that mode.
+                period: const Duration(milliseconds: 180),
+              ),
+              on: element.id,
+            );
+          }
+        }
+        if (effect == null || disableAnimations) return;
+        for (final edge in touching) {
+          final end = edge.end;
+          final start = edge.start;
+          final towardStart =
+              end is BoundEndpoint &&
+              roots.contains(end.elementId) &&
+              !(start is BoundEndpoint && roots.contains(start.elementId));
+          controller.effects.play(
+            effect.copyWith(
+              reverse: towardStart ? !effect.reverse : effect.reverse,
+            ),
+            on: edge.id,
+          );
+        }
+      });
+    },
+  );
 }

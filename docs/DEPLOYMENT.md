@@ -47,7 +47,7 @@ email delivery and operator grants need verification in that environment.
 ## Judge walkthrough after deployment
 
 Sign in with the read-only judge account. Expand a schema and choose a table;
-reveal its References, inspect fields/indexes/source, and open All schemas to
+follow its connections, inspect fields/indexes/source, and open All schemas to
 navigate the complete map. Check Settings and manual Refresh. Sign out and verify
 an ungranted account cannot see the schema. Check desktop and phone layouts and
 browser errors at the actual hosted URL.

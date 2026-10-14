@@ -57,12 +57,12 @@ void main() {
           home: Scaffold(body: DiagramCanvas(controller: controller)),
         ),
       );
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 450));
       expect(find.byType(TextField), findsNothing);
       expect(tester.takeException(), isNull);
       final document = controller.document;
       await tester.dragFrom(const Offset(720, 400), const Offset(70, 30));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 450));
       await tester.sendKeyEvent(LogicalKeyboardKey.delete);
       expect(controller.document, same(document));
       expect(find.byType(TextField), findsNothing);
@@ -71,7 +71,15 @@ void main() {
       );
       controller.select([table.name]);
       await tester.pump();
-      expect(controller.effects.playing, isEmpty);
+      expect(
+        controller.effects.playing.any(
+          (handle) => handle.effect!.kind == EffectKind.flow,
+        ),
+        isTrue,
+      );
+      Effect animated() => controller.effects.playing
+          .map((handle) => handle.effect!)
+          .firstWhere((effect) => effect.kind != EffectKind.fade);
       preferences.animation = SchemaAnimation.dashes;
       await tester.pump();
       expect(controller.effects.playing, isNotEmpty);
@@ -79,27 +87,32 @@ void main() {
       preferences.animationWidth = 3;
       preferences.animationOpacity = .65;
       await tester.pump();
-      expect(controller.effects.playing.first.effect!.size, 6);
-      expect(controller.effects.playing.first.effect!.width, 3);
-      expect(controller.effects.playing.first.effect!.opacity, .65);
+      expect(animated().size, 6);
+      expect(animated().width, 3);
+      expect(animated().opacity, .65);
       preferences.speed = 2;
       await tester.pump();
       expect(
-        controller.effects.playing.first.effect!.period,
+        animated().period,
         const Duration(milliseconds: 800),
       );
       preferences.animation = SchemaAnimation.blink;
       await tester.pump();
-      expect(controller.effects.playing.first.effect!.kind, EffectKind.pulse);
-      expect(controller.effects.playing.first.effect!.waveform, Waveform.step);
+      expect(animated().kind, EffectKind.pulse);
+      expect(animated().waveform, Waveform.step);
       preferences.animation = SchemaAnimation.off;
       await tester.pump();
-      expect(controller.effects.playing, isEmpty);
+      expect(
+        controller.effects.playing.every(
+          (handle) => handle.effect!.kind == EffectKind.fade,
+        ),
+        isTrue,
+      );
       preferences.animation = SchemaAnimation.particles;
       await tester.pump();
       controller.effects.stopAll();
       await controller.view.show(ViewTarget.element(table.name));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 450));
       final shape = controller.document.elementById(table.name) as ShapeElement;
       final nativeTable = controller.resolvedTable(
         table.name,
@@ -158,7 +171,7 @@ void main() {
       controller.setOptions(
         controller.options<MinimapOptions>().copyWith(visible: false),
       );
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 450));
       expect(tester.takeException(), isNull);
       await controller.view.show(ViewTarget.element(table.name));
       expect(controller.camera.zoom, greaterThan(0));

@@ -11,10 +11,10 @@ still runs the earlier release.
 | --- | ---: |
 | Shared schema reader | 5 |
 | Serverpod backend with embedded PostgreSQL | 21 |
-| Reusable viewer | 53 |
+| Reusable viewer | 64 |
 | Connected Flutter host | 14 |
 | Offline demo | 34 |
-| **Total** | **127** |
+| **Total** | **138** |
 
 The connected JavaScript web release builds successfully. Backend tests need no
 Docker. Generated files were produced by Serverpod from the authored DTO models;
@@ -23,12 +23,21 @@ no database migration is required for the optional transport metadata.
 ## Navigation acceptance
 
 - Schema → table tree, independent expand/collapse and browser hide/show.
-- Tree selection opens one table; References explicitly reveals neighbors, all
-  references, incoming/outgoing direction or two hops. Returning to table-only
-  removes the expanded area.
-- All schemas explicitly opens the complete graph. Canvas selection opens details
-  while retaining the map and zoom. Back restores the prior area and camera.
-- Settings is visible. Detail level, References, Fit and Inspector are together.
+- All schemas contains the complete graph; schema selection contains all matching
+  tables. Table selection preserves the scope and emphasizes immediate connections.
+- Native fades dim unrelated nodes and edges; native marching dashes flow from the
+  selected node toward its neighbors. These effects do not mutate document opacity,
+  schema metadata, positions, camera or undo history. Reduced motion keeps emphasis
+  without continuous flow.
+- Back/history, neighborhood/detail menus, Explore table, overflow actions and the
+  status footer are removed. Clearing selection restores context and keeps the
+  desktop inspector width stable.
+- Fit uses the final measured viewport and the largest fit containing the current
+  scope. The native minimap starts expanded and returns after toggling off/on.
+- The inspector separates Details, Fields, Relationships, Indexes and Source;
+  field search/type/key badges and a filename/path/open/code presentation are tested.
+- System/Light/Dark is one persisted host-level theme, applied to both apps and
+  authentication. Theme changes preserve the current diagram and selection.
 - Inspector tab continuity across tables; tablet/phone sheets preserve browser
   access. Responsive checks cover small screens, landscape, RTL and larger text.
 - Search, selection and positions survive valid graph updates and account-scoped
@@ -70,15 +79,17 @@ fixes, exclusions and remaining verification limits.
 
 ## Local browser check
 
-Release Chromium checks pass demo sign-in, absence of schema polling, one manual
-refresh, independent schema expansion/collapse and the visible single-table view.
-No uncaught browser errors were recorded in this core flow. The screenshot in the
-README was inspected against the final local release.
+Chromium checks against the local connected build pass sign-in, absence of schema
+polling, one manual refresh, tree selection, removal of old controls, Fields,
+Source/open-action availability and clearing selection without hiding the browser.
+No uncaught browser errors were recorded in that flow.
 
-Extended popup automation was inconclusive under Flutter's accessibility overlay.
-References, Settings, Source and mobile interactions have passing mounted-widget
-regressions; the complete live browser journey is still a separate verification
-item. This report does not claim that inconclusive browser automation passed.
+Browser accessibility actions and keyboard navigation also exercise Settings,
+Dark theme selection, minimap off/on, dialog dismissal and returning to Fields.
+The dark-mode screenshot was inspected. Popup pointer automation is limited by
+Flutter's accessibility overlay; the successful flow uses semantic activation and
+keyboard selection. Mounted-widget tests separately verify the actual toggle
+state, System/Light/Dark persistence and mobile inspector behavior.
 
 ## Remaining verification
 

@@ -1,4 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+
+import 'lens_theme.dart';
+
 import 'package:vyuh_diagram_extension_snap_guides/vyuh_diagram_extension_snap_guides.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:vyuh_diagram_extension_minimap/vyuh_diagram_extension_minimap.dart';
@@ -9,7 +14,8 @@ import '../schema/schema_view_interactions.dart';
 enum _SettingsCategory {
   connections('Connections'),
   animation('Animation'),
-  canvas('Canvas');
+  canvas('Canvas'),
+  appearance('Appearance');
 
   const _SettingsCategory(this.label);
   final String label;
@@ -176,6 +182,32 @@ class _SchemaViewSettingsState extends State<SchemaViewSettings> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (_category == _SettingsCategory.appearance) ...[
+                  if (LensThemeScope.maybeOf(context) case final theme?) ...[
+                    _section('Appearance'),
+                    DropdownButtonFormField<ThemeMode>(
+                      initialValue: theme.value,
+                      decoration: const InputDecoration(
+                        labelText: 'Color theme',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: [
+                        for (final mode in ThemeMode.values)
+                          DropdownMenuItem(
+                            value: mode,
+                            child: Text(lensThemeLabel(mode)),
+                          ),
+                      ],
+                      onChanged: (mode) {
+                        if (mode != null) unawaited(theme.choose(mode));
+                      },
+                    ),
+                  ],
+                  if (LensThemeScope.maybeOf(context) == null)
+                    const Text(
+                      'Appearance follows the host application theme.',
+                    ),
+                ],
                 if (_category == _SettingsCategory.connections) ...[
                   _section('Connections'),
                   SwitchListTile(
@@ -422,7 +454,12 @@ class _SchemaViewSettingsState extends State<SchemaViewSettings> {
                     value: minimap.visible,
                     onChanged: (value) {
                       preferences.minimap = value;
-                      controller.setOptions(minimap.copyWith(visible: value));
+                      controller.setOptions(
+                        minimap.copyWith(
+                          visible: value,
+                          initiallyExpanded: true,
+                        ),
+                      );
                     },
                   ),
                   SwitchListTile(
@@ -469,13 +506,6 @@ class _SchemaViewSettingsState extends State<SchemaViewSettings> {
       ),
     ),
     actions: [
-      TextButton(
-        onPressed: () {
-          Navigator.pop(context);
-          controller.view.show(const ViewTarget.all(), motion: Motion.smooth);
-        },
-        child: const Text('Fit schema'),
-      ),
       TextButton(
         onPressed: () => Navigator.pop(context),
         child: const Text('Done'),

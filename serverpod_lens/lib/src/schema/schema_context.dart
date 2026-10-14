@@ -12,23 +12,6 @@ enum RelationDirection {
   final String label;
 }
 
-/// A view-only collection. A table can belong to several groups.
-final class SchemaGroup {
-  SchemaGroup({
-    required this.id,
-    required this.name,
-    required Iterable<String> members,
-    this.note = '',
-    this.color = 0xff2563eb,
-  }) : members = Set.unmodifiable(members);
-
-  final String id;
-  final String name;
-  final Set<String> members;
-  final String note;
-  final int color;
-}
-
 final class ContextRelation {
   const ContextRelation(this.table, this.foreignKey);
   final String table;
