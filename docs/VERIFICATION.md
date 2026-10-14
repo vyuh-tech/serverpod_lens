@@ -48,6 +48,11 @@ ambiguous ownership. Serverpod generation remains responsible for model validity
 
 ## Viewer acceptance
 
+Local Chromium checks passed against both examples: no login, table selection,
+Fields search, Source display, inspector dismissal without a placeholder, browser
+collapse/expand, one manual refresh and no background polling. No uncaught browser
+errors were recorded. Mounted-widget tests separately cover themes and layouts.
+
 - All schemas → schema → tables; selecting a table preserves the current scope.
 - Every column appears in its native card with field-to-field key bindings.
 - Selected tables and neighbors are emphasized; unrelated items dim. Solid lines

@@ -63,6 +63,18 @@ and [CLI setup](serverpod_lens_cli/README.md). Lens code is [MIT licensed](LICEN
 Both projects use the same extraction and viewer packages. Their generated
 server/client code belongs to the examples, not the reusable viewer.
 
+```text
+serverpod_lens/           Flutter viewer package
+serverpod_lens_schema/    Plain Dart schema contract
+serverpod_lens_backend/   Serverpod extraction package
+serverpod_lens_cli/       Local launcher and shared tooling viewer
+examples/
+  shop/                  Serverpod server + generated client
+  large_schema/          Serverpod server + client + optional Cloud app
+```
+
+The root `pubspec.yaml` manages all packages and examples as one workspace.
+
 Requires Flutter 3.47+, Dart 3.13+, Serverpod 4.0.4 and Vyuh extension access:
 
 ```sh

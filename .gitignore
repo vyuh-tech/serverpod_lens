@@ -32,3 +32,6 @@ build/
 
 # Flutter generated plugin metadata
 .flutter-plugins-dependencies
+
+# Retained local runtime from before the monorepo move; stop before removing.
+/serverpod_lens_server/
