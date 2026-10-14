@@ -49,7 +49,9 @@ selection, effects, pan/zoom and the minimap. Moving a table changes only its vi
 
 These are the two reusable product packages; none has been published. The viewer's licensed
 Vyuh extensions require registry access. See [installation](packages/serverpod_lens/README.md)
-and [local tool setup](tool/lens/README.md). Lens code is [MIT licensed](LICENSE).
+and [local tool setup](tool/lens/README.md). Manual releases target the internal tier
+on Vyuh's registry; [publishing](docs/PUBLISHING.md) defaults to validation only.
+Lens code is [MIT licensed](LICENSE).
 
 ## Two Serverpod examples
 

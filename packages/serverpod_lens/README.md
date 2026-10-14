@@ -59,18 +59,15 @@ The reusable packages under `packages/` are the plain schema library and Flutter
 viewer. The launcher is internal tooling under `tool/lens/`. Generated Serverpod
 clients and demo applications stay unpublished.
 
-The schema package has version, README, changelog, example and MIT license files.
-`publish_to: none` remains a deliberate safeguard until an actual release is
-approved. Its release manifest must remove that field.
+Both package manifests target `https://pub.vyuh.tech` with the `internal` tier.
+The GitHub Actions **Publish internal Lens packages** workflow is manual only and
+starts in dry-run mode. It validates both packages, then publishes the schema
+before the viewer when publication is explicitly selected on `main`. It creates
+no Git tags. See [publishing](../../docs/PUBLISHING.md) for the steps.
 
-The viewer cannot currently be published to pub.dev: its Vyuh extensions use a
-custom hosted repository. Dart requires dependencies from the default hosted
-server or SDK for pub.dev publication. Git installation works with registry access;
-a custom registry is the eventual viewer distribution option unless those
-extensions become available on pub.dev.
-[Publishing rules](https://dart.dev/tools/pub/publishing).
-
-Publishing packages is separate from deploying the demo on Serverpod Cloud.
-No package publication or Cloud deployment is included in the current changes.
+No package has been published by this setup. Git installation remains available.
+The viewer requires Vyuh's licensed extension registry, so its current dependencies
+do not support pub.dev distribution. Publishing packages is separate from deploying
+the optional Serverpod Cloud demo.
 
 License: MIT for Lens code; third-party dependencies retain their own licenses.

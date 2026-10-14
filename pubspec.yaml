@@ -13,3 +13,13 @@ workspace:
   - examples/large_schema/flutter
   - examples/shop/server
   - examples/shop/client
+
+dev_dependencies:
+  melos: 8.7.0
+  yaml: ^3.1.4
+  test: ^1.31.1
+
+melos:
+  name: serverpod_lens
+  packages:
+    - packages/*

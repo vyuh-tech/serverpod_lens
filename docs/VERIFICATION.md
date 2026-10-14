@@ -9,6 +9,7 @@ was performed. The public demo still runs an earlier release.
 
 | Suite | Passed |
 | --- | ---: |
+| Manual publication policy and registry metadata | 4 |
 | Plain Dart schema, extraction and snapshot policy | 17 |
 | Internal launcher, real native subprocess and HTTP safety | 13 |
 | Large-example backend, including embedded PostgreSQL | 21 |
@@ -16,7 +17,7 @@ was performed. The public demo still runs an earlier release.
 | Reusable Flutter viewer | 84 |
 | Optional ZIP/YAML/SQL import tooling | 17 |
 | Optional connected Flutter demo | 15 |
-| **Dart/Flutter total** | **168** |
+| **Dart/Flutter total** | **172** |
 | Optional PostgreSQL parser source tests (Node) | 5 |
 
 The shared local Flutter viewer builds successfully for release web. Its clean
@@ -124,9 +125,16 @@ Older Git history still contains the removed value; no credential was rotated in
 any running/shared database. No application server, Cloud deployment or package
 publication was started by this consolidation.
 
-The standalone schema release manifest passes `dart pub publish --dry-run` with
-zero warnings. This check used a temporary copy; repository manifests still keep
-`publish_to: none`, and no package was published.
+Both product package archives pass `dart pub publish --dry-run` in a clean staged
+workspace. The only warning is Dart's unrecognized `publish_to_tier` key, handled
+with the same strict exception as CDX; extra warnings and errors fail validation.
+The staged viewer also passes analysis against freshly resolved dependencies.
+
+The manual publishing workflow targets `https://pub.vyuh.tech` with tier `internal`.
+Dry run is the default; real publication is restricted to `main`, schema first,
+then viewer, followed by exact-version and tier verification. Git access remains
+read only and publication explicitly disables tags. Other workspace packages stay
+unpublished. No release or Cloud deployment was triggered.
 
 ## Final obsolete-file cleanup
 

@@ -1,7 +1,8 @@
 name: serverpod_lens_schema
 description: Shared Serverpod database-definition reader for Serverpod Lens.
 version: 0.1.0
-publish_to: none
+publish_to: https://pub.vyuh.tech
+publish_to_tier: internal
 repository: https://github.com/vyuh-tech/serverpod_lens
 issue_tracker: https://github.com/vyuh-tech/serverpod_lens/issues
 resolution: workspace

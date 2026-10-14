@@ -1,0 +1,92 @@
+name: Publish internal Lens packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Validate packages without publishing (disable to publish)
+        type: boolean
+        required: true
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lens-internal-package-publication
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PUB_VYUH_TOKEN: ${{ secrets.PUB_VYUH_TOKEN }}
+    steps:
+      - name: Require main for publication
+        if: ${{ !inputs.dry_run && github.ref != 'refs/heads/main' }}
+        run: |
+          echo "Publish releases from main; other branches can run a dry run."
+          exit 1
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup tested Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.5'
+          cache: true
+
+      - name: Configure registry token
+        shell: bash
+        run: |
+          if [[ -z "$PUB_VYUH_TOKEN" ]]; then
+            echo "The PUB_VYUH_TOKEN organization secret is unavailable to this repository."
+            exit 1
+          fi
+          dart pub token add https://pub.vyuh.tech --env-var PUB_VYUH_TOKEN
+
+      - name: Resolve workspace and pinned Melos
+        run: flutter pub get --enforce-lockfile
+
+      - name: Analyze
+        run: dart analyze --fatal-infos
+
+      - name: Check formatting
+        run: >-
+          dart format --output=none --set-exit-if-changed
+          tool/check_publication.dart tool/publication_policy.dart tool/test
+          packages/serverpod_lens/lib packages/serverpod_lens/test
+          packages/serverpod_lens/tool packages/serverpod_lens/example
+          packages/serverpod_lens_schema/lib packages/serverpod_lens_schema/test
+          packages/serverpod_lens_schema/example
+          tool/lens/lib tool/lens/bin tool/lens/test tool/lens/viewer/lib
+          tool/lens/imports/lib tool/lens/imports/test
+
+      - name: Test publication policy
+        run: dart test tool/test/publication_policy_test.dart
+
+      - name: Test schema package
+        working-directory: packages/serverpod_lens_schema
+        run: dart test
+
+      - name: Test Flutter viewer
+        working-directory: packages/serverpod_lens
+        run: flutter test --no-pub --concurrency=1
+
+      - name: Validate both publication archives
+        run: dart run tool/check_publication.dart
+
+      - name: Publish schema first
+        if: ${{ !inputs.dry_run && github.ref == 'refs/heads/main' }}
+        run: dart run melos publish --scope=serverpod_lens_schema --no-dry-run --no-git-tag-version --yes
+
+      - name: Publish viewer
+        if: ${{ !inputs.dry_run && github.ref == 'refs/heads/main' }}
+        run: dart run melos publish --scope=serverpod_lens --no-dry-run --no-git-tag-version --yes
+
+      - name: Verify released versions and internal tier
+        if: ${{ !inputs.dry_run && github.ref == 'refs/heads/main' }}
+        run: dart run tool/check_publication.dart --verify-registry

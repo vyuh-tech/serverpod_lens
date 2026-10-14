@@ -1,4 +1,5 @@
 name: serverpod_lens_client
+publish_to: none
 description: Starting point for a Serverpod client.
 
 environment:
