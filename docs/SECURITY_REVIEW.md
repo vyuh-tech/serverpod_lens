@@ -65,3 +65,12 @@ or connecting to its database. Source indexing prunes generated folders, recogni
 Serverpod's three model filename forms and never follows link entries. Only an
 operator-selected project is compiled; the CLI is not a remote project executor.
 The optional Cloud demonstration retains Serverpod login and project scopes.
+
+## Follow-up architecture audit
+
+The subsequent source audit found an inline database credential in the tracked
+VS Code task and stale IDE paths. This finding is pending remediation; the earlier
+ignored-password checks did not cover that IDE environment configuration. See the
+[architecture audit](PLAN.md#architecture-audit--2026-10-14). No credential value is
+included in these reports. The dependency advisory result does not cover this
+configuration issue.
