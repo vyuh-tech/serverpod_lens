@@ -75,9 +75,9 @@ void main() {
     await settle(tester);
     expect(find.byKey(const ValueKey('table:public.orders')), findsNothing);
     expect(identical(canvas(tester), original), isTrue);
-    await tester.tap(find.byTooltip('Browse tables'));
+    await tester.tap(find.byTooltip('Collapse schema browser'));
     await settle(tester);
-    await tester.tap(find.byTooltip('Browse tables'));
+    await tester.tap(find.byTooltip('Expand schema browser'));
     await settle(tester);
     expect(find.text('Schemas'), findsOneWidget);
     await tester.tap(find.byTooltip('Settings'));

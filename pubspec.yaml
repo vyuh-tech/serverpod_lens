@@ -1,14 +1,15 @@
 name: _
 publish_to: none
-
 environment:
   sdk: '^3.13.0'
-
 workspace:
   - serverpod_lens
-  - serverpod_lens/example
   - serverpod_lens_schema
-  - serverpod_lens_client
-  - serverpod_lens_server
-  - serverpod_lens_flutter
-  - serverpod_lens_host_flutter
+  - serverpod_lens_backend
+  - serverpod_lens_cli
+  - serverpod_lens_cli/viewer
+  - examples/large_schema/server
+  - examples/large_schema/client
+  - examples/large_schema/flutter
+  - examples/shop/server
+  - examples/shop/client

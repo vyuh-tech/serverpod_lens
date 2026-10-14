@@ -1,0 +1,16 @@
+name: shop_server
+publish_to: none
+resolution: workspace
+environment:
+  sdk: ^3.13.0
+dependencies:
+  serverpod: 4.0.4
+  serverpod_lens_backend: ^0.1.0
+dev_dependencies:
+  serverpod_lens_cli: ^0.1.0
+  serverpod_test: 4.0.4
+  test: ^1.31.1
+  lints: ^6.0.0
+serverpod:
+  scripts:
+    lens: dart run serverpod_lens_cli:serverpod_lens --project .

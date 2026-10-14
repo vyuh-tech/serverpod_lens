@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
 import 'package:serverpod_lens_schema/serverpod_lens_schema.dart';
@@ -485,6 +486,12 @@ class _SchemaViewerState extends State<SchemaViewer> {
   Future<void> _autoLayout(SchemaLayout layout) async {
     final controller = _controller;
     if (controller == null || _loading) return;
+    if (!layout.availableFor(
+      _catalog.tables(schema: _schema).length,
+      web: kIsWeb,
+    )) {
+      return;
+    }
     setState(() => _loading = true);
     try {
       await controller.layout(
@@ -785,17 +792,7 @@ class _SchemaViewerState extends State<SchemaViewer> {
             : null,
         appBar: AppBar(
           title: Text(compact ? 'Lens' : 'Serverpod Lens'),
-          leading: IconButton(
-            tooltip: 'Browse tables',
-            icon: Icon(compact ? Icons.menu : Icons.view_sidebar_outlined),
-            onPressed: () {
-              if (compact) {
-                _scaffoldKey.currentState?.openDrawer();
-              } else {
-                _updatePanels(() => _browserVisible = !_browserVisible);
-              }
-            },
-          ),
+          automaticallyImplyLeading: false,
           actions: [
             if (widget.onImport != null)
               IconButton(
@@ -814,7 +811,23 @@ class _SchemaViewerState extends State<SchemaViewer> {
               onSelected: _autoLayout,
               itemBuilder: (_) => [
                 for (final layout in SchemaLayout.values)
-                  PopupMenuItem(value: layout, child: Text(layout.label)),
+                  PopupMenuItem(
+                    value: layout,
+                    enabled: layout.availableFor(
+                      _catalog.tables(schema: _schema).length,
+                      web: kIsWeb,
+                    ),
+                    child: Tooltip(
+                      message:
+                          layout.availableFor(
+                            _catalog.tables(schema: _schema).length,
+                            web: kIsWeb,
+                          )
+                          ? layout.label
+                          : 'Choose a schema with fewer than 100 tables',
+                      child: Text(layout.label),
+                    ),
+                  ),
               ],
               icon: const Icon(Icons.auto_awesome_mosaic_outlined),
             ),
@@ -842,6 +855,13 @@ class _SchemaViewerState extends State<SchemaViewer> {
             Expanded(
               child: Row(
                 children: [
+                  if (compact)
+                    _panelHandle(
+                      label: 'Browse tables',
+                      expanded: false,
+                      left: true,
+                      onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+                    ),
                   if (!compact) ...[
                     Offstage(
                       offstage: !_browserVisible,

@@ -32,6 +32,11 @@ enum SchemaLayout {
   const SchemaLayout(this.label);
   final String label;
 
+  /// The installed web layered engine blocks on large connected graphs.
+  /// Keep it available for smaller scopes until upstream execution is bounded.
+  bool availableFor(int count, {required bool web}) =>
+      !web || count < 100 || (this != layeredDown && this != layeredRight);
+
   Layout resolve(int count) => switch (this) {
     grid => schemaGridLayout(count),
     layeredDown => Layout.layered(gap: 100, layerGap: 160),
@@ -51,7 +56,10 @@ enum SchemaLayout {
       gap: 100,
       levelGap: 160,
     ),
-    force => Layout.force(gap: 100),
+    force => Layout.force(
+      iterations: (30000 ~/ count.clamp(1, 1000)).clamp(30, 300),
+      gap: 100,
+    ),
     circular => Layout.circular(gap: 100),
   };
 }

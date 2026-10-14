@@ -98,6 +98,7 @@ class _BenchmarkState extends State<Benchmark> {
         SchemaLayout.force,
         SchemaLayout.circular,
       ]) {
+        if (!layout.availableFor(widget.tables, web: true)) continue;
         print('BENCH layout: ${layout.label}');
         final timer = Stopwatch()..start();
         await controller.layout(layout.resolve(widget.tables));

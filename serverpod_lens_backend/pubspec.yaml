@@ -1,0 +1,16 @@
+name: serverpod_lens_backend
+description: Serverpod target schema and safe model source adapters for Lens.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+environment:
+  sdk: ^3.13.0
+dependencies:
+  serverpod: 4.0.4
+  serverpod_lens_schema: ^0.1.0
+  path: ^1.9.1
+  crypto: ^3.0.7
+  yaml: ^3.1.4
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.31.1

@@ -29,3 +29,6 @@ node_modules/
 
 # Flutter package build outputs
 build/
+
+# Flutter generated plugin metadata
+.flutter-plugins-dependencies
