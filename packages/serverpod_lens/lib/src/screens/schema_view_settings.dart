@@ -330,7 +330,7 @@ class _SchemaViewSettingsState extends State<SchemaViewSettings> {
                     'Animation speed',
                     '${speed.toStringAsFixed(2)}×',
                     speed,
-                    .25,
+                    .1,
                     3,
                     (value) => preferences.speed = value,
                     enabled: animation != SchemaAnimation.off,

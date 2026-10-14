@@ -149,7 +149,7 @@ local examples (19 and 156 tables). `tool/lens/` remains the local launcher.
 ## Consistent schema tree
 
 The updated viewer passes fatal-info analysis, formatting, release web compilation
-and all 93 viewer tests, including nine new navigation tests. These cover independent
+and all 94 viewer tests, including nine new navigation tests. These cover independent
 schema/root expansion, retained selection, search/scroll restoration, refreshed
 field matches, disabled navigation, uniform hover in both themes, narrow RTL with
 large text, and keyboard activation with expansion semantics.
@@ -159,3 +159,8 @@ and root collapse preserve the open inspector, search and table selection work,
 and no uncaught browser errors were recorded. The browser and shared row component
 own navigation state independently of the native Vyuh canvas. No Cloud deployment
 or package release is part of this UI update.
+
+Marching dashes inherit the native connector color and theme adaptation. Their
+solid base remains visible at 35% opacity beneath brighter moving strokes. A new
+regression test checks inherited color, the 0.2× default (eight-second cycle), and
+base contrast; the supported speed range includes 0.1× for slower motion.

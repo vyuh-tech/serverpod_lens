@@ -6,3 +6,5 @@
 - Shared snapshot controller, explicit advanced diagram entry and optional import asset separation.
 - Consistent schema tree with count badges, independent expansion and selection,
   shared row states in both themes, and restored search/navigation context.
+- Connection animations inherit the line color, with a visible dim base beneath
+  marching dashes and a slow default speed of 0.2×.

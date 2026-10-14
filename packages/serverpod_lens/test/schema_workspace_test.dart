@@ -531,7 +531,7 @@ void main() {
             .single
             .effect!
             .baseOpacity,
-        1,
+        .35,
       );
       await close(tester);
     },

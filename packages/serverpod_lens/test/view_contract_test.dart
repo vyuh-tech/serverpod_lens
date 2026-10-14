@@ -147,7 +147,7 @@ void main() {
     expect(prefs.connectionStyle, SchemaConnectionStyle.orthogonal);
     for (final choice in SchemaAnimation.values) {
       prefs.animation = choice;
-      for (final speed in [.25, 1.0, 3.0]) {
+      for (final speed in [.1, .2, .25, 1.0, 3.0]) {
         prefs.speed = speed;
         prefs.reverse = true;
         prefs.density = 32;
@@ -167,4 +167,19 @@ void main() {
       }
     }
   });
+
+  test(
+    'marching dashes inherit line color with a visible base and slow default',
+    () {
+      final prefs = SchemaViewPreferences();
+      expect(prefs.animation, SchemaAnimation.dashes);
+      expect(prefs.speed, .2);
+      final effect = prefs.effect!;
+      expect(effect.color, isNull);
+      expect(effect.period, const Duration(seconds: 8));
+      expect(effect.baseOpacity, .35);
+      expect(effect.opacity, greaterThan(effect.baseOpacity));
+      expect(effect.particle, const EffectParticle.dash());
+    },
+  );
 }

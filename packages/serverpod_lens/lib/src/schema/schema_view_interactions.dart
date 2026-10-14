@@ -94,7 +94,7 @@ enum SchemaConnectionStyle {
 final class SchemaViewPreferences {
   // Only incident relationships animate; idle overviews do not.
   final _animation = Observable(SchemaAnimation.dashes);
-  final _speed = Observable(1.0);
+  final _speed = Observable(.2);
   final _reverse = Observable(false);
   final _density = Observable(12);
   final _particleSizes = ObservableMap<SchemaAnimation, double>.of({
@@ -144,11 +144,9 @@ final class SchemaViewPreferences {
     final kind = animation;
     if (kind == SchemaAnimation.off) return null;
     final period = Duration(milliseconds: (1600 / speed).round());
-    const color = DiagramColor(0xff525252);
     if (kind == SchemaAnimation.pulse || kind == SchemaAnimation.blink) {
       return Effect.pulse(
         period: period,
-        color: color,
         target: EffectTarget.stroke,
         width: animationWidth,
         opacity: animationOpacity,
@@ -160,14 +158,13 @@ final class SchemaViewPreferences {
     return Effect.flow(
       period: period,
       reverse: reverse,
-      color: kind == SchemaAnimation.dashes
-          ? const DiagramColor(0xff60a5fa)
-          : color,
+      // Native effects inherit the connector color and its theme adaptation.
+      // A dim solid base leaves the brighter moving strokes readable.
       count: density,
       size: particleSize,
       width: animationWidth,
       opacity: animationOpacity,
-      baseOpacity: kind == SchemaAnimation.dashes ? 1 : .2,
+      baseOpacity: kind == SchemaAnimation.dashes ? .35 : .2,
       particle: switch (kind) {
         SchemaAnimation.dashes => const EffectParticle.dash(),
         SchemaAnimation.arrows => const EffectParticle.arrow(),
