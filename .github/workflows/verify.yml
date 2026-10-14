@@ -44,6 +44,9 @@ jobs:
         run: flutter pub get --enforce-lockfile
 
       - name: Analyze, check formatting, and run all Dart and Flutter suites
+        env:
+          # Only the managed, disposable test database uses this credential.
+          SERVERPOD_PASSWORD_database: lens-ci-${{ github.run_id }}-${{ github.run_attempt }}
         run: tool/verify.sh
 
       - name: Setup Node for the PostgreSQL parser tests

@@ -10,7 +10,7 @@ cd "$project_root"
 "$dart_bin" test tool/test
 
 for package in packages/serverpod_lens_schema tool/lens examples/large_schema/server examples/shop/server; do
-  (cd "$project_root/$package" && "$dart_bin" test)
+  (cd "$project_root/$package" && "$dart_bin" test --reporter expanded)
 done
 for package in packages/serverpod_lens tool/lens/imports examples/large_schema/flutter; do
   (cd "$project_root/$package" && "$flutter_bin" test --no-pub --concurrency=1)
