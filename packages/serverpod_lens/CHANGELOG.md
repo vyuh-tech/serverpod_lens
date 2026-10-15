@@ -1,4 +1,4 @@
-## Unreleased
+## 0.2.0 (unreleased)
 
 - Inspect enum values/properties, inherited aliases, nested containers/records and recursive objects.
 - Bind every composite foreign-key pair using native Vyuh connectors and show optional cardinality.

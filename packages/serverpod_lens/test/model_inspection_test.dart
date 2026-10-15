@@ -75,7 +75,10 @@ void main() {
         );
         await tester.tap(find.widgetWithText(Tab, 'Fields'));
         await tester.pumpAndSettle();
-        expect(find.widgetWithText(SelectableText, 'displayName'), findsOneWidget);
+        expect(
+          find.widgetWithText(SelectableText, 'displayName'),
+          findsOneWidget,
+        );
         expect(find.text('Column: display_name'), findsOneWidget);
         expect(find.text('draft'), findsOneWidget);
         expect(find.text('label: Draft entry'), findsOneWidget);
@@ -91,7 +94,10 @@ void main() {
         expect(find.text('Payload · recursive reference'), findsOneWidget);
         await tester.enterText(find.byType(TextField), 'displayName');
         await tester.pumpAndSettle();
-        expect(find.widgetWithText(SelectableText, 'displayName'), findsOneWidget);
+        expect(
+          find.widgetWithText(SelectableText, 'displayName'),
+          findsOneWidget,
+        );
         expect(find.text('draft'), findsNothing);
         expect(tester.takeException(), isNull);
       },

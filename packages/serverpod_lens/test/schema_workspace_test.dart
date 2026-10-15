@@ -23,6 +23,26 @@ Future<void> ready(WidgetTester tester) async {
   await tester.pump();
 }
 
+// Native layouts run in real isolates. Pumping fake test time cannot complete
+// their work, so wait for the real operation before settling UI animations.
+Future<void> waitForLayout(WidgetTester tester) async {
+  final elapsed = Stopwatch()..start();
+  await tester.pump();
+  while (find.byType(LinearProgressIndicator).evaluate().isNotEmpty &&
+      elapsed.elapsed < const Duration(seconds: 15)) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 20)),
+    );
+    await tester.pump();
+  }
+  expect(
+    find.byType(LinearProgressIndicator),
+    findsNothing,
+    reason: 'Native layout must complete within 15 seconds of real time',
+  );
+  await tester.pumpAndSettle();
+}
+
 void main() {
   test('native layout budgets keep large web schemas responsive', () {
     expect(SchemaLayout.grid.availableFor(1000, web: true), isTrue);
@@ -225,8 +245,7 @@ void main() {
       await tester.tap(find.byTooltip('Auto layout'));
       await tester.pumpAndSettle();
       await tester.tap(find.text(label));
-      await ready(tester);
-      await tester.pumpAndSettle();
+      await waitForLayout(tester);
       expect(controller.document.elements.map((e) => e.id).toSet(), ids);
       expect(
         controller.document.elements

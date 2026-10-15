@@ -137,7 +137,7 @@ class _SchemaViewSettingsState extends State<SchemaViewSettings> {
         contentPadding: EdgeInsets.zero,
         title: const Text('Show relationship labels'),
         subtitle: const Text(
-          'Cardinality (1 and N) and composite column mappings',
+          'Optionality, cardinality and composite column mappings',
         ),
         value: preferences.showRelationshipLabels,
         onChanged: (value) {

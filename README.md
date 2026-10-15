@@ -57,9 +57,9 @@ boundaries. The generated database target remains the source of truth.
 
 Both packages are published as **0.1.1** on
 [pub.vyuh.tech](https://pub.vyuh.tech) in the **internal** tier. Installing them
-requires registry access. This branch prepares **0.2.0** for manual publication;
-its new support is available from this checkout. See each package's README for the hosted dependency
-declaration and API examples.
+requires registry access. This checkout prepares **0.2.0** for manual publication;
+its new support is available locally. See each package's README for installation
+and API examples.
 
 | Path | Contents |
 | --- | --- |
@@ -83,8 +83,8 @@ tool/verify.sh
 
 This runs analysis, formatting checks, and the Dart/Flutter test suites. Server
 tests use managed embedded PostgreSQL. The verification workflow runs these
-checks, reproducible Serverpod generation, PostgreSQL parser tests, and public dependency advisory checks on pushes
-to `main` and pull requests.
+checks, reproducible Serverpod generation, PostgreSQL parser tests, and public
+dependency advisory checks on pushes to `main` and pull requests.
 Server tests need a test database password in the local Serverpod configuration
 or `SERVERPOD_PASSWORD_database`; CI supplies a disposable test-only value.
 

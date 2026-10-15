@@ -1,4 +1,4 @@
-## Unreleased
+## 0.2.0 (unreleased)
 
 - Add bounded authored-model enrichment without inferring database structure.
 - Add source bundles for inherited aliases, enums and reachable nested declarations.

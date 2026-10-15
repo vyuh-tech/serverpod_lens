@@ -71,13 +71,13 @@ advisories.
 
 Before deploying this support release:
 
-1. Review and merge the worktree changes.
+1. Approve the tested support changes in `main` for release.
 2. Manually publish both 0.2.0 packages, schema first.
 3. Update `tool/cloud_release.dart` to the published version and actual archive
    hashes. Its build guard rejects mismatched workspace/release versions.
 4. Build and verify the isolated Cloud release, then deploy when approved.
 
-No package publication or deployment is performed by the support worktree.
+These support changes do not publish packages or change the live demo.
 
 ## Reference
 

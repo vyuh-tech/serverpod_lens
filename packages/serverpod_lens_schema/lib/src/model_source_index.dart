@@ -93,10 +93,11 @@ final class ModelSourceBundle {
     Map<String, String> files,
   ) : paths = Map.unmodifiable(paths),
       sources = Map.unmodifiable(sources),
-      files = Map.unmodifiable(files),
-      catalog = SchemaModelCatalog.fromSources(files.values);
+      files = Map.unmodifiable(files);
   final Map<String, String> paths;
   final Map<String, String> sources;
   final Map<String, String> files;
-  final SchemaModelCatalog catalog;
+  late final SchemaModelCatalog catalog = SchemaModelCatalog.fromSources(
+    files.values,
+  );
 }

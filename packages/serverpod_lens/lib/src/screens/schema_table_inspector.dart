@@ -51,17 +51,9 @@ class _SchemaTableInspectorState extends State<SchemaTableInspector> {
   void _readDefinition() {
     _metadata = SchemaTableMetadata(widget.table);
     _definition = _metadata.definition;
-    _resolved = null;
-    try {
-      final value = widget.table.definition;
-      if (value != null) {
-        final decoded = jsonDecode(value);
-        if (decoded is Map<String, dynamic>) _definition = decoded;
-        _resolved = const JsonEncoder.withIndent('  ').convert(decoded);
-      }
-    } catch (_) {
-      /* Optional metadata must not block the inspector. */
-    }
+    _resolved = widget.table.definition == null || _definition.isEmpty
+        ? null
+        : const JsonEncoder.withIndent('  ').convert(_definition);
   }
 
   @override
@@ -569,7 +561,18 @@ class _DeclaredModel extends StatelessWidget {
       );
     }
     if (value['kind'] == 'enum') {
-      final values = value['values'] as List? ?? [];
+      final rawValues = value['values'];
+      final values = rawValues is List
+          ? rawValues
+                .where(
+                  (entry) =>
+                      entry is String ||
+                      (entry is Map &&
+                          entry.length == 1 &&
+                          entry.keys.single is String),
+                )
+                .toList()
+          : const [];
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Column(
@@ -610,7 +613,8 @@ class _DeclaredModel extends StatelessWidget {
         ),
       );
     }
-    final fields = value['fields'] as Map? ?? {};
+    final rawFields = value['fields'];
+    final fields = rawFields is Map ? rawFields : const {};
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
