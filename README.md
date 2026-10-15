@@ -40,6 +40,8 @@ The launcher runs from this checkout. See [local tool setup](tool/lens/README.md
 - Select a table to highlight its relationships and inspect its fields, keys,
   indexes, and model source.
 - Follow incoming and outgoing relationships from the inspector.
+- Use **1 hop / 2 hops** to expand a selected table's connections, then
+  **Bring together** to arrange those tables in view.
 - Choose a layout, move tables, and adjust the minimap, connections, and theme.
 
 Moving tables changes the view. Model definitions and database records remain

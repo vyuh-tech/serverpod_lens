@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:serverpod_lens_schema/serverpod_lens_schema.dart';
 import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
 import 'package:vyuh_diagram_core/extension_api.dart' show DiagramCamera;
@@ -12,7 +13,9 @@ import '../schema/schema_catalog.dart';
 import '../schema/schema_canvas.dart';
 import '../schema/schema_view_store.dart';
 import '../schema/schema_view_interactions.dart';
+import '../schema/schema_neighborhood.dart';
 import 'schema_browser.dart';
+import 'schema_exploration_bar.dart';
 import 'schema_table_inspector.dart';
 import 'schema_view_settings.dart';
 
@@ -528,6 +531,45 @@ class _SchemaViewerState extends State<SchemaViewer> {
     _queueSave();
   }
 
+  Future<void> _arrangeConnections() async {
+    final controller = _controller;
+    final id = _inspected.value;
+    if (controller == null || id == null || _loading) return;
+    final neighborhood = schemaNeighborhood(controller.document, {
+      id,
+    }, hops: _preferences.relationshipHops);
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      // Explicit native node scoping preserves all other table positions and
+      // schema identities. No persistent diagram group is created.
+      await controller.layout(
+        SchemaLayout.force.resolve(neighborhood.nodes.length),
+        nodeIds: neighborhood.nodes,
+      );
+      if (!mounted || !identical(controller, _controller)) return;
+      setState(() => _loading = false);
+      if (_inspected.value == id) {
+        final bounds = DiagramRect.union([
+          for (final node in neighborhood.nodes)
+            if (controller.scene.elementById(node) case final shape?)
+              shape.bounds,
+        ]);
+        await controller.view.show(ViewTarget.rectangle(bounds, padding: 80));
+      }
+      _queueSave();
+    } catch (error) {
+      if (mounted && identical(controller, _controller)) {
+        setState(() {
+          _error = error;
+          _loading = false;
+        });
+      }
+    }
+  }
+
   Future<void> _settings() async {
     final controller = _controller;
     if (controller == null) return;
@@ -536,7 +578,18 @@ class _SchemaViewerState extends State<SchemaViewer> {
       builder: (_) =>
           SchemaViewSettings(controller: controller, preferences: _preferences),
     );
+    if (mounted) setState(() {});
   }
+
+  Widget _explorationBar({VoidCallback? onArrange}) => Observer(
+    builder: (_) => SchemaExplorationBar(
+      key: const ValueKey('relationship-exploration'),
+      hops: _preferences.relationshipHops,
+      enabled: !_loading,
+      onHopsChanged: (hops) => _preferences.relationshipHops = hops,
+      onArrange: onArrange ?? () => unawaited(_arrangeConnections()),
+    ),
+  );
 
   Widget _inspector(String? id, VoidCallback onClose) {
     final table = _context.tables[id];
@@ -571,10 +624,29 @@ class _SchemaViewerState extends State<SchemaViewer> {
       builder: (sheet) => SafeArea(
         child: SizedBox(
           height: MediaQuery.sizeOf(sheet).height * .8,
-          child: ValueListenableBuilder<String?>(
-            valueListenable: _inspected,
-            builder: (_, id, _) =>
-                _inspector(id, () => Navigator.of(sheet).pop()),
+          child: StatefulBuilder(
+            builder: (context, setSheetState) => Column(
+              children: [
+                Expanded(
+                  child: ValueListenableBuilder<String?>(
+                    valueListenable: _inspected,
+                    builder: (_, id, _) =>
+                        _inspector(id, () => Navigator.of(sheet).pop()),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: _explorationBar(
+                    onArrange: () async {
+                      final pending = _arrangeConnections();
+                      setSheetState(() {});
+                      await pending;
+                      if (context.mounted) setSheetState(() {});
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -736,7 +808,34 @@ class _SchemaViewerState extends State<SchemaViewer> {
                   ],
                   Expanded(
                     key: const ValueKey('schema-content'),
-                    child: content,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        content,
+                        ValueListenableBuilder<String?>(
+                          valueListenable: _inspected,
+                          builder: (_, id, _) => id == null
+                              ? const SizedBox.shrink()
+                              : Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: LayoutBuilder(
+                                    builder: (_, constraints) => SafeArea(
+                                      minimum: EdgeInsets.fromLTRB(
+                                        16,
+                                        16,
+                                        16,
+                                        _preferences.minimap &&
+                                                constraints.maxWidth < 850
+                                            ? 168
+                                            : 16,
+                                      ),
+                                      child: _explorationBar(),
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      ],
+                    ),
                   ),
                   if (desktop) ...[
                     if (_inspected.value != null)

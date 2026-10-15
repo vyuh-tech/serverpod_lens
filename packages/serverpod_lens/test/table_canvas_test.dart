@@ -90,9 +90,10 @@ void main() {
       expect(animated().size, 6);
       expect(animated().width, 3);
       expect(animated().opacity, .65);
+      final originalPeriod = animated().period.inMicroseconds;
       preferences.speed = 2;
       await tester.pump();
-      expect(animated().period, const Duration(milliseconds: 800));
+      expect(animated().period.inMicroseconds, closeTo(originalPeriod / 10, 1));
       preferences.animation = SchemaAnimation.blink;
       await tester.pump();
       expect(animated().kind, EffectKind.pulse);

@@ -52,7 +52,12 @@ stays off so text and lines remain sharp after panning or zooming. At 100 tables
 native adaptive detail omits unreadable text at overview zoom; selecting a table
 restores its full detail. Selection keeps the table and its direct neighbors
 readable while native effects dim unrelated tables and connections at every
-schema size.
+schema size. A floating bar expands that neighborhood from one hop to two;
+"Bring together" scopes Vyuh's native force layout to those tables and fits their
+bounds. It creates no groups and preserves unrelated table positions. Native
+flow durations scale with resolved route length for consistent movement speed,
+including after dragging or layout. Particle counts stay within the user's
+density setting.
 
 ## Local host
 

@@ -1,5 +1,7 @@
 ## 0.2.0 (unreleased)
 
+- Normalize native flow speed by route length, including after table movement.
+- Add floating one/two-hop exploration and native layout for connected tables.
 - Restore dimming on large web schemas and keep text sharp after pan/zoom.
 - Inspect enum values/properties, inherited aliases, nested containers/records and recursive objects.
 - Bind every composite foreign-key pair using native Vyuh connectors and show optional cardinality.

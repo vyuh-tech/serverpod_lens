@@ -7,6 +7,8 @@ import 'package:vyuh_diagram_extension_connectors/vyuh_diagram_extension_connect
 import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
 import 'package:vyuh_diagram_flutter/extension_api.dart';
 
+import 'schema_neighborhood.dart';
+
 /// Enables native selection, node movement and effects without editor chrome.
 const schemaViewInteractions = DiagramFlutterExtension(
   id: 'lens.navigation',
@@ -92,11 +94,18 @@ enum SchemaConnectionStyle {
 
 /// View preferences survive opening another project during this session.
 final class SchemaViewPreferences {
-  // Only incident relationships animate; idle overviews do not.
+  // Only the selected neighborhood animates; idle overviews do not.
   final _animation = Observable(SchemaAnimation.dashes);
   final _speed = Observable(.2);
   final _reverse = Observable(false);
   final _density = Observable(12);
+  final _relationshipHops = Observable(1);
+  int get relationshipHops => _relationshipHops.value;
+  set relationshipHops(int value) {
+    RangeError.checkValueInInterval(value, 1, 2, 'relationshipHops');
+    runInAction(() => _relationshipHops.value = value);
+  }
+
   final _particleSizes = ObservableMap<SchemaAnimation, double>.of({
     SchemaAnimation.particles: 2,
     SchemaAnimation.dashes: 1,
@@ -398,17 +407,23 @@ ReactionDisposer watchSchemaSelection(
   bool dimUnrelated = true,
 }) {
   final settings = preferences ?? SchemaViewPreferences();
-  (String, Effect?)? lastPresentation;
-  String? emphasizedRoots;
+  Object? lastPresentation;
+  Object? emphasizedRoots;
   final fades = <String, EffectHandle>{};
   final animations = <String, EffectHandle>{};
   final touchingDirections = <String, bool>{};
   var generation = 0;
   late final ReactionDisposer disposeReaction;
   disposeReaction = reaction(
-    (_) => (controller.selection, settings.effect, controller.isAttached),
+    (_) => (
+      controller.selection,
+      settings.effect,
+      controller.isAttached,
+      settings.relationshipHops,
+      controller.scene,
+    ),
     (state) {
-      final (selection, effect, attached) = state;
+      final (selection, effect, attached, hops, scene) = state;
       final current = ++generation;
       if (!attached) return;
       scheduleMicrotask(() {
@@ -429,7 +444,8 @@ ReactionDisposer watchSchemaSelection(
             .toSet();
         final ordered = roots.toList()..sort();
         final signature = ordered.join('\u0000');
-        final presentation = (signature, effect);
+        final emphasis = (signature, hops, controller.document);
+        final presentation = (emphasis, effect, scene);
         if (lastPresentation == presentation &&
             (roots.isEmpty || controller.effects.playing.isNotEmpty)) {
           return;
@@ -440,28 +456,19 @@ ReactionDisposer watchSchemaSelection(
           fades.clear();
           animations.clear();
           touchingDirections.clear();
-          emphasizedRoots = signature;
+          emphasizedRoots = emphasis;
           return;
         }
-        if (emphasizedRoots != signature ||
-            controller.effects.playing.isEmpty) {
-          emphasizedRoots = signature;
+        if (emphasizedRoots != emphasis || controller.effects.playing.isEmpty) {
+          emphasizedRoots = emphasis;
           touchingDirections.clear();
-          final related = {...roots};
-          for (final edge
-              in controller.document.elements.whereType<ConnectorElement>()) {
-            if (!edge.isVisible) continue;
-            final start = edge.start;
-            final end = edge.end;
-            final fromRoot =
-                start is BoundEndpoint && roots.contains(start.elementId);
-            final toRoot =
-                end is BoundEndpoint && roots.contains(end.elementId);
-            if (!fromRoot && !toRoot) continue;
-            touchingDirections[edge.id] = toRoot && !fromRoot;
-            if (start is BoundEndpoint) related.add(start.elementId);
-            if (end is BoundEndpoint) related.add(end.elementId);
-          }
+          final neighborhood = schemaNeighborhood(
+            controller.document,
+            roots,
+            hops: hops,
+          );
+          final related = neighborhood.nodes;
+          touchingDirections.addAll(neighborhood.connections);
           // Retain static emphasis on unchanged elements instead of replaying
           // hundreds of fades on every selection or animation setting change.
           for (final element
@@ -496,8 +503,29 @@ ReactionDisposer watchSchemaSelection(
         }
         if (effect == null || disableAnimations) return;
         for (final entry in touchingDirections.entries) {
+          final route = scene.elementById(entry.key);
+          if (route is! ResolvedConnector) continue;
+          final length = route.pathGeometry.length;
+          if (length <= 0 || !length.isFinite) {
+            animations.remove(entry.key)?.stop();
+            continue;
+          }
+          // Vyuh's flow period is a complete trip along the route. Scale that
+          // duration by native arc length so long edges travel at the same
+          // world-space speed as short ones (20 units/s at the default speed).
+          final flow = effect.kind == EffectKind.flow;
           final next = effect.copyWith(
             reverse: entry.value ? !effect.reverse : effect.reverse,
+            period: flow
+                ? Duration(
+                    microseconds: (effect.period.inMicroseconds * length / 160)
+                        .round()
+                        .clamp(1, 9_007_199_254_740_991),
+                  )
+                : effect.period,
+            count: flow
+                ? (effect.count * length / 400).round().clamp(1, effect.count)
+                : effect.count,
           );
           final handle = animations[entry.key];
           // Native updates preserve the running timeline and cached static paint.

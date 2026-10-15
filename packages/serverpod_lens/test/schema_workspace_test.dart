@@ -189,6 +189,7 @@ void main() {
         (handle) => handle.effect?.kind == EffectKind.flow,
       );
       final document = controller.document;
+      final originalPeriod = flow.effect!.period.inMicroseconds;
       await tester.tap(find.byTooltip('Settings'));
       await ready(tester);
       await tester.tap(find.text('Animation').last);
@@ -209,7 +210,10 @@ void main() {
         fades,
       );
       expect(flow.isPlaying, isTrue);
-      expect(flow.effect!.period.inMilliseconds, (1600 / 1.5).round());
+      expect(
+        flow.effect!.period.inMicroseconds,
+        closeTo(originalPeriod * (1600 / 1.5).round() / 8000, 1),
+      );
       tester
           .widget<DropdownButtonFormField<SchemaAnimation>>(
             find.byType(DropdownButtonFormField<SchemaAnimation>),

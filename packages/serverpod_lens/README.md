@@ -70,6 +70,12 @@ authentication and any network requests.
 highlighting, inspectors, layouts, a minimap, and view preferences. Dragging
 tables changes their displayed positions only.
 
+Select a table to reveal the floating relationship controls. **1 hop** highlights
+direct connections; **2 hops** includes the next set of connected tables.
+**Bring together** uses Vyuh's native layout to arrange that neighborhood and fit
+it in view. Other table positions stay unchanged, and no groups are created.
+Flow animations travel at the same speed along short and long connections.
+
 ## Host integration
 
 - `sourcePaths` maps qualified table names to model paths.
