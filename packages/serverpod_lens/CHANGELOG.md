@@ -1,4 +1,4 @@
-## 0.2.0 (unreleased)
+## 0.2.0
 
 - Restore saved layouts containing self-referencing tables without moving locked connections.
 - Normalize native flow speed by route length, including after table movement.

@@ -17,9 +17,7 @@ Relationship labels show optionality and whether a reference allows one or many
 rows.
 
 The [support matrix](https://github.com/vyuh-tech/serverpod_lens/blob/main/docs/SERVERPOD_SUPPORT.md)
-lists the verified features and scope. These additions are prepared for **0.2.0**;
-use this checkout until that version is published. The installation below uses
-the currently published **0.1.1**.
+lists the verified features and scope for **0.2.0**.
 
 ## Install
 
@@ -36,7 +34,7 @@ Add the published package to your application's `pubspec.yaml`:
 dependencies:
   serverpod_lens:
     hosted: https://pub.vyuh.tech
-    version: ^0.1.1
+    version: ^0.2.0
 
 dependency_overrides:
   base_menu: 0.2.0

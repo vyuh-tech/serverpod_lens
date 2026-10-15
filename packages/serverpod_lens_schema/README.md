@@ -17,9 +17,7 @@ objects. The generated database definition decides which tables and columns
 exist. Model sources add the details needed to understand them.
 
 The [support matrix](https://github.com/vyuh-tech/serverpod_lens/blob/main/docs/SERVERPOD_SUPPORT.md)
-lists the verified features and scope. These additions are prepared for **0.2.0**;
-use this checkout until that version is published. The installation below uses
-the currently published **0.1.1**.
+lists the verified features and scope for **0.2.0**.
 
 ## Install
 
@@ -33,7 +31,7 @@ dart pub token add https://pub.vyuh.tech
 dependencies:
   serverpod_lens_schema:
     hosted: https://pub.vyuh.tech
-    version: ^0.1.1
+    version: ^0.2.0
 ```
 
 Run `dart pub get`. The package is published with the `internal` tier.
@@ -103,8 +101,6 @@ LensSchemaSnapshot readProject(
   );
 }
 ```
-
-This source-bundle API is available in the prepared **0.2.0** release.
 
 The host supplies `generatedTables` from its generated Serverpod protocol. For
 compiled deployments, retain the authored table, parent, enum, and embedded-model
