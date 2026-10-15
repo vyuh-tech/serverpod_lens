@@ -8,8 +8,8 @@ and indexes, follow foreign keys, and view the model source.
 [Open the Cloud demo](https://serverpod-lens.serverpod.space/).
 Sign in with username `test` and password `test123!`.
 
-The large example contains 156 tables and uses Serverpod authentication.
-
+The Cloud demo explores a fictional university campus with 156 tables and uses
+Serverpod authentication.
 ![Serverpod Lens schema explorer](docs/schema-map.png)
 
 ## Run locally

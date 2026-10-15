@@ -1,614 +1,33 @@
 BEGIN;
 
 --
--- ACTION DROP TABLE
---
-DROP TABLE "sso_users" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_user_sessions" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_user_roles" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_user_product_site_mappings" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_user_preferences" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_user_password_history" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_standard_reasons" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_sites" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_security_policies" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_saved_views" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_roles" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_role_permissions" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_role_dashboards" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_report_templates" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_report_exports" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_products" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_product_site_mappings" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_product_settings" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_password_reset_requests" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_notifications" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_login_events" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_login_challenges" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_designations" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_departments" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_department_types" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_dashboard_configs" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_company_site_assignments" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_companies" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_ad_connections" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "sso_account_unlock_requests" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "public_workflow_user_tasks" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "public_workflow_instances" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "public_workflow_events" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "public_public" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "public_entity_workflow_tasks" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "public_entity_workflow_instances" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "public_entity_lifecycle_configurations" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "public_entity_drafts_versions" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "public_entity_drafts_audit" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "public_e_signatures" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_workflows" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_workflow_instances" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_workflow_events" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_work_items" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_user_roles" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_user_groups" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_user_group_members" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_unit_of_measures" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_tooling_types" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_tooling_product_qualifications" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_saved_views" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_roles" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_role_permissions" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_role_dashboards" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_role_categories" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_resource_usages" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_resource_states" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_resource_policies" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_resource_flags" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_resource_flag_types" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_resource_activity_daily_rollups" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_report_templates" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_punch_sets" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_products" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_product_cleaning_requirements" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_problems" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_problem_types" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_preset_schedules" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_preset_roles" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_preset_role_categories" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_preset_policies" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_preset_log_templates" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_preset_industries" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_preset_equipment_categories" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_preset_equipment" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_preset_dashboards" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_preset_checklists" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_preset_areas" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_preset_area_categories" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_pd_usage_ledger" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_pd_operations" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_pd_module_config" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_pd_component_reservations" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_pd_assembly_members" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_pd_assemblies" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_pd_allocations" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_pd_allocation_lines" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_pd_allocation_cursors" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_operations" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_onboarding_status" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_notifications_archive" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_notifications" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_notification_group_states" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_log_usages" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_log_templates" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_log_report_generations" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_holiday_entries" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_holiday_calendars" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_external_integrations" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_events" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_event_reactor_state" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_equipments" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_equipment_user_groups" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_equipment_types" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_equipment_parts" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_equipment_categories" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_dashboard_configs" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_cleaning_types" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_checklist_usages" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_checklist_usage_sets" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_checklist_usage_instructions" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_checklist_templates" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_campaigns" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_business_associates" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_batches" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_areas" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_area_user_groups" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_area_equipment" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_area_categories" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_area_adjacency" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_activity_artifacts" CASCADE;
-
---
--- ACTION DROP TABLE
---
-DROP TABLE "elog_activities" CASCADE;
+-- Function: gen_random_uuid_v7()
+-- Source: https://gist.github.com/kjmph/5bd772b2c2df145aa645b837da7eca74
+-- License: MIT (copyright notice included on the generator source code).
+--
+create or replace function gen_random_uuid_v7()
+returns uuid
+as $$
+begin
+  -- use random v4 uuid as starting point (which has the same variant we need)
+  -- then overlay timestamp
+  -- then set version 7 by flipping the 2 and 1 bit in the version 4 string
+  return encode(
+    set_bit(
+      set_bit(
+        overlay(uuid_send(gen_random_uuid())
+                placing substring(int8send(floor(extract(epoch from clock_timestamp()) * 1000)::bigint) from 3)
+                from 1 for 6
+        ),
+        52, 1
+      ),
+      53, 1
+    ),
+    'hex')::uuid;
+end
+$$
+language plpgsql
+volatile;
 
 --
 -- ACTION CREATE TABLE
@@ -2276,6 +1695,525 @@ CREATE TABLE "campus_withdrawals" (
 
 -- Indexes
 CREATE UNIQUE INDEX "campus_withdrawals_u0" ON "campus_withdrawals" USING btree ("enrolmentId");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_cloud_storage" (
+    "id" bigserial PRIMARY KEY,
+    "storageId" text NOT NULL,
+    "path" text NOT NULL,
+    "addedTime" timestamp without time zone NOT NULL,
+    "expiration" timestamp without time zone,
+    "byteData" bytea NOT NULL,
+    "verified" boolean NOT NULL,
+    "contentType" text,
+    "cacheControl" text,
+    "contentDisposition" text,
+    "contentEncoding" text,
+    "customMetadata" text
+);
+
+-- Indexes
+CREATE UNIQUE INDEX "serverpod_cloud_storage_path_idx" ON "serverpod_cloud_storage" USING btree ("storageId", "path");
+CREATE INDEX "serverpod_cloud_storage_expiration" ON "serverpod_cloud_storage" USING btree ("expiration");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_cloud_storage_direct_download" (
+    "id" bigserial PRIMARY KEY,
+    "storageId" text NOT NULL,
+    "path" text NOT NULL,
+    "expiration" timestamp without time zone NOT NULL,
+    "authKey" text NOT NULL,
+    "downloadFileName" text,
+    "contentType" text
+);
+
+-- Indexes
+CREATE UNIQUE INDEX "serverpod_cloud_storage_direct_download_auth_key" ON "serverpod_cloud_storage_direct_download" USING btree ("authKey");
+CREATE INDEX "serverpod_cloud_storage_direct_download_expiration" ON "serverpod_cloud_storage_direct_download" USING btree ("expiration");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_cloud_storage_direct_upload" (
+    "id" bigserial PRIMARY KEY,
+    "storageId" text NOT NULL,
+    "path" text NOT NULL,
+    "expiration" timestamp without time zone NOT NULL,
+    "authKey" text NOT NULL,
+    "maxFileSize" bigint NOT NULL DEFAULT 10485760,
+    "contentLength" bigint,
+    "preventOverwrite" boolean NOT NULL DEFAULT false,
+    "contentType" text,
+    "cacheControl" text,
+    "contentDisposition" text,
+    "contentEncoding" text,
+    "customMetadata" text
+);
+
+-- Indexes
+CREATE UNIQUE INDEX "serverpod_cloud_storage_direct_upload_storage_path" ON "serverpod_cloud_storage_direct_upload" USING btree ("storageId", "path");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_future_call" (
+    "id" bigserial PRIMARY KEY,
+    "name" text NOT NULL,
+    "time" timestamp without time zone NOT NULL,
+    "serializedObject" text,
+    "serverId" text NOT NULL,
+    "identifier" text,
+    "scheduling" json
+);
+
+-- Indexes
+CREATE INDEX "serverpod_future_call_time_idx" ON "serverpod_future_call" USING btree ("time");
+CREATE INDEX "serverpod_future_call_serverId_idx" ON "serverpod_future_call" USING btree ("serverId");
+CREATE INDEX "serverpod_future_call_identifier_idx" ON "serverpod_future_call" USING btree ("identifier");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_future_call_claim" (
+    "id" bigserial PRIMARY KEY,
+    "futureCallId" bigint,
+    "lastHeartbeatTime" timestamp without time zone NOT NULL
+);
+
+-- Indexes
+CREATE UNIQUE INDEX "future_call_unique_idx" ON "serverpod_future_call_claim" USING btree ("futureCallId");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_health_connection_info" (
+    "id" bigserial PRIMARY KEY,
+    "serverId" text NOT NULL,
+    "timestamp" timestamp without time zone NOT NULL,
+    "active" bigint NOT NULL,
+    "closing" bigint NOT NULL,
+    "idle" bigint NOT NULL,
+    "granularity" bigint NOT NULL
+);
+
+-- Indexes
+CREATE UNIQUE INDEX "serverpod_health_connection_info_timestamp_idx" ON "serverpod_health_connection_info" USING btree ("timestamp", "serverId", "granularity");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_health_metric" (
+    "id" bigserial PRIMARY KEY,
+    "name" text NOT NULL,
+    "serverId" text NOT NULL,
+    "timestamp" timestamp without time zone NOT NULL,
+    "isHealthy" boolean NOT NULL,
+    "value" double precision NOT NULL,
+    "granularity" bigint NOT NULL
+);
+
+-- Indexes
+CREATE UNIQUE INDEX "serverpod_health_metric_timestamp_idx" ON "serverpod_health_metric" USING btree ("timestamp", "serverId", "name", "granularity");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_log" (
+    "id" bigserial PRIMARY KEY,
+    "sessionLogId" bigint NOT NULL,
+    "messageId" bigint,
+    "reference" text,
+    "serverId" text NOT NULL,
+    "time" timestamp without time zone NOT NULL,
+    "logLevel" bigint NOT NULL,
+    "message" text NOT NULL,
+    "error" text,
+    "stackTrace" text,
+    "order" bigint NOT NULL
+);
+
+-- Indexes
+CREATE INDEX "serverpod_log_sessionLogId_idx" ON "serverpod_log" USING btree ("sessionLogId", "order");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_message_log" (
+    "id" bigserial PRIMARY KEY,
+    "sessionLogId" bigint NOT NULL,
+    "serverId" text NOT NULL,
+    "messageId" bigint NOT NULL,
+    "endpoint" text NOT NULL,
+    "messageName" text NOT NULL,
+    "duration" double precision NOT NULL,
+    "error" text,
+    "stackTrace" text,
+    "slow" boolean NOT NULL,
+    "order" bigint NOT NULL
+);
+
+-- Indexes
+CREATE INDEX "serverpod_message_log_sessionLogId_idx" ON "serverpod_message_log" USING btree ("sessionLogId", "order");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_method" (
+    "id" bigserial PRIMARY KEY,
+    "endpoint" text NOT NULL,
+    "method" text NOT NULL
+);
+
+-- Indexes
+CREATE UNIQUE INDEX "serverpod_method_endpoint_method_idx" ON "serverpod_method" USING btree ("endpoint", "method");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_migrations" (
+    "id" bigserial PRIMARY KEY,
+    "module" text NOT NULL,
+    "version" text NOT NULL,
+    "timestamp" timestamp without time zone
+);
+
+-- Indexes
+CREATE UNIQUE INDEX "serverpod_migrations_ids" ON "serverpod_migrations" USING btree ("module");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_query_log" (
+    "id" bigserial PRIMARY KEY,
+    "serverId" text NOT NULL,
+    "sessionLogId" bigint NOT NULL,
+    "messageId" bigint,
+    "query" text NOT NULL,
+    "duration" double precision NOT NULL,
+    "numRows" bigint,
+    "error" text,
+    "stackTrace" text,
+    "slow" boolean NOT NULL,
+    "order" bigint NOT NULL
+);
+
+-- Indexes
+CREATE INDEX "serverpod_query_log_sessionLogId_idx" ON "serverpod_query_log" USING btree ("sessionLogId", "order");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_readwrite_test" (
+    "id" bigserial PRIMARY KEY,
+    "number" bigint NOT NULL
+);
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_runtime_settings" (
+    "id" bigserial PRIMARY KEY,
+    "logSettings" json NOT NULL,
+    "logSettingsOverrides" json NOT NULL,
+    "logServiceCalls" boolean NOT NULL,
+    "logMalformedCalls" boolean NOT NULL
+);
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_session_log" (
+    "id" bigserial PRIMARY KEY,
+    "serverId" text NOT NULL,
+    "time" timestamp without time zone NOT NULL,
+    "module" text,
+    "endpoint" text,
+    "method" text,
+    "duration" double precision,
+    "numQueries" bigint,
+    "slow" boolean,
+    "error" text,
+    "stackTrace" text,
+    "authenticatedUserId" bigint,
+    "userId" text,
+    "isOpen" boolean,
+    "touched" timestamp without time zone NOT NULL
+);
+
+-- Indexes
+CREATE INDEX "serverpod_session_log_serverid_idx" ON "serverpod_session_log" USING btree ("serverId");
+CREATE INDEX "serverpod_session_log_time_idx" ON "serverpod_session_log" USING btree ("time");
+CREATE INDEX "serverpod_session_log_touched_idx" ON "serverpod_session_log" USING btree ("touched");
+CREATE INDEX "serverpod_session_log_isopen_idx" ON "serverpod_session_log" USING btree ("isOpen");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_auth_idp_anonymous_account" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "authUserId" uuid NOT NULL,
+    "createdAt" timestamp without time zone NOT NULL
+);
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_auth_idp_apple_account" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "userIdentifier" text NOT NULL,
+    "refreshToken" text NOT NULL,
+    "refreshTokenRequestedWithBundleIdentifier" boolean NOT NULL,
+    "lastRefreshedAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "authUserId" uuid NOT NULL,
+    "createdAt" timestamp without time zone NOT NULL,
+    "email" text,
+    "isEmailVerified" boolean,
+    "isPrivateEmail" boolean,
+    "firstName" text,
+    "lastName" text
+);
+
+-- Indexes
+CREATE UNIQUE INDEX "serverpod_auth_apple_account_identifier" ON "serverpod_auth_idp_apple_account" USING btree ("userIdentifier");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_auth_idp_email_account" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "authUserId" uuid NOT NULL,
+    "createdAt" timestamp without time zone NOT NULL,
+    "email" text NOT NULL,
+    "passwordHash" text NOT NULL
+);
+
+-- Indexes
+CREATE UNIQUE INDEX "serverpod_auth_idp_email_account_email" ON "serverpod_auth_idp_email_account" USING btree ("email");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_auth_idp_email_account_password_reset_request" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "emailAccountId" uuid NOT NULL,
+    "createdAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "challengeId" uuid NOT NULL,
+    "setPasswordChallengeId" uuid
+);
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_auth_idp_email_account_request" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "createdAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "email" text NOT NULL,
+    "challengeId" uuid NOT NULL,
+    "createAccountChallengeId" uuid
+);
+
+-- Indexes
+CREATE UNIQUE INDEX "serverpod_auth_idp_email_account_request_email" ON "serverpod_auth_idp_email_account_request" USING btree ("email");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_auth_idp_facebook_account" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "authUserId" uuid NOT NULL,
+    "createdAt" timestamp without time zone NOT NULL,
+    "userIdentifier" text NOT NULL,
+    "email" text,
+    "fullName" text,
+    "firstName" text,
+    "lastName" text
+);
+
+-- Indexes
+CREATE UNIQUE INDEX "serverpod_auth_facebook_account_user_identifier" ON "serverpod_auth_idp_facebook_account" USING btree ("userIdentifier");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_auth_idp_firebase_account" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "authUserId" uuid NOT NULL,
+    "created" timestamp without time zone NOT NULL,
+    "email" text,
+    "phone" text,
+    "userIdentifier" text NOT NULL
+);
+
+-- Indexes
+CREATE UNIQUE INDEX "serverpod_auth_firebase_account_user_identifier" ON "serverpod_auth_idp_firebase_account" USING btree ("userIdentifier");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_auth_idp_github_account" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "authUserId" uuid NOT NULL,
+    "userIdentifier" text NOT NULL,
+    "email" text,
+    "created" timestamp without time zone NOT NULL
+);
+
+-- Indexes
+CREATE UNIQUE INDEX "serverpod_auth_github_account_user_identifier" ON "serverpod_auth_idp_github_account" USING btree ("userIdentifier");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_auth_idp_google_account" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "authUserId" uuid NOT NULL,
+    "created" timestamp without time zone NOT NULL,
+    "email" text NOT NULL,
+    "userIdentifier" text NOT NULL
+);
+
+-- Indexes
+CREATE UNIQUE INDEX "serverpod_auth_google_account_user_identifier" ON "serverpod_auth_idp_google_account" USING btree ("userIdentifier");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_auth_idp_microsoft_account" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "authUserId" uuid NOT NULL,
+    "userIdentifier" text NOT NULL,
+    "email" text,
+    "created" timestamp without time zone NOT NULL
+);
+
+-- Indexes
+CREATE UNIQUE INDEX "serverpod_auth_microsoft_account_user_identifier" ON "serverpod_auth_idp_microsoft_account" USING btree ("userIdentifier");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_auth_idp_passkey_account" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "authUserId" uuid NOT NULL,
+    "createdAt" timestamp without time zone NOT NULL,
+    "keyId" bytea NOT NULL,
+    "keyIdBase64" text NOT NULL,
+    "clientDataJSON" bytea NOT NULL,
+    "attestationObject" bytea NOT NULL,
+    "originalChallenge" bytea NOT NULL
+);
+
+-- Indexes
+CREATE UNIQUE INDEX "serverpod_auth_idp_passkey_account_key_id_base64" ON "serverpod_auth_idp_passkey_account" USING btree ("keyIdBase64");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_auth_idp_passkey_challenge" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "createdAt" timestamp without time zone NOT NULL,
+    "challenge" bytea NOT NULL
+);
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_auth_idp_rate_limited_request_attempt" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "domain" text NOT NULL,
+    "source" text NOT NULL,
+    "key" text NOT NULL,
+    "ipAddress" text,
+    "attemptedAt" timestamp without time zone NOT NULL,
+    "extraData" json
+);
+
+-- Indexes
+CREATE INDEX "serverpod_auth_idp_rate_limited_request_attempt_composite" ON "serverpod_auth_idp_rate_limited_request_attempt" USING btree ("domain", "source", "key", "attemptedAt");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_auth_idp_secret_challenge" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "challengeCodeHash" text NOT NULL
+);
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_auth_core_jwt_refresh_token" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "authUserId" uuid NOT NULL,
+    "scopeNames" json NOT NULL,
+    "extraClaims" text,
+    "method" text NOT NULL,
+    "fixedSecret" bytea NOT NULL,
+    "rotatingSecretHash" text NOT NULL,
+    "lastUpdatedAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes
+CREATE INDEX "serverpod_auth_core_jwt_refresh_token_last_updated_at" ON "serverpod_auth_core_jwt_refresh_token" USING btree ("lastUpdatedAt");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_auth_core_profile" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "authUserId" uuid NOT NULL,
+    "userName" text,
+    "fullName" text,
+    "email" text,
+    "createdAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "imageId" uuid
+);
+
+-- Indexes
+CREATE UNIQUE INDEX "serverpod_auth_profile_user_profile_email_auth_user_id" ON "serverpod_auth_core_profile" USING btree ("authUserId");
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_auth_core_profile_image" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "userProfileId" uuid NOT NULL,
+    "createdAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "storageId" text NOT NULL,
+    "path" text NOT NULL,
+    "url" text NOT NULL
+);
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_auth_core_session" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "authUserId" uuid NOT NULL,
+    "scopeNames" json NOT NULL,
+    "createdAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "lastUsedAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "expiresAt" timestamp without time zone,
+    "expireAfterUnusedFor" bigint,
+    "sessionKeyHash" bytea NOT NULL,
+    "sessionKeySalt" bytea NOT NULL,
+    "method" text NOT NULL
+);
+
+--
+-- ACTION CREATE TABLE
+--
+CREATE TABLE "serverpod_auth_core_user" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "createdAt" timestamp without time zone NOT NULL,
+    "scopeNames" json NOT NULL,
+    "blocked" boolean NOT NULL
+);
 
 --
 -- ACTION CREATE FOREIGN KEY
@@ -3953,6 +3891,221 @@ ALTER TABLE ONLY "campus_withdrawals"
     FOREIGN KEY("approvedById")
     REFERENCES "campus_lecturers"("id")
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+
+--
+-- ACTION CREATE FOREIGN KEY
+--
+ALTER TABLE ONLY "serverpod_future_call_claim"
+    ADD CONSTRAINT "serverpod_future_call_claim_fk_0"
+    FOREIGN KEY("futureCallId")
+    REFERENCES "serverpod_future_call"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+
+--
+-- ACTION CREATE FOREIGN KEY
+--
+ALTER TABLE ONLY "serverpod_log"
+    ADD CONSTRAINT "serverpod_log_fk_0"
+    FOREIGN KEY("sessionLogId")
+    REFERENCES "serverpod_session_log"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+
+--
+-- ACTION CREATE FOREIGN KEY
+--
+ALTER TABLE ONLY "serverpod_message_log"
+    ADD CONSTRAINT "serverpod_message_log_fk_0"
+    FOREIGN KEY("sessionLogId")
+    REFERENCES "serverpod_session_log"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+
+--
+-- ACTION CREATE FOREIGN KEY
+--
+ALTER TABLE ONLY "serverpod_query_log"
+    ADD CONSTRAINT "serverpod_query_log_fk_0"
+    FOREIGN KEY("sessionLogId")
+    REFERENCES "serverpod_session_log"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+
+--
+-- ACTION CREATE FOREIGN KEY
+--
+ALTER TABLE ONLY "serverpod_auth_idp_anonymous_account"
+    ADD CONSTRAINT "serverpod_auth_idp_anonymous_account_fk_0"
+    FOREIGN KEY("authUserId")
+    REFERENCES "serverpod_auth_core_user"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+
+--
+-- ACTION CREATE FOREIGN KEY
+--
+ALTER TABLE ONLY "serverpod_auth_idp_apple_account"
+    ADD CONSTRAINT "serverpod_auth_idp_apple_account_fk_0"
+    FOREIGN KEY("authUserId")
+    REFERENCES "serverpod_auth_core_user"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+
+--
+-- ACTION CREATE FOREIGN KEY
+--
+ALTER TABLE ONLY "serverpod_auth_idp_email_account"
+    ADD CONSTRAINT "serverpod_auth_idp_email_account_fk_0"
+    FOREIGN KEY("authUserId")
+    REFERENCES "serverpod_auth_core_user"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+
+--
+-- ACTION CREATE FOREIGN KEY
+--
+ALTER TABLE ONLY "serverpod_auth_idp_email_account_password_reset_request"
+    ADD CONSTRAINT "serverpod_auth_idp_email_account_password_reset_request_fk_0"
+    FOREIGN KEY("emailAccountId")
+    REFERENCES "serverpod_auth_idp_email_account"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+ALTER TABLE ONLY "serverpod_auth_idp_email_account_password_reset_request"
+    ADD CONSTRAINT "serverpod_auth_idp_email_account_password_reset_request_fk_1"
+    FOREIGN KEY("challengeId")
+    REFERENCES "serverpod_auth_idp_secret_challenge"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+ALTER TABLE ONLY "serverpod_auth_idp_email_account_password_reset_request"
+    ADD CONSTRAINT "serverpod_auth_idp_email_account_password_reset_request_fk_2"
+    FOREIGN KEY("setPasswordChallengeId")
+    REFERENCES "serverpod_auth_idp_secret_challenge"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+
+--
+-- ACTION CREATE FOREIGN KEY
+--
+ALTER TABLE ONLY "serverpod_auth_idp_email_account_request"
+    ADD CONSTRAINT "serverpod_auth_idp_email_account_request_fk_0"
+    FOREIGN KEY("challengeId")
+    REFERENCES "serverpod_auth_idp_secret_challenge"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+ALTER TABLE ONLY "serverpod_auth_idp_email_account_request"
+    ADD CONSTRAINT "serverpod_auth_idp_email_account_request_fk_1"
+    FOREIGN KEY("createAccountChallengeId")
+    REFERENCES "serverpod_auth_idp_secret_challenge"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+
+--
+-- ACTION CREATE FOREIGN KEY
+--
+ALTER TABLE ONLY "serverpod_auth_idp_facebook_account"
+    ADD CONSTRAINT "serverpod_auth_idp_facebook_account_fk_0"
+    FOREIGN KEY("authUserId")
+    REFERENCES "serverpod_auth_core_user"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+
+--
+-- ACTION CREATE FOREIGN KEY
+--
+ALTER TABLE ONLY "serverpod_auth_idp_firebase_account"
+    ADD CONSTRAINT "serverpod_auth_idp_firebase_account_fk_0"
+    FOREIGN KEY("authUserId")
+    REFERENCES "serverpod_auth_core_user"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+
+--
+-- ACTION CREATE FOREIGN KEY
+--
+ALTER TABLE ONLY "serverpod_auth_idp_github_account"
+    ADD CONSTRAINT "serverpod_auth_idp_github_account_fk_0"
+    FOREIGN KEY("authUserId")
+    REFERENCES "serverpod_auth_core_user"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+
+--
+-- ACTION CREATE FOREIGN KEY
+--
+ALTER TABLE ONLY "serverpod_auth_idp_google_account"
+    ADD CONSTRAINT "serverpod_auth_idp_google_account_fk_0"
+    FOREIGN KEY("authUserId")
+    REFERENCES "serverpod_auth_core_user"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+
+--
+-- ACTION CREATE FOREIGN KEY
+--
+ALTER TABLE ONLY "serverpod_auth_idp_microsoft_account"
+    ADD CONSTRAINT "serverpod_auth_idp_microsoft_account_fk_0"
+    FOREIGN KEY("authUserId")
+    REFERENCES "serverpod_auth_core_user"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+
+--
+-- ACTION CREATE FOREIGN KEY
+--
+ALTER TABLE ONLY "serverpod_auth_idp_passkey_account"
+    ADD CONSTRAINT "serverpod_auth_idp_passkey_account_fk_0"
+    FOREIGN KEY("authUserId")
+    REFERENCES "serverpod_auth_core_user"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+
+--
+-- ACTION CREATE FOREIGN KEY
+--
+ALTER TABLE ONLY "serverpod_auth_core_jwt_refresh_token"
+    ADD CONSTRAINT "serverpod_auth_core_jwt_refresh_token_fk_0"
+    FOREIGN KEY("authUserId")
+    REFERENCES "serverpod_auth_core_user"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+
+--
+-- ACTION CREATE FOREIGN KEY
+--
+ALTER TABLE ONLY "serverpod_auth_core_profile"
+    ADD CONSTRAINT "serverpod_auth_core_profile_fk_0"
+    FOREIGN KEY("authUserId")
+    REFERENCES "serverpod_auth_core_user"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+ALTER TABLE ONLY "serverpod_auth_core_profile"
+    ADD CONSTRAINT "serverpod_auth_core_profile_fk_1"
+    FOREIGN KEY("imageId")
+    REFERENCES "serverpod_auth_core_profile_image"("id")
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    DEFERRABLE INITIALLY DEFERRED;
+
+--
+-- ACTION CREATE FOREIGN KEY
+--
+ALTER TABLE ONLY "serverpod_auth_core_profile_image"
+    ADD CONSTRAINT "serverpod_auth_core_profile_image_fk_0"
+    FOREIGN KEY("userProfileId")
+    REFERENCES "serverpod_auth_core_profile"("id")
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+
+--
+-- ACTION CREATE FOREIGN KEY
+--
+ALTER TABLE ONLY "serverpod_auth_core_session"
+    ADD CONSTRAINT "serverpod_auth_core_session_fk_0"
+    FOREIGN KEY("authUserId")
+    REFERENCES "serverpod_auth_core_user"("id")
+    ON DELETE CASCADE
     ON UPDATE NO ACTION;
 
 

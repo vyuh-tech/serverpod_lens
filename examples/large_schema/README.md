@@ -34,6 +34,10 @@ serverpod start
 Serverpod manages the development database, generation, and Flutter app.
 Open **http://localhost:8092**.
 
+The example now uses a clean campus migration baseline. Local example databases
+from before this dataset must be recreated before starting the connected app.
+The local schema viewer does not use a database.
+
 The application uses built-in email/JWT authentication and the
 `schema:read:serverpod_lens` scope. New accounts need an operator to grant access:
 
