@@ -395,16 +395,26 @@ ReactionDisposer watchSchemaSelection(
   DiagramController controller, {
   SchemaViewPreferences? preferences,
   bool disableAnimations = false,
+  bool dimUnrelated = true,
 }) {
   final settings = preferences ?? SchemaViewPreferences();
   (String, Effect?)? lastPresentation;
-  return reaction(
+  String? emphasizedRoots;
+  final fades = <String, EffectHandle>{};
+  final animations = <String, EffectHandle>{};
+  final touchingDirections = <String, bool>{};
+  var generation = 0;
+  late final ReactionDisposer disposeReaction;
+  disposeReaction = reaction(
     (_) => (controller.selection, settings.effect, controller.isAttached),
     (state) {
       final (selection, effect, attached) = state;
+      final current = ++generation;
       if (!attached) return;
       scheduleMicrotask(() {
-        if (controller.isDisposed ||
+        if (disposeReaction.reaction.isDisposed ||
+            current != generation ||
+            controller.isDisposed ||
             !controller.isAttached ||
             controller.selection != selection) {
           return;
@@ -418,62 +428,88 @@ ReactionDisposer watchSchemaSelection(
             .where((id) => controller.document.elementById(id) is ShapeElement)
             .toSet();
         final ordered = roots.toList()..sort();
-        final presentation = (ordered.join('\u0000'), effect);
+        final signature = ordered.join('\u0000');
+        final presentation = (signature, effect);
         if (lastPresentation == presentation &&
             (roots.isEmpty || controller.effects.playing.isNotEmpty)) {
           return;
         }
         lastPresentation = presentation;
-        controller.effects.stopAll();
-        if (roots.isEmpty) return;
-        final related = {...roots};
-        final touching = <ConnectorElement>[];
-        for (final edge
-            in controller.document.elements.whereType<ConnectorElement>()) {
-          if (!edge.isVisible) continue;
-          final start = edge.start;
-          final end = edge.end;
-          if ((start is BoundEndpoint && roots.contains(start.elementId)) ||
-              (end is BoundEndpoint && roots.contains(end.elementId))) {
-            touching.add(edge);
+        if (roots.isEmpty) {
+          controller.effects.stopAll();
+          fades.clear();
+          animations.clear();
+          touchingDirections.clear();
+          emphasizedRoots = signature;
+          return;
+        }
+        if (emphasizedRoots != signature ||
+            controller.effects.playing.isEmpty) {
+          emphasizedRoots = signature;
+          touchingDirections.clear();
+          final related = {...roots};
+          for (final edge
+              in controller.document.elements.whereType<ConnectorElement>()) {
+            if (!edge.isVisible) continue;
+            final start = edge.start;
+            final end = edge.end;
+            final fromRoot =
+                start is BoundEndpoint && roots.contains(start.elementId);
+            final toRoot =
+                end is BoundEndpoint && roots.contains(end.elementId);
+            if (!fromRoot && !toRoot) continue;
+            touchingDirections[edge.id] = toRoot && !fromRoot;
             if (start is BoundEndpoint) related.add(start.elementId);
             if (end is BoundEndpoint) related.add(end.elementId);
           }
-        }
-        final touchingIds = touching.map((edge) => edge.id).toSet();
-        for (final element in controller.document.elements) {
-          final dim = element is ShapeElement
-              ? !related.contains(element.id)
-              : element is ConnectorElement &&
-                    !touchingIds.contains(element.id);
-          if (dim) {
-            controller.effects.play(
-              Effect.fade(
-                dim: element is ShapeElement ? .22 : .08,
-                // Native timing applies MediaQuery's reduced-motion end state.
-                // Effect periods must remain positive even in that mode.
-                period: const Duration(milliseconds: 180),
-              ),
-              on: element.id,
-            );
+          // Retain static emphasis on unchanged elements instead of replaying
+          // hundreds of fades on every selection or animation setting change.
+          for (final element
+              in dimUnrelated
+                  ? controller.document.elements
+                  : const <DiagramElement>[]) {
+            final dim = element is ShapeElement
+                ? !related.contains(element.id)
+                : element is ConnectorElement &&
+                      !touchingDirections.containsKey(element.id);
+            if (dim) {
+              if (fades[element.id]?.isPlaying != true) {
+                fades[element.id] = controller.effects.play(
+                  Effect.fade(
+                    dim: element is ShapeElement ? .22 : .08,
+                    period: const Duration(milliseconds: 180),
+                  ),
+                  on: element.id,
+                );
+              }
+            } else {
+              fades.remove(element.id)?.stop();
+            }
           }
         }
+        final animated = effect == null || disableAnimations
+            ? const <String>{}
+            : touchingDirections.keys.toSet();
+        for (final id
+            in animations.keys.where((id) => !animated.contains(id)).toList()) {
+          animations.remove(id)!.stop();
+        }
         if (effect == null || disableAnimations) return;
-        for (final edge in touching) {
-          final end = edge.end;
-          final start = edge.start;
-          final towardStart =
-              end is BoundEndpoint &&
-              roots.contains(end.elementId) &&
-              !(start is BoundEndpoint && roots.contains(start.elementId));
-          controller.effects.play(
-            effect.copyWith(
-              reverse: towardStart ? !effect.reverse : effect.reverse,
-            ),
-            on: edge.id,
+        for (final entry in touchingDirections.entries) {
+          final next = effect.copyWith(
+            reverse: entry.value ? !effect.reverse : effect.reverse,
           );
+          final handle = animations[entry.key];
+          // Native updates preserve the running timeline and cached static paint.
+          if (handle == null || !handle.update(next)) {
+            animations[entry.key] = controller.effects.play(
+              next,
+              on: entry.key,
+            );
+          }
         }
       });
     },
   );
+  return disposeReaction;
 }

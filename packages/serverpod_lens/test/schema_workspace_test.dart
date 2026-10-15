@@ -156,6 +156,53 @@ void main() {
     },
   );
 
+  testWidgets(
+    'animation settings retain emphasis and update the existing native effect',
+    (tester) async {
+      final controller = await workspace(tester);
+      controller.select(['public.orders']);
+      await ready(tester);
+      final fades = controller.effects.playing
+          .where((handle) => handle.effect?.kind == EffectKind.fade)
+          .toSet();
+      final flow = controller.effects.playing.firstWhere(
+        (handle) => handle.effect?.kind == EffectKind.flow,
+      );
+      final document = controller.document;
+      await tester.tap(find.byTooltip('Settings'));
+      await ready(tester);
+      await tester.tap(find.text('Animation').last);
+      await ready(tester);
+      final speed = tester.widget<Slider>(
+        find.descendant(
+          of: find.byKey(const ValueKey('Animation speed')),
+          matching: find.byType(Slider),
+        ),
+      );
+      speed.onChanged!(1.5);
+      speed.onChangeEnd!(1.5);
+      await ready(tester);
+      expect(
+        controller.effects.playing
+            .where((handle) => handle.effect?.kind == EffectKind.fade)
+            .toSet(),
+        fades,
+      );
+      expect(flow.isPlaying, isTrue);
+      expect(flow.effect!.period.inMilliseconds, (1600 / 1.5).round());
+      tester
+          .widget<DropdownButtonFormField<SchemaAnimation>>(
+            find.byType(DropdownButtonFormField<SchemaAnimation>),
+          )
+          .onChanged!(SchemaAnimation.off);
+      await ready(tester);
+      expect(flow.isPlaying, isFalse);
+      expect(controller.effects.playing.toSet(), fades);
+      expect(identical(controller.document, document), isTrue);
+      await close(tester);
+    },
+  );
+
   testWidgets('layout menu runs every native layout without changing schema', (
     tester,
   ) async {

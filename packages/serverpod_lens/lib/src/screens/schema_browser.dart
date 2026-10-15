@@ -288,18 +288,13 @@ class SchemaTreeRow extends StatefulWidget {
 }
 
 class _SchemaTreeRowState extends State<SchemaTreeRow> {
-  bool _hovered = false;
+  final _hovered = ValueNotifier(false);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final foreground = widget.selected ? colors.primary : colors.onSurface;
-    final background = widget.selected
-        ? colors.primary.withValues(alpha: .12)
-        : _hovered
-        ? colors.onSurface.withValues(alpha: .06)
-        : Colors.transparent;
     final label = widget.count == null
         ? widget.label
         : '${widget.label}, ${widget.count} tables';
@@ -317,10 +312,18 @@ class _SchemaTreeRowState extends State<SchemaTreeRow> {
       expanded: widget.expanded,
       onTap: widget.onSelect,
       child: MouseRegion(
-        onEnter: (_) => setState(() => _hovered = true),
-        onExit: (_) => setState(() => _hovered = false),
-        child: Material(
-          color: background,
+        onEnter: (_) => _hovered.value = true,
+        onExit: (_) => _hovered.value = false,
+        child: ValueListenableBuilder<bool>(
+          valueListenable: _hovered,
+          builder: (_, hovered, child) => Material(
+            color: widget.selected
+                ? colors.primary.withValues(alpha: .12)
+                : hovered
+                ? colors.onSurface.withValues(alpha: .06)
+                : Colors.transparent,
+            child: child,
+          ),
           child: InkWell(
             excludeFromSemantics: true,
             overlayColor: overlay,
@@ -417,5 +420,11 @@ class _SchemaTreeRowState extends State<SchemaTreeRow> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _hovered.dispose();
+    super.dispose();
   }
 }
