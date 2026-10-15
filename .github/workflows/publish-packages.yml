@@ -57,7 +57,7 @@ jobs:
       - name: Check formatting
         run: >-
           dart format --output=none --set-exit-if-changed
-          tool/check_publication.dart tool/publication_policy.dart
+          tool/audit_dependencies.dart tool/check_publication.dart tool/publication_policy.dart
           tool/build_cloud_release.dart tool/cloud_release.dart tool/test
           examples/large_schema/server/tool/check_release_build.dart
           packages/serverpod_lens/lib packages/serverpod_lens/test

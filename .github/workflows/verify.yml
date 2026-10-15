@@ -76,4 +76,4 @@ jobs:
           npm test
 
       - name: Check published dependency advisories
-        run: python3 tool/audit_dependencies.py
+        run: dart run tool/audit_dependencies.dart
