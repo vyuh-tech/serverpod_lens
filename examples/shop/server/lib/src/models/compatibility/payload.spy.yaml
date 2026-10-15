@@ -1,0 +1,4 @@
+class: ShopPayload
+fields:
+  message: String
+  nested: List<Map<String, int>>

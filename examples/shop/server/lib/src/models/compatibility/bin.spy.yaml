@@ -1,0 +1,4 @@
+class: ShopBin
+table: shop_bins
+fields:
+  label: String

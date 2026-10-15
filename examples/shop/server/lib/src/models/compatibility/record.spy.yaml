@@ -1,0 +1,37 @@
+class: ShopRecord
+extends: ShopAuditBase
+table: shop_records
+serializationDataType: jsonb
+fields:
+  displayName: String, column=display_name
+  state: ShopState, default=draft
+  priority: ShopPriority
+  enabled: bool, default=true
+  itemCount: int
+  amount: double
+  elapsed: Duration
+  website: Uri
+  largeNumber: BigInt
+  bytes: ByteData
+  labels: List<String>
+  flags: Set<int>
+  attributes: Map<String, String>
+  lookup: Map<int, String>
+  coordinates: (double, double)
+  payload: ShopPayload
+  optionalPayload: ShopPayload?
+  legacyPayload: List<String>, serializationDataType=json
+  secret: String?, scope=serverOnly
+  transient: String?, !persist
+  embedding: Vector(3)?
+  compactEmbedding: HalfVector(3)?
+  sparseEmbedding: SparseVector(3)?
+  mask: Bit(8)?
+  location: GeographyPoint?
+  route: GeographyLineString?
+  area: GeographyPolygon?
+  geometry: GeographyGeometryCollection?
+indexes:
+  shop_record_display:
+    fields: displayName
+    unique: true

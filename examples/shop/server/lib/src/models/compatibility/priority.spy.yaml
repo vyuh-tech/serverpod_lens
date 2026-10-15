@@ -1,0 +1,5 @@
+enum: ShopPriority
+serialized: byIndex
+values:
+  - normal
+  - urgent

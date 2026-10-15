@@ -1,0 +1,5 @@
+class: ShopTeam
+table: shop_teams
+fields:
+  name: String
+  members: List<ShopMember>?, relation(name=shop_team_members)

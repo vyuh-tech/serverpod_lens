@@ -1,0 +1,5 @@
+class: ShopCategory
+table: shop_categories
+fields:
+  name: String
+  parent: ShopCategory?, relation(optional)

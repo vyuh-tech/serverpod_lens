@@ -1,0 +1,5 @@
+class: ShopWarehouse
+table: shop_warehouses
+fields:
+  name: String
+  bins: List<ShopBin>?, relation

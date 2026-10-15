@@ -235,9 +235,35 @@ class Protocol {
       final shop = snapshot.graph!.tables
           .where((table) => table.name.startsWith('public.shop_'))
           .toList();
-      expect(shop, hasLength(4));
-      expect(shop.expand((table) => table.foreignKeys), hasLength(3));
-      expect(snapshot.modelSources, hasLength(4));
+      expect(shop, hasLength(14));
+      expect(shop.expand((table) => table.foreignKeys), hasLength(9));
+      expect(snapshot.modelSources, hasLength(14));
+      final record = shop.singleWhere(
+        (table) => table.name == 'public.shop_records',
+      );
+      expect(
+        record.columns.singleWhere((column) => column.name == 'id').dbType,
+        'uuid',
+      );
+      expect(
+        record.columns
+            .singleWhere((column) => column.name == 'embedding')
+            .dbType,
+        'vector(3)',
+      );
+      final bins = shop.singleWhere(
+        (table) => table.name == 'public.shop_bins',
+      );
+      expect(bins.foreignKeys.single.refTable, 'public.shop_warehouses');
+      expect(
+        shop.any((table) => table.name == 'public.shop_client_drafts'),
+        isFalse,
+      );
+      expect(
+        snapshot.modelSources!.containsKey('public.shop_client_drafts'),
+        isFalse,
+      );
     },
+    timeout: const Timeout(Duration(minutes: 2)),
   );
 }

@@ -1,0 +1,10 @@
+class: ShopMember
+table: shop_members
+fields:
+  name: String
+  team: ShopTeam?, relation(name=shop_team_members, onDelete=Cascade)
+  profile: ShopProfile?, relation
+indexes:
+  shop_member_profile:
+    fields: profileId
+    unique: true

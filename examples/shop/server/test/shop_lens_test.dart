@@ -18,12 +18,19 @@ void main() {
         modelSources: models.sources,
       );
       final tables = snapshot.graph!.tables
-          .where((table) => table.name.startsWith('public.shop_'))
+          .where(
+            (table) => const {
+              'public.shop_customers',
+              'public.shop_products',
+              'public.shop_orders',
+              'public.shop_order_items',
+            }.contains(table.name),
+          )
           .toList();
       expect(tables.length, 4);
       expect(tables.expand((table) => table.foreignKeys).length, 3);
       expect(tables.expand((table) => table.indexes).length, 4);
-      expect(snapshot.sourcePaths!.length, 4);
+      expect(snapshot.sourcePaths!.length, 14);
       expect(
         snapshot.modelSources!['public.shop_orders'],
         contains('class: Order'),

@@ -1,0 +1,4 @@
+class: ShopTag
+table: shop_tags
+fields:
+  label: String

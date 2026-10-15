@@ -1,0 +1,6 @@
+class: ShopSharedPreference
+table: shop_shared_preferences
+database: all
+fields:
+  key: String
+  value: String

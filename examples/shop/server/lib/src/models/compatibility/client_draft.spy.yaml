@@ -1,0 +1,5 @@
+class: ShopClientDraft
+table: shop_client_drafts
+database: client
+fields:
+  title: String

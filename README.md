@@ -54,7 +54,7 @@ declaration and API examples.
 | --- | --- |
 | [serverpod_lens](packages/serverpod_lens/) | Flutter viewer and host integration |
 | [serverpod_lens_schema](packages/serverpod_lens_schema/) | Plain Dart schema graph, reader, and snapshots |
-| [Shop example](examples/shop/) | Customers, products, orders, and order items |
+| [Shop example](examples/shop/) | Small shop and generated Serverpod feature compatibility tests |
 | [Large-schema example](examples/large_schema/) | 156-table university campus project and connected Cloud host |
 | [Local launcher](tool/lens/) | CLI and browser host |
 | [Optional imports](tool/lens/imports/) | ZIP, YAML, and PostgreSQL SQL adapters |

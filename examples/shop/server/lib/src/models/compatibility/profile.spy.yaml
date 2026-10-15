@@ -1,0 +1,4 @@
+class: ShopProfile
+table: shop_profiles
+fields:
+  bio: String
