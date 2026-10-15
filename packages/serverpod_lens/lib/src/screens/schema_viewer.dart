@@ -426,24 +426,27 @@ class _SchemaViewerState extends State<SchemaViewer> {
       next = await buildSchemaCanvas(graph, _preferences);
       final positions = saved?['positions'];
       if (positions is Map) {
-        next.edits.batch('Restore table positions', () {
-          for (final entry in positions.entries) {
-            if (entry.key is! String) continue;
-            final point = _point(entry.value);
-            final frame = next!.scene
-                .shapeById(entry.key as String)
-                ?.source
-                .frame;
-            if (point != null && frame != null) {
-              next.edits
-                  .move(
-                    DiagramPoint(point.x - frame.left, point.y - frame.top),
-                    ids: [entry.key as String],
-                  )
-                  .requireAllowed();
-            }
+        final frames = <String, DiagramRect>{};
+        for (final entry in positions.entries) {
+          if (entry.key is! String) continue;
+          final point = _point(entry.value);
+          final frame = next.scene.shapeById(entry.key as String)?.source.frame;
+          if (point != null && frame != null) {
+            frames[entry.key as String] = frame.translate(
+              DiagramPoint(point.x - frame.left, point.y - frame.top),
+            );
           }
-        }, history: false).requireAllowed();
+        }
+        if (frames.isNotEmpty) {
+          // Native placement keeps bound self-reference lines attached. A
+          // generic move expands to those locked lines and rejects the edit.
+          next.edits.batch('Restore table positions', () {
+            next!.edits.perform(const [], 'applyLayout', {
+              'frames': frames,
+              'label': 'Restore table positions',
+            }).requireAllowed();
+          }, history: false).requireAllowed();
+        }
       }
       if (!mounted || generation != _generation) {
         next.dispose();

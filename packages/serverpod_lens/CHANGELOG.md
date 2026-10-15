@@ -1,5 +1,6 @@
 ## 0.2.0 (unreleased)
 
+- Restore saved layouts containing self-referencing tables without moving locked connections.
 - Normalize native flow speed by route length, including after table movement.
 - Add floating one/two-hop exploration and native layout for connected tables.
 - Restore dimming on large web schemas and keep text sharp after pan/zoom.

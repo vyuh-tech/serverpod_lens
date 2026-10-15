@@ -60,7 +60,7 @@ jobs:
 
       - name: Verify web selection and relationship exploration
         working-directory: packages/serverpod_lens
-        run: flutter test --no-pub --platform chrome test/dense_selection_test.dart test/relationship_exploration_test.dart
+        run: flutter test --no-pub --platform chrome test/dense_selection_test.dart test/relationship_exploration_test.dart test/view_restore_test.dart
 
       - name: Setup Node for the PostgreSQL parser tests
         uses: actions/setup-node@v4
