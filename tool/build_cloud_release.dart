@@ -33,6 +33,7 @@ void copyTracked(Directory repo, String source, Directory target) {
 
 Future<void> main() async {
   final repo = Directory.fromUri(Platform.script.resolve('../'));
+  requireCurrentReleasePins(repo);
   final stage = Directory.systemTemp.createTempSync('lens-cloud-release-');
   stdout.writeln('Preparing release in ${stage.path}');
   final frontend = Directory('${stage.path}/frontend')..createSync();

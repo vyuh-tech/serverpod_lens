@@ -26,6 +26,7 @@ class SchemaEndpoint extends Endpoint {
       knownRevision: knownRevision,
       sourcePaths: models.paths,
       modelSources: models.sources,
+      modelCatalog: models.catalog,
     );
   }
 }

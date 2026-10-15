@@ -1,5 +1,9 @@
 enum: ShopState
 serialized: byName
+properties:
+  label: String
 values:
-  - draft
-  - active
+  - draft:
+      label: Draft order
+  - active:
+      label: Active order

@@ -13,7 +13,7 @@
 import 'dart:typed_data' as _idt;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'package:shop_client/src/protocol/protocol.dart' as _id88xlko;
-import '../compatibility/payload.dart' as _i0pcuowi;
+import '../compatibility/payload_base.dart' as _i8gjfjcu;
 import '../compatibility/priority.dart' as _iv7lj9ls;
 import '../compatibility/state.dart' as _iasvdvkq;
 import '../protocol.dart' as _iv35mfmj;
@@ -71,8 +71,8 @@ abstract class ShopRecord extends _iv35mfmj.ShopAuditBase
     required Map<String, String> attributes,
     required Map<int, String> lookup,
     required (double, double) coordinates,
-    required _i0pcuowi.ShopPayload payload,
-    _i0pcuowi.ShopPayload? optionalPayload,
+    required _i8gjfjcu.ShopPayload payload,
+    _i8gjfjcu.ShopPayload? optionalPayload,
     required List<String> legacyPayload,
     String? transient,
     _isc.Vector? embedding,
@@ -130,12 +130,12 @@ abstract class ShopRecord extends _iv35mfmj.ShopAuditBase
       coordinates: _id88xlko.Protocol().deserialize<(double, double)>(
         (jsonSerialization['coordinates'] as Map<String, dynamic>),
       ),
-      payload: _id88xlko.Protocol().deserialize<_i0pcuowi.ShopPayload>(
+      payload: _id88xlko.Protocol().deserialize<_i8gjfjcu.ShopPayload>(
         jsonSerialization['payload'],
       ),
       optionalPayload: jsonSerialization['optionalPayload'] == null
           ? null
-          : _id88xlko.Protocol().deserialize<_i0pcuowi.ShopPayload>(
+          : _id88xlko.Protocol().deserialize<_i8gjfjcu.ShopPayload>(
               jsonSerialization['optionalPayload'],
             ),
       legacyPayload: _id88xlko.Protocol().deserialize<List<String>>(
@@ -216,9 +216,9 @@ abstract class ShopRecord extends _iv35mfmj.ShopAuditBase
 
   (double, double) coordinates;
 
-  _i0pcuowi.ShopPayload payload;
+  _i8gjfjcu.ShopPayload payload;
 
-  _i0pcuowi.ShopPayload? optionalPayload;
+  _i8gjfjcu.ShopPayload? optionalPayload;
 
   List<String> legacyPayload;
 
@@ -262,8 +262,8 @@ abstract class ShopRecord extends _iv35mfmj.ShopAuditBase
     Map<String, String>? attributes,
     Map<int, String>? lookup,
     (double, double)? coordinates,
-    _i0pcuowi.ShopPayload? payload,
-    _i0pcuowi.ShopPayload? optionalPayload,
+    _i8gjfjcu.ShopPayload? payload,
+    _i8gjfjcu.ShopPayload? optionalPayload,
     List<String>? legacyPayload,
     String? transient,
     _isc.Vector? embedding,
@@ -377,8 +377,8 @@ class _ShopRecordImpl extends ShopRecord {
     required Map<String, String> attributes,
     required Map<int, String> lookup,
     required (double, double) coordinates,
-    required _i0pcuowi.ShopPayload payload,
-    _i0pcuowi.ShopPayload? optionalPayload,
+    required _i8gjfjcu.ShopPayload payload,
+    _i8gjfjcu.ShopPayload? optionalPayload,
     required List<String> legacyPayload,
     String? transient,
     _isc.Vector? embedding,
@@ -443,7 +443,7 @@ class _ShopRecordImpl extends ShopRecord {
     Map<String, String>? attributes,
     Map<int, String>? lookup,
     (double, double)? coordinates,
-    _i0pcuowi.ShopPayload? payload,
+    _i8gjfjcu.ShopPayload? payload,
     Object? optionalPayload = _Undefined,
     List<String>? legacyPayload,
     Object? transient = _Undefined,
@@ -478,7 +478,7 @@ class _ShopRecordImpl extends ShopRecord {
           lookup ?? this.lookup.map((key0, value0) => MapEntry(key0, value0)),
       coordinates: coordinates ?? (this.coordinates.$1, this.coordinates.$2),
       payload: payload ?? this.payload.copyWith(),
-      optionalPayload: optionalPayload is _i0pcuowi.ShopPayload?
+      optionalPayload: optionalPayload is _i8gjfjcu.ShopPayload?
           ? optionalPayload
           : this.optionalPayload?.copyWith(),
       legacyPayload:

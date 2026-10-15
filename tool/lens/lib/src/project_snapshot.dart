@@ -137,12 +137,13 @@ void main() => print('LENS_TARGET_JSON=' + jsonEncode({'tables': Protocol().getT
     tables = (json['tables'] as List)
         .map((raw) => Map<String, dynamic>.from(raw as Map))
         .toList();
-    final models = _models.read();
+    final models = _models.readBundle();
     return LensSchemaSource(projectId: name).read(
       tables,
       knownRevision: knownRevision,
       sourcePaths: models.paths,
       modelSources: models.sources,
+      modelCatalog: models.catalog,
     );
   }
 }

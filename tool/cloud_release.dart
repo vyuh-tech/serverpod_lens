@@ -12,6 +12,18 @@ const lensArchives = {
       'fadbf5b23c31224f0d77b78a706eec4ee7f8e698299f4b5b8571c07078941675',
 };
 
+/// A new workspace API must not accidentally deploy with an older archive.
+void requireCurrentReleasePins(Directory repo) {
+  for (final name in lensArchives.keys) {
+    final spec = readManifest(File('${repo.path}/packages/$name/pubspec.yaml'));
+    if (spec['version'] != lensRelease) {
+      throw StateError(
+        '$name ${spec['version']} is not the pinned Cloud release $lensRelease. Publish the approved packages, then update lensRelease and archive hashes before building Cloud.',
+      );
+    }
+  }
+}
+
 Map<String, dynamic> readManifest(File file) =>
     jsonDecode(jsonEncode(loadYaml(file.readAsStringSync())))
         as Map<String, dynamic>;

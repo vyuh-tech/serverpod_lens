@@ -1,4 +1,7 @@
 class: ShopPayload
+extends: ShopPayloadBase
 fields:
   message: String
+  next: ShopPayload?
+  variant: ShopPayloadBase?
   nested: List<Map<String, int>>

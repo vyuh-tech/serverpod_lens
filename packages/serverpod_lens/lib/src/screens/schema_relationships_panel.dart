@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'schema_inspector_components.dart';
+
 import 'package:serverpod_lens_schema/serverpod_lens_schema.dart';
 
 /// Shared relationship content for the desktop inspector and mobile sheet.
@@ -86,26 +88,65 @@ class SchemaRelationshipsPanel extends StatelessWidget {
                           : members.contains(relation.table)
                           ? 'Outgoing'
                           : 'Incoming';
-                      return ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 8,
-                        ),
-                        leading: Icon(
-                          missing
-                              ? Icons.link_off
-                              : Icons.account_tree_outlined,
-                          size: 20,
-                        ),
-                        title: Text(
-                          '${relation.table} → ${key.refTable}',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        subtitle: Text(
-                          '${key.columns.join(', ')} → ${key.refColumns.join(', ')}\n$kind${missing ? ' · Target absent from snapshot' : ''}',
-                        ),
-                        isThreeLine: true,
-                        onTap: missing ? null : () => onSelect(destination),
+                      final source = graph.tables[relation.table];
+                      final info = source == null
+                          ? null
+                          : SchemaRelationshipInfo(source, key);
+                      return Column(
+                        children: [
+                          ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 8,
+                            ),
+                            leading: Icon(
+                              missing
+                                  ? Icons.link_off
+                                  : Icons.account_tree_outlined,
+                              size: 20,
+                            ),
+                            title: Text(
+                              '${relation.table} → ${key.refTable}',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            subtitle: Text(
+                              '${key.columns.join(', ')} → ${key.refColumns.join(', ')}\n$kind${info == null ? '' : ' · ${info.children} → ${info.parent}'}${missing ? ' · Target absent from snapshot' : ''}',
+                            ),
+                            isThreeLine: true,
+                            onTap: missing ? null : () => onSelect(destination),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Wrap(
+                              spacing: 6,
+                              runSpacing: 6,
+                              children: [
+                                SchemaDetailBadge('Delete: ${key.onDelete}'),
+                                SchemaDetailBadge('Update: ${key.onUpdate}'),
+                              ],
+                            ),
+                          ),
+                          if (source != null)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
+                              child: SchemaMetadataDetails(
+                                title: 'Constraint metadata',
+                                metadata: SchemaTableMetadata(source)
+                                    .foreignKey(key.name),
+                                exclude: const {
+                                  'constraintName',
+                                  'columns',
+                                  'referenceTable',
+                                  'referenceTableSchema',
+                                  'referenceColumns',
+                                  'onDelete',
+                                  'onUpdate',
+                                },
+                              ),
+                            ),
+                        ],
                       );
                     },
                   ),

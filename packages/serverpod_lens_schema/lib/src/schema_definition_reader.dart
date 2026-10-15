@@ -6,7 +6,7 @@ import 'dart:convert';
 /// The viewer uses the plain model; the Serverpod fixture bridges to its generated
 /// protocol. Database schema and Serverpod module remain distinct.
 abstract final class SchemaDefinitionReader {
-  static const contractRevision = 2;
+  static const contractRevision = 3;
   static const _dartTypes = [
     'String',
     'bool',
@@ -129,7 +129,7 @@ abstract final class SchemaDefinitionReader {
             {
               '__className__': 'SchemaColumn',
               'name': column['name'] ?? '',
-              'fieldName': column['fieldName'] ?? column['name'] ?? '',
+              'fieldName': _fieldName(raw, column),
               'dartType':
                   column['dartType'] ??
                   _enumName(column['columnType'], _dartTypes),
@@ -190,6 +190,19 @@ abstract final class SchemaDefinitionReader {
           },
       ],
     };
+  }
+
+  static String _fieldName(
+    Map<String, dynamic> table,
+    Map<String, dynamic> column,
+  ) {
+    if (column['fieldName'] is String) return column['fieldName'] as String;
+    final model = table['lensModel'];
+    final fields = model is Map ? model['fields'] : null;
+    final metadata = fields is Map ? fields[column['name']] : null;
+    return metadata is Map && metadata['fieldName'] is String
+        ? metadata['fieldName'] as String
+        : column['name'] as String? ?? '';
   }
 
   static String _qualified(String schema, String name) =>

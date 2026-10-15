@@ -22,7 +22,7 @@ abstract class ShopMember
     required this.name,
     required this.teamId,
     this.team,
-    required this.profileId,
+    this.profileId,
     this.profile,
   });
 
@@ -31,7 +31,7 @@ abstract class ShopMember
     required String name,
     required int teamId,
     _icj80dj0.ShopTeam? team,
-    required int profileId,
+    int? profileId,
     _i09u2zl9.ShopProfile? profile,
   }) = _ShopMemberImpl;
 
@@ -45,7 +45,7 @@ abstract class ShopMember
           : _id88xlko.Protocol().deserialize<_icj80dj0.ShopTeam>(
               jsonSerialization['team'],
             ),
-      profileId: jsonSerialization['profileId'] as int,
+      profileId: jsonSerialization['profileId'] as int?,
       profile: jsonSerialization['profile'] == null
           ? null
           : _id88xlko.Protocol().deserialize<_i09u2zl9.ShopProfile>(
@@ -65,7 +65,7 @@ abstract class ShopMember
 
   _icj80dj0.ShopTeam? team;
 
-  int profileId;
+  int? profileId;
 
   _i09u2zl9.ShopProfile? profile;
 
@@ -88,7 +88,7 @@ abstract class ShopMember
       'name': name,
       'teamId': teamId,
       if (team != null) 'team': team?.toJson(),
-      'profileId': profileId,
+      if (profileId != null) 'profileId': profileId,
       if (profile != null) 'profile': profile?.toJson(),
     };
   }
@@ -101,7 +101,7 @@ abstract class ShopMember
       'name': name,
       'teamId': teamId,
       if (team != null) 'team': team?.toJsonForProtocol(),
-      'profileId': profileId,
+      if (profileId != null) 'profileId': profileId,
       if (profile != null) 'profile': profile?.toJsonForProtocol(),
     };
   }
@@ -120,7 +120,7 @@ class _ShopMemberImpl extends ShopMember {
     required String name,
     required int teamId,
     _icj80dj0.ShopTeam? team,
-    required int profileId,
+    int? profileId,
     _i09u2zl9.ShopProfile? profile,
   }) : super._(
          id: id,
@@ -140,7 +140,7 @@ class _ShopMemberImpl extends ShopMember {
     String? name,
     int? teamId,
     Object? team = _Undefined,
-    int? profileId,
+    Object? profileId = _Undefined,
     Object? profile = _Undefined,
   }) {
     return ShopMember(
@@ -148,7 +148,7 @@ class _ShopMemberImpl extends ShopMember {
       name: name ?? this.name,
       teamId: teamId ?? this.teamId,
       team: team is _icj80dj0.ShopTeam? ? team : this.team?.copyWith(),
-      profileId: profileId ?? this.profileId,
+      profileId: profileId is int? ? profileId : this.profileId,
       profile: profile is _i09u2zl9.ShopProfile?
           ? profile
           : this.profile?.copyWith(),

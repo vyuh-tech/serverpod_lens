@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:serverpod_lens_schema/serverpod_lens_schema.dart';
 
 import 'schema_relationships_panel.dart';
+import 'schema_inspector_components.dart';
 
 /// The same read-only inspector is used in the desktop panel and mobile sheet.
 class SchemaTableInspector extends StatefulWidget {
@@ -32,6 +33,7 @@ class SchemaTableInspector extends StatefulWidget {
 class _SchemaTableInspectorState extends State<SchemaTableInspector> {
   String _query = '';
   Map<String, dynamic> _definition = {};
+  late SchemaTableMetadata _metadata;
   String? _resolved;
   @override
   void initState() {
@@ -47,7 +49,8 @@ class _SchemaTableInspectorState extends State<SchemaTableInspector> {
   }
 
   void _readDefinition() {
-    _definition = {};
+    _metadata = SchemaTableMetadata(widget.table);
+    _definition = _metadata.definition;
     _resolved = null;
     try {
       final value = widget.table.definition;
@@ -124,6 +127,9 @@ class _SchemaTableInspectorState extends State<SchemaTableInspector> {
                             _MetadataRow('Schema', table.schema),
                             _MetadataRow('Table', table.name),
                             _MetadataRow('Model', table.className),
+                            if (_metadata.model['extends']
+                                case final String parent)
+                              _MetadataRow('Extends', parent),
                             if (table.module.isNotEmpty &&
                                 table.module != 'unknown')
                               _MetadataRow('Module', table.module),
@@ -187,6 +193,22 @@ class _SchemaTableInspectorState extends State<SchemaTableInspector> {
                                 itemCount: columns.length,
                                 itemBuilder: (_, index) => _FieldCard(
                                   column: columns[index],
+                                  modelField: _metadata.declaredField(
+                                    columns[index].name,
+                                  ),
+                                  metadata: _metadata.column(
+                                    columns[index].name,
+                                  ),
+                                  declarations: {
+                                    for (final value
+                                        in widget.graph.enums.values)
+                                      value.name: {
+                                        'kind': 'enum',
+                                        'serialization': 'database',
+                                        'values': value.values,
+                                      },
+                                    ..._metadata.declarations,
+                                  },
                                   foreignKeys: table.foreignKeys
                                       .where(
                                         (fk) => fk.columns.contains(
@@ -220,9 +242,12 @@ class _SchemaTableInspectorState extends State<SchemaTableInspector> {
                                     spacing: 6,
                                     runSpacing: 6,
                                     children: [
-                                      _Badge(key.type),
+                                      SchemaDetailBadge(key.type),
                                       if (key.unique)
-                                        const _Badge('Unique', keyField: true),
+                                        const SchemaDetailBadge(
+                                          'Unique',
+                                          keyField: true,
+                                        ),
                                     ],
                                   ),
                                   const SizedBox(height: 12),
@@ -232,6 +257,16 @@ class _SchemaTableInspectorState extends State<SchemaTableInspector> {
                                   ),
                                   if (key.predicate != null)
                                     _MetadataRow('Where', key.predicate!),
+                                  SchemaMetadataDetails(
+                                    metadata: _metadata.index(key.name),
+                                    exclude: const {
+                                      'indexName',
+                                      'elements',
+                                      'type',
+                                      'isUnique',
+                                      'predicate',
+                                    },
+                                  ),
                                 ],
                               ),
                             );
@@ -266,7 +301,7 @@ class _SchemaTableInspectorState extends State<SchemaTableInspector> {
                         const SizedBox(height: 16),
                       ],
                       if (widget.sourceCode != null)
-                        _CodeCard(
+                        SchemaCodeCard(
                           title: 'Serverpod model',
                           language: 'YAML',
                           code: widget.sourceCode!,
@@ -283,7 +318,7 @@ class _SchemaTableInspectorState extends State<SchemaTableInspector> {
                             ),
                             initiallyExpanded: widget.sourceCode == null,
                             children: [
-                              _CodeCard(
+                              SchemaCodeCard(
                                 title: 'Generated definition',
                                 language: 'JSON',
                                 code: _resolved!,
@@ -381,37 +416,19 @@ class _MetadataRow extends StatelessWidget {
   );
 }
 
-class _Badge extends StatelessWidget {
-  const _Badge(this.text, {this.keyField = false});
-  final String text;
-  final bool keyField;
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: keyField
-            ? colors.secondaryContainer
-            : colors.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: keyField
-              ? colors.onSecondaryContainer
-              : colors.onSurfaceVariant,
-        ),
-      ),
-    );
-  }
-}
-
 class _FieldCard extends StatelessWidget {
-  const _FieldCard({required this.column, required this.foreignKeys});
+  const _FieldCard({
+    required this.column,
+    required this.foreignKeys,
+    required this.metadata,
+    required this.modelField,
+    required this.declarations,
+  });
   final SchemaColumn column;
   final List<SchemaForeignKey> foreignKeys;
+  final Map<String, dynamic> metadata;
+  final Map<String, dynamic> modelField;
+  final Map<String, dynamic> declarations;
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
@@ -423,123 +440,240 @@ class _FieldCard extends StatelessWidget {
         border: Border.all(color: colors.outlineVariant),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Icon(
-                column.isPrimaryKey
-                    ? Icons.key
-                    : foreignKeys.isNotEmpty
-                    ? Icons.link
-                    : Icons.view_column_outlined,
-                size: 16,
-                color: colors.onSurfaceVariant,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: SelectableText(
-                  column.fieldName,
-                  style: Theme.of(context).textTheme.titleSmall,
+      child: Material(
+        type: MaterialType.transparency,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  column.isPrimaryKey
+                      ? Icons.key
+                      : foreignKeys.isNotEmpty
+                      ? Icons.link
+                      : Icons.view_column_outlined,
+                  size: 16,
+                  color: colors.onSurfaceVariant,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: SelectableText(
+                    column.fieldName,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ),
+              ],
+            ),
+            if (column.name != column.fieldName)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(
+                  'Column: ${column.name}',
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
-            ],
-          ),
-          if (column.name != column.fieldName)
-            Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: Text(
-                'Column: ${column.name}',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                SchemaDetailBadge(column.dbType),
+                if (column.dartType != column.dbType)
+                  SchemaDetailBadge(column.dartType),
+                if (column.isPrimaryKey)
+                  const SchemaDetailBadge('Primary key', keyField: true),
+                if (foreignKeys.isNotEmpty)
+                  const SchemaDetailBadge('Foreign key', keyField: true),
+                SchemaDetailBadge(column.isNullable ? 'Nullable' : 'Required'),
+                if (column.isUnique) const SchemaDetailBadge('Unique'),
+                if (modelField['scope'] == 'serverOnly')
+                  const SchemaDetailBadge('Server only'),
+                if (modelField['scope'] == 'none')
+                  const SchemaDetailBadge('Not serialized'),
+              ],
             ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              _Badge(column.dbType),
-              if (column.dartType != column.dbType) _Badge(column.dartType),
-              if (column.isPrimaryKey)
-                const _Badge('Primary key', keyField: true),
-              if (foreignKeys.isNotEmpty)
-                const _Badge('Foreign key', keyField: true),
-              _Badge(column.isNullable ? 'Nullable' : 'Required'),
-              if (column.isUnique) const _Badge('Unique'),
-            ],
-          ),
-          if (column.defaultValue != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: SelectableText(
-                'Default: ${column.defaultValue}',
-                style: Theme.of(context).textTheme.bodySmall,
+            if (column.defaultValue != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: SelectableText(
+                  'Default: ${column.defaultValue}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ),
-            ),
-          for (final fk in foreignKeys)
-            Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: Text(
-                'References ${fk.refTable} (${fk.refColumns.join(', ')})',
-                style: Theme.of(context).textTheme.bodySmall,
+            for (final name in {
+              ...SchemaModelCatalog.references(column.dartType),
+              if (declarations.containsKey(column.dbType)) column.dbType,
+            })
+              if (declarations[name] case final Map declaration
+                  when declaration['kind'] == 'enum')
+                _DeclaredModel(name: name, declarations: declarations),
+            if (const {'json', 'jsonb'}.contains(column.dbType))
+              ExpansionTile(
+                key: ValueKey('structure:${column.name}'),
+                tilePadding: EdgeInsets.zero,
+                title: const Text('Type structure'),
+                subtitle: Text(column.dartType),
+                children: [
+                  _DeclaredType(
+                    type: SchemaTypeStructure.parse(column.dartType),
+                    declarations: declarations,
+                  ),
+                ],
               ),
+            SchemaMetadataDetails(
+              metadata: metadata,
+              exclude: const {
+                'name',
+                'fieldName',
+                'columnType',
+                'dartType',
+                'isNullable',
+                'columnDefault',
+                'vectorDimension',
+              },
             ),
-        ],
+            for (final fk in foreignKeys)
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Text(
+                  'References ${fk.refTable} (${fk.refColumns.join(', ')})',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _CodeCard extends StatelessWidget {
-  const _CodeCard({
-    required this.title,
-    required this.language,
-    required this.code,
+/// Declared types enrich persisted JSON; they never invent database columns.
+class _DeclaredModel extends StatelessWidget {
+  const _DeclaredModel({
+    required this.name,
+    required this.declarations,
+    this.visited = const {},
   });
-  final String title, language, code;
+  final String name;
+  final Map<String, dynamic> declarations;
+  final Set<String> visited;
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerLow,
-        border: Border.all(color: colors.outlineVariant),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: Theme.of(context).textTheme.labelMedium,
-                  ),
+    final value = declarations[name];
+    if (value is! Map) return Text(name);
+    if (visited.contains(name) || visited.length >= 12) {
+      return Padding(
+        padding: const EdgeInsets.all(8),
+        child: Text('$name · recursive reference'),
+      );
+    }
+    if (value['kind'] == 'enum') {
+      final values = value['values'] as List? ?? [];
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Enum values · $name · ${value['serialization']}',
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+            const SizedBox(height: 8),
+            for (var i = 0; i < values.length; i++)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    SchemaDetailBadge(
+                      values[i] is String
+                          ? values[i] as String
+                          : '${(values[i] as Map).keys.first}',
+                    ),
+                    if (value['serialization'] == 'byIndex')
+                      SchemaDetailBadge('$i'),
+                    if (values[i] case final Map properties)
+                      for (final detail in properties.values)
+                        if (detail is Map)
+                          for (final attribute in detail.entries)
+                            Text(
+                              '${attribute.key}: ${attribute.value}',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                  ],
                 ),
-                _Badge(language),
+              ),
+          ],
+        ),
+      );
+    }
+    final fields = value['fields'] as Map? ?? {};
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(name, style: Theme.of(context).textTheme.titleSmall),
+        if (value['extends'] case final String parent)
+          Text('Extends $parent', style: Theme.of(context).textTheme.bodySmall),
+        for (final field in fields.entries)
+          if (SchemaModelCatalog.references('${field.value}')
+              .any(declarations.containsKey))
+            ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              title: Text('${field.key}'),
+              subtitle: Text('${field.value}'),
+              children: [
+                for (final nested in SchemaModelCatalog.references(
+                  '${field.value}',
+                ))
+                  if (declarations.containsKey(nested))
+                    _DeclaredModel(
+                      name: nested,
+                      declarations: declarations,
+                      visited: {...visited, name},
+                    ),
+              ],
+            )
+          else
+            _MetadataRow('${field.key}', '${field.value}'),
+        if (value['variants'] case final List variants)
+          for (final variant in variants)
+            ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              title: Text('Variant: $variant'),
+              children: [
+                _DeclaredModel(
+                  name: '$variant',
+                  declarations: declarations,
+                  visited: {...visited, name},
+                ),
               ],
             ),
-          ),
-          const Divider(height: 1),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: SelectableText(
-              code,
-              style: TextStyle(
-                fontFamily: 'monospace',
-                fontSize: 12,
-                height: 1.7,
-                color: colors.onSurface,
-              ),
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
+}
+
+class _DeclaredType extends StatelessWidget {
+  const _DeclaredType({required this.type, required this.declarations});
+  final SchemaTypeStructure type;
+  final Map<String, dynamic> declarations;
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(left: 12, bottom: 8),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final name in SchemaModelCatalog.references(type.name))
+          if (declarations.containsKey(name))
+            _DeclaredModel(name: name, declarations: declarations),
+        for (final child in type.children) ...[
+          _MetadataRow(child.label, child.type.source),
+          _DeclaredType(type: child.type, declarations: declarations),
+        ],
+      ],
+    ),
+  );
 }

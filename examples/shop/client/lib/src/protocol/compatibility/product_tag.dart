@@ -12,7 +12,6 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'package:shop_client/src/protocol/protocol.dart' as _id88xlko;
-import '../compatibility/tag.dart' as _ijbcfp2v;
 import '../product.dart' as _iowwd3dh;
 
 abstract class ShopProductTag
@@ -22,7 +21,6 @@ abstract class ShopProductTag
     required this.productId,
     this.product,
     required this.tagId,
-    this.tag,
   });
 
   factory ShopProductTag({
@@ -30,7 +28,6 @@ abstract class ShopProductTag
     required int productId,
     _iowwd3dh.Product? product,
     required int tagId,
-    _ijbcfp2v.ShopTag? tag,
   }) = _ShopProductTagImpl;
 
   factory ShopProductTag.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -43,11 +40,6 @@ abstract class ShopProductTag
               jsonSerialization['product'],
             ),
       tagId: jsonSerialization['tagId'] as int,
-      tag: jsonSerialization['tag'] == null
-          ? null
-          : _id88xlko.Protocol().deserialize<_ijbcfp2v.ShopTag>(
-              jsonSerialization['tag'],
-            ),
     );
   }
 
@@ -62,8 +54,6 @@ abstract class ShopProductTag
 
   int tagId;
 
-  _ijbcfp2v.ShopTag? tag;
-
   /// Returns a shallow copy of this [ShopProductTag]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -72,7 +62,6 @@ abstract class ShopProductTag
     int? productId,
     _iowwd3dh.Product? product,
     int? tagId,
-    _ijbcfp2v.ShopTag? tag,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -82,7 +71,6 @@ abstract class ShopProductTag
       'productId': productId,
       if (product != null) 'product': product?.toJson(),
       'tagId': tagId,
-      if (tag != null) 'tag': tag?.toJson(),
     };
   }
 
@@ -94,7 +82,6 @@ abstract class ShopProductTag
       'productId': productId,
       if (product != null) 'product': product?.toJsonForProtocol(),
       'tagId': tagId,
-      if (tag != null) 'tag': tag?.toJsonForProtocol(),
     };
   }
 
@@ -112,14 +99,7 @@ class _ShopProductTagImpl extends ShopProductTag {
     required int productId,
     _iowwd3dh.Product? product,
     required int tagId,
-    _ijbcfp2v.ShopTag? tag,
-  }) : super._(
-         id: id,
-         productId: productId,
-         product: product,
-         tagId: tagId,
-         tag: tag,
-       );
+  }) : super._(id: id, productId: productId, product: product, tagId: tagId);
 
   /// Returns a shallow copy of this [ShopProductTag]
   /// with some or all fields replaced by the given arguments.
@@ -130,7 +110,6 @@ class _ShopProductTagImpl extends ShopProductTag {
     int? productId,
     Object? product = _Undefined,
     int? tagId,
-    Object? tag = _Undefined,
   }) {
     return ShopProductTag(
       id: id is int? ? id : this.id,
@@ -139,7 +118,6 @@ class _ShopProductTagImpl extends ShopProductTag {
           ? product
           : this.product?.copyWith(),
       tagId: tagId ?? this.tagId,
-      tag: tag is _ijbcfp2v.ShopTag? ? tag : this.tag?.copyWith(),
     );
   }
 }

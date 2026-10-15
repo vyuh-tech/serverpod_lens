@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
 import 'schema_graph.dart';
+import 'schema_model_catalog.dart';
 import 'schema_definition_reader.dart';
 
 /// This deployment exposes only its own generated target, never a client path.
@@ -23,6 +24,7 @@ final class LensSchemaSource {
     String? knownRevision,
     Map<String, String> sourcePaths = const {},
     Map<String, String> modelSources = const {},
+    SchemaModelCatalog? modelCatalog,
   }) {
     // A module can be included both directly and through another module (for
     // example auth_core through auth_idp). Generated targets then repeat the
@@ -48,7 +50,6 @@ final class LensSchemaSource {
           "${b['schema'] ?? 'public'}.${b['name']}",
         ),
       );
-    final definition = jsonEncode(_canonical({'tables': definitions}));
     final identities = {
       for (final table in definitions)
         "${table['schema'] ?? 'public'}.${table['name']}",
@@ -67,6 +68,37 @@ final class LensSchemaSource {
           .where((entry) => paths.containsKey(entry.key))
           .toList()
         ..sort((a, b) => a.key.compareTo(b.key)),
+    );
+    final catalog =
+        modelCatalog ?? SchemaModelCatalog.fromSources(sources.values);
+    final enriched = [
+      for (final table in definitions)
+        catalog.enrichTable(
+          table,
+          source: sources["${table['schema'] ?? 'public'}.${table['name']}"],
+        ),
+    ];
+    final enums = <String, Map<String, dynamic>>{};
+    for (final table in enriched) {
+      final metadata = table['lensModel'];
+      if (metadata is! Map || metadata['models'] is! Map) continue;
+      for (final entry in (metadata['models'] as Map).entries) {
+        final value = entry.value as Map;
+        if (value['kind'] != 'enum') continue;
+        enums[entry.key as String] = {
+          'name': entry.key,
+          'values': SchemaModelCatalog.enumValues(value['values']),
+        };
+      }
+    }
+    final definition = jsonEncode(
+      _canonical({
+        'tables': enriched,
+        'enums': enums.values.toList()
+          ..sort(
+            (a, b) => (a['name'] as String).compareTo(b['name'] as String),
+          ),
+      }),
     );
     final revision = sha256
         .convert(

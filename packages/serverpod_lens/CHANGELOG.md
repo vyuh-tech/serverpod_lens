@@ -1,5 +1,10 @@
 ## Unreleased
 
+- Inspect enum values/properties, inherited aliases, nested containers/records and recursive objects.
+- Bind every composite foreign-key pair using native Vyuh connectors and show optional cardinality.
+- Share inspector chips/code containers and expose advanced native metadata.
+- Verify every Serverpod 4.0.4 column type through the native renderer.
+
 - Isolate layout and selection when a host changes accounts while reusing a graph.
 - Flush pending view positions to the previous account before switching.
 

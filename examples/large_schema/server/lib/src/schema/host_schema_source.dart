@@ -13,6 +13,7 @@ abstract final class HostSchemaSource {
     String? knownRevision,
     Map<String, String> sourcePaths = const {},
     Map<String, String> modelSources = const {},
+    SchemaModelCatalog? modelCatalog,
   }) => SchemaSnapshot.fromJson(
     _source
         .read(
@@ -20,6 +21,7 @@ abstract final class HostSchemaSource {
           knownRevision: knownRevision,
           sourcePaths: sourcePaths,
           modelSources: modelSources,
+          modelCatalog: modelCatalog,
         )
         .toJson(),
   );

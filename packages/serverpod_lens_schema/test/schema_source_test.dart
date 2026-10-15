@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:serverpod_lens_schema/serverpod_lens_schema.dart';
 import 'package:serverpod_lens_schema/io.dart';
@@ -18,6 +19,123 @@ Map<String, dynamic> table({
   'indexes': [],
 };
 void main() {
+  test(
+    'runtime columns recover authored Dart aliases without changing storage',
+    () {
+      final target = table()
+        ..['dartName'] = 'Customer'
+        ..['columns'] = [
+          {'name': 'display_name', 'columnType': 'text', 'isNullable': false},
+        ];
+      final snapshot = LensSchemaSource(projectId: 'shop').read(
+        [target],
+        sourcePaths: {'public.customers': 'lib/customer.spy.yaml'},
+        modelSources: {
+          'public.customers': 'class: Customer\ntable: customers\nfields:\n  displayName: String, column=display_name\n',
+        },
+      );
+      final field = snapshot.graph!.tables.single.columns.single;
+      expect(field.fieldName, 'displayName');
+      expect(field.name, 'display_name');
+      expect(field.dbType, 'text');
+      expect(field.isNullable, isFalse);
+    },
+  );
+  test('referenced enums and nested inherited models reach snapshots, unrelated models do not', () {
+    final target = table()
+      ..['dartName'] = 'Customer'
+      ..['columns'] = [
+        {'name': 'state', 'columnType': 'text', 'dartType': 'protocol:State'},
+        {
+          'name': 'payload',
+          'columnType': 'jsonb',
+          'dartType': 'List<protocol:Payload>',
+        },
+      ];
+    const source = 'class: Customer\ntable: customers\n';
+    final catalog = SchemaModelCatalog.fromSources([
+      source,
+      'enum: State\nserialized: byName\nvalues: [draft, active]\n',
+      'class: Base\nfields:\n  label: String\n',
+      'class: Payload\nextends: Base\nfields:\n  next: Payload?\n  values: Map<String, List<int>>\n',
+      'enum: Unused\nvalues: [private]\n',
+    ]);
+    final result = LensSchemaSource(projectId: 'shop').read(
+      [target],
+      sourcePaths: {'public.customers': 'lib/customer.spy.yaml'},
+      modelSources: {'public.customers': source},
+      modelCatalog: catalog,
+    );
+    expect(result.graph!.enums.single.name, 'State');
+    expect(result.graph!.enums.single.values, ['draft', 'active']);
+    final metadata =
+        jsonDecode(
+              result.graph!.tables.single.definition!,
+            )['lensModel']['models']
+            as Map;
+    expect(metadata.keys, containsAll(['State', 'Payload']));
+    expect(metadata, isNot(contains('Unused')));
+    expect(metadata['Payload']['fields'], {
+      'label': 'String',
+      'next': 'Payload?',
+      'values': 'Map<String, List<int>>',
+    });
+    final changed = LensSchemaSource(projectId: 'shop').read(
+      [target],
+      knownRevision: result.revision,
+      sourcePaths: {'public.customers': 'lib/customer.spy.yaml'},
+      modelSources: {'public.customers': source},
+      modelCatalog: SchemaModelCatalog.fromSources([
+        source,
+        'enum: State\nvalues: [draft, active, archived]\n',
+      ]),
+    );
+    expect(changed.graph, isNotNull);
+    expect(changed.revision, isNot(result.revision));
+  });
+  test('native metadata wins over aliases and malformed enum edits remain non-blocking', () {
+    final target = table()
+      ..['dartName'] = 'Customer'
+      ..['columns'] = [
+        {
+          'name': 'label',
+          'fieldName': 'nativeLabel',
+          'columnType': 'text',
+          'dartType': 'protocol:State',
+        },
+      ];
+    const source =
+        'class: Customer\ntable: customers\nfields:\n  otherLabel: String, column=label\n';
+    final snapshot = LensSchemaSource(projectId: 'shop').read(
+      [target],
+      sourcePaths: {'public.customers': 'lib/customer.spy.yaml'},
+      modelSources: {'public.customers': source},
+      modelCatalog: SchemaModelCatalog.fromSources([
+        source,
+        'enum: State\nvalues: incomplete\n',
+      ]),
+    );
+    expect(
+      snapshot.graph!.tables.single.columns.single.fieldName,
+      'nativeLabel',
+    );
+    expect(snapshot.graph!.enums.single.values, isEmpty);
+  });
+  test('aliases in quoted defaults do not become column options', () {
+    final target = table()
+      ..['dartName'] = 'Customer'
+      ..['columns'] = [
+        {'name': 'label', 'columnType': 'text'},
+      ];
+    const source =
+        'class: Customer\ntable: customers\nfields:\n  description: String, default="anything, column=label"\n';
+    final snapshot = LensSchemaSource(projectId: 'shop').read(
+      [target],
+      sourcePaths: {'public.customers': 'lib/customer.spy.yaml'},
+      modelSources: {'public.customers': source},
+    );
+    expect(snapshot.graph!.tables.single.columns.single.fieldName, 'label');
+  });
   test('one extraction interface serves distinct hosts and identities', () {
     for (final project in ['shop', 'large_schema']) {
       final source = LensSchemaSource(projectId: project);

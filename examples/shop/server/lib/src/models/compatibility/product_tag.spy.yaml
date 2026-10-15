@@ -2,7 +2,7 @@ class: ShopProductTag
 table: shop_product_tags
 fields:
   product: Product?, relation(onDelete=Cascade)
-  tag: ShopTag?, relation(onDelete=Cascade)
+  tagId: int, relation(parent=shop_tags, onDelete=Cascade), column=tag_id
 indexes:
   shop_product_tag_pair:
     fields: productId, tagId

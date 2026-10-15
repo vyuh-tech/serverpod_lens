@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:serverpod_lens_schema/serverpod_lens_schema.dart'
-    show SchemaGraph, SchemaTable, SchemaColumn;
+    show SchemaGraph, SchemaTable, SchemaColumn, SchemaRelationshipInfo;
 import 'package:vyuh_diagram_core/vyuh_diagram_core.dart';
 import 'package:vyuh_diagram_core/extension_api.dart';
 import 'package:vyuh_diagram_core/adapter.dart'
@@ -104,82 +104,83 @@ abstract final class SchemaDiagram {
         final fk = table.foreignKeys[index];
         final parent = byName[fk.refTable];
         if (parent == null) continue;
-        final childColumn = fk.columns.firstOrNull;
-        final parentColumn = fk.refColumns.firstOrNull ?? 'id';
-        final original = originals[table.name]!;
-        final unique =
-            fk.columns.length == 1 &&
-                original.columns.any(
-                  (column) =>
-                      column.name == childColumn &&
-                      (column.isUnique ||
-                          column.isPrimaryKey &&
-                              original.columns
-                                      .where((column) => column.isPrimaryKey)
-                                      .length ==
-                                  1),
-                ) ||
-            original.indexes.any(
-              (key) =>
-                  key.unique &&
-                  (key.predicate == null || key.predicate!.isEmpty) &&
-                  key.columns.length == fk.columns.length &&
-                  key.columns.toSet().containsAll(fk.columns),
-            );
-        final id = '${table.name}::relation::$index';
-        ConnectorLabel label(
-          String suffix,
-          String text,
-          double fraction,
-          DiagramPoint offset,
-        ) => ConnectorLabel(
-          id: '$id::$suffix',
-          fraction: fraction,
-          offset: offset,
-          story: TextStory(
-            id: '$id::$suffix-story',
-            blocks: [
-              TextParagraph(
-                id: '$id::$suffix-paragraph',
-                runs: [TextRun(text)],
-              ),
-            ],
-          ),
-        );
-        elements.add(
-          ConnectorElement(
-            id: id,
-            start: BoundEndpoint(
-              elementId: table.name,
-              portId: table.columns.any((column) => column.name == childColumn)
-                  ? _portId(table.name, childColumn!, 'r')
-                  : _tablePortId(table.name, 'r'),
-            ),
-            end: BoundEndpoint(
-              elementId: parent.name,
-              portId:
-                  parent.columns.any((column) => column.name == parentColumn)
-                  ? _portId(parent.name, parentColumn, 'l')
-                  : _tablePortId(parent.name, 'l'),
-            ),
-            labels: [
-              if (fk.columns.length > 1)
-                label(
-                  'columns',
-                  '${fk.columns.join(', ')} → ${fk.refColumns.join(', ')}',
-                  .5,
-                  DiagramPoint.zero,
+        if (fk.columns.length != fk.refColumns.length) {
+          throw FormatException(
+            'Foreign key ${fk.name} has mismatched column pairs',
+          );
+        }
+        final cardinality = SchemaRelationshipInfo(originals[table.name]!, fk);
+        for (
+          var pair = 0;
+          pair < (fk.columns.isEmpty ? 1 : fk.columns.length);
+          pair++
+        ) {
+          final childColumn = fk.columns.isEmpty ? null : fk.columns[pair];
+          final parentColumn = fk.refColumns.isEmpty
+              ? 'id'
+              : fk.refColumns[pair];
+          final baseId = '${table.name}::relation::$index';
+          final id = fk.columns.length > 1 ? '$baseId::pair::$pair' : baseId;
+          ConnectorLabel label(
+            String suffix,
+            String text,
+            double fraction,
+            DiagramPoint offset,
+          ) => ConnectorLabel(
+            id: '$id::$suffix',
+            fraction: fraction,
+            offset: offset,
+            story: TextStory(
+              id: '$id::$suffix-story',
+              blocks: [
+                TextParagraph(
+                  id: '$id::$suffix-paragraph',
+                  runs: [TextRun(text)],
                 ),
-              label(
-                'from',
-                unique ? '1' : 'N',
-                .08,
-                const DiagramPoint(0, -12),
+              ],
+            ),
+          );
+          elements.add(
+            ConnectorElement(
+              id: id,
+              start: BoundEndpoint(
+                elementId: table.name,
+                portId:
+                    table.columns.any((column) => column.name == childColumn)
+                    ? _portId(table.name, childColumn!, 'r')
+                    : _tablePortId(table.name, 'r'),
               ),
-              label('to', '1', .92, const DiagramPoint(0, -12)),
-            ],
-          ),
-        );
+              end: BoundEndpoint(
+                elementId: parent.name,
+                portId:
+                    parent.columns.any((column) => column.name == parentColumn)
+                    ? _portId(parent.name, parentColumn, 'l')
+                    : _tablePortId(parent.name, 'l'),
+              ),
+              labels: [
+                if (fk.columns.length > 1)
+                  label(
+                    'columns',
+                    '$childColumn → $parentColumn (${pair + 1}/${fk.columns.length})',
+                    .5,
+                    DiagramPoint.zero,
+                  ),
+                label(
+                  'from',
+                  cardinality.children,
+                  .08,
+                  const DiagramPoint(0, -12),
+                ),
+                label(
+                  'to',
+                  cardinality.parent,
+                  .92,
+                  const DiagramPoint(0, -12),
+                ),
+              ],
+            ),
+          );
+        }
       }
     }
     // Admit the native document once, rather than resolving an intermediate
