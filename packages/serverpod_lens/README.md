@@ -3,6 +3,20 @@
 A read-only Flutter viewer for Serverpod database schemas, built with Vyuh
 Diagram. It displays tables, columns, foreign keys, indexes, and model source.
 
+## Serverpod coverage
+
+All Serverpod 4.0.4 native column variants render as field rows, including vector,
+geography, JSON/JSONB, and the unknown-type sentinel. The inspector shows aliases,
+nullable/default/key information, enum values and properties, nested collections,
+records, and authored object structures. Recursive types expand safely.
+
+Relationships use native Vyuh field ports for every composite-key pair. Labels
+show `0..1`, `1`, and `0..N` bounds derived from nullability and unconditional
+uniqueness. Advanced field, index, and constraint metadata stays inspectable.
+
+[Coverage and boundaries](../../docs/SERVERPOD_SUPPORT.md). Version **0.2.0** is
+prepared for manual publication; use this workspace until it is released.
+
 ## Install
 
 Requires Flutter 3.47+, Dart 3.13+, and a Vyuh registry token that grants access to

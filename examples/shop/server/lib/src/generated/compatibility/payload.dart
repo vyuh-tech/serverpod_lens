@@ -9,22 +9,40 @@
 // ignore_for_file: use_super_parameters
 // ignore_for_file: invalid_use_of_internal_member
 
-// ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:serverpod/serverpod.dart' as _is;
-import 'package:shop_server/src/generated/protocol.dart' as _iicbhma1;
+part of 'payload_base.dart';
 
-abstract class ShopPayload
+abstract class ShopPayload extends _iv35mfmj.ShopPayloadBase
     implements _is.SerializableModel, _is.ProtocolSerialization {
-  ShopPayload._({required this.message, required this.nested});
+  ShopPayload._({
+    required super.label,
+    required this.message,
+    this.next,
+    this.variant,
+    required this.nested,
+  });
 
   factory ShopPayload({
+    required String label,
     required String message,
+    _iym3mk8y.ShopPayload? next,
+    _iym3mk8y.ShopPayloadBase? variant,
     required List<Map<String, int>> nested,
   }) = _ShopPayloadImpl;
 
   factory ShopPayload.fromJson(Map<String, dynamic> jsonSerialization) {
     return ShopPayload(
+      label: jsonSerialization['label'] as String,
       message: jsonSerialization['message'] as String,
+      next: jsonSerialization['next'] == null
+          ? null
+          : _iicbhma1.Protocol().deserialize<_iym3mk8y.ShopPayload>(
+              jsonSerialization['next'],
+            ),
+      variant: jsonSerialization['variant'] == null
+          ? null
+          : _iicbhma1.Protocol().deserialize<_iym3mk8y.ShopPayloadBase>(
+              jsonSerialization['variant'],
+            ),
       nested: _iicbhma1.Protocol().deserialize<List<Map<String, int>>>(
         jsonSerialization['nested'],
       ),
@@ -33,17 +51,31 @@ abstract class ShopPayload
 
   String message;
 
+  _iym3mk8y.ShopPayload? next;
+
+  _iym3mk8y.ShopPayloadBase? variant;
+
   List<Map<String, int>> nested;
 
   /// Returns a shallow copy of this [ShopPayload]
   /// with some or all fields replaced by the given arguments.
+  @override
   @_is.useResult
-  ShopPayload copyWith({String? message, List<Map<String, int>>? nested});
+  ShopPayload copyWith({
+    String? label,
+    String? message,
+    _iym3mk8y.ShopPayload? next,
+    _iym3mk8y.ShopPayloadBase? variant,
+    List<Map<String, int>>? nested,
+  });
   @override
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'ShopPayload',
+      'label': label,
       'message': message,
+      if (next != null) 'next': next?.toJson(),
+      if (variant != null) 'variant': variant?.toJson(),
       'nested': nested.toJson(valueToJson: (v) => v.toJson()),
     };
   }
@@ -52,7 +84,10 @@ abstract class ShopPayload
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'ShopPayload',
+      'label': label,
       'message': message,
+      if (next != null) 'next': next?.toJsonForProtocol(),
+      if (variant != null) 'variant': variant?.toJsonForProtocol(),
       'nested': nested.toJson(valueToJson: (v) => v.toJson()),
     };
   }
@@ -65,17 +100,37 @@ abstract class ShopPayload
 
 class _ShopPayloadImpl extends ShopPayload {
   _ShopPayloadImpl({
+    required String label,
     required String message,
+    _iym3mk8y.ShopPayload? next,
+    _iym3mk8y.ShopPayloadBase? variant,
     required List<Map<String, int>> nested,
-  }) : super._(message: message, nested: nested);
+  }) : super._(
+         label: label,
+         message: message,
+         next: next,
+         variant: variant,
+         nested: nested,
+       );
 
   /// Returns a shallow copy of this [ShopPayload]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
   @override
-  ShopPayload copyWith({String? message, List<Map<String, int>>? nested}) {
+  ShopPayload copyWith({
+    String? label,
+    String? message,
+    Object? next = _Undefined,
+    Object? variant = _Undefined,
+    List<Map<String, int>>? nested,
+  }) {
     return ShopPayload(
+      label: label ?? this.label,
       message: message ?? this.message,
+      next: next is _iym3mk8y.ShopPayload? ? next : this.next?.copyWith(),
+      variant: variant is _iym3mk8y.ShopPayloadBase?
+          ? variant
+          : this.variant?.copyWith(),
       nested:
           nested ??
           this.nested

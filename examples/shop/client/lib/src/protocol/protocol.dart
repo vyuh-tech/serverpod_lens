@@ -18,7 +18,7 @@ import 'compatibility/bin.dart' as _ine9533w;
 import 'compatibility/category.dart' as _ikhw4jxc;
 import 'compatibility/client_draft.dart' as _ihatvein;
 import 'compatibility/member.dart' as _i99dvj10;
-import 'compatibility/payload.dart' as _iz1nt8jc;
+import 'compatibility/payload_base.dart' as _ilat2uy7;
 import 'compatibility/priority.dart' as _ielmbjaw;
 import 'compatibility/product_tag.dart' as _in7cvpdg;
 import 'compatibility/profile.dart' as _iw487p6s;
@@ -38,7 +38,7 @@ export 'compatibility/bin.dart';
 export 'compatibility/category.dart';
 export 'compatibility/client_draft.dart';
 export 'compatibility/member.dart';
-export 'compatibility/payload.dart';
+export 'compatibility/payload_base.dart';
 export 'compatibility/priority.dart';
 export 'compatibility/product_tag.dart';
 export 'compatibility/profile.dart';
@@ -159,8 +159,8 @@ class Protocol extends _isd.DatabaseSerializationManager {
     if (t == _i99dvj10.ShopMember) {
       return _i99dvj10.ShopMember.fromJson(data) as T;
     }
-    if (t == _iz1nt8jc.ShopPayload) {
-      return _iz1nt8jc.ShopPayload.fromJson(data) as T;
+    if (t == _ilat2uy7.ShopPayload) {
+      return _ilat2uy7.ShopPayload.fromJson(data) as T;
     }
     if (t == _ielmbjaw.ShopPriority) {
       return _ielmbjaw.ShopPriority.fromJson(data) as T;
@@ -218,8 +218,8 @@ class Protocol extends _isd.DatabaseSerializationManager {
     if (t == _isc.getType<_i99dvj10.ShopMember?>()) {
       return (data != null ? _i99dvj10.ShopMember.fromJson(data) : null) as T;
     }
-    if (t == _isc.getType<_iz1nt8jc.ShopPayload?>()) {
-      return (data != null ? _iz1nt8jc.ShopPayload.fromJson(data) : null) as T;
+    if (t == _isc.getType<_ilat2uy7.ShopPayload?>()) {
+      return (data != null ? _ilat2uy7.ShopPayload.fromJson(data) : null) as T;
     }
     if (t == _isc.getType<_ielmbjaw.ShopPriority?>()) {
       return (data != null ? _ielmbjaw.ShopPriority.fromJson(data) : null) as T;
@@ -350,7 +350,7 @@ class Protocol extends _isd.DatabaseSerializationManager {
       _ikhw4jxc.ShopCategory => 'ShopCategory',
       _ihatvein.ShopClientDraft => 'ShopClientDraft',
       _i99dvj10.ShopMember => 'ShopMember',
-      _iz1nt8jc.ShopPayload => 'ShopPayload',
+      _ilat2uy7.ShopPayload => 'ShopPayload',
       _ielmbjaw.ShopPriority => 'ShopPriority',
       _in7cvpdg.ShopProductTag => 'ShopProductTag',
       _iw487p6s.ShopProfile => 'ShopProfile',
@@ -389,7 +389,7 @@ class Protocol extends _isd.DatabaseSerializationManager {
         return 'ShopClientDraft';
       case _i99dvj10.ShopMember():
         return 'ShopMember';
-      case _iz1nt8jc.ShopPayload():
+      case _ilat2uy7.ShopPayload():
         return 'ShopPayload';
       case _ielmbjaw.ShopPriority():
         return 'ShopPriority';
@@ -444,7 +444,7 @@ class Protocol extends _isd.DatabaseSerializationManager {
       return deserialize<_i99dvj10.ShopMember>(data['data']);
     }
     if (dataClassName == 'ShopPayload') {
-      return deserialize<_iz1nt8jc.ShopPayload>(data['data']);
+      return deserialize<_ilat2uy7.ShopPayload>(data['data']);
     }
     if (dataClassName == 'ShopPriority') {
       return deserialize<_ielmbjaw.ShopPriority>(data['data']);

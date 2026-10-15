@@ -23,7 +23,7 @@ abstract class ShopMember
     required this.name,
     required this.teamId,
     this.team,
-    required this.profileId,
+    this.profileId,
     this.profile,
   });
 
@@ -32,7 +32,7 @@ abstract class ShopMember
     required String name,
     required int teamId,
     _icj80dj0.ShopTeam? team,
-    required int profileId,
+    int? profileId,
     _i09u2zl9.ShopProfile? profile,
   }) = _ShopMemberImpl;
 
@@ -46,7 +46,7 @@ abstract class ShopMember
           : _iicbhma1.Protocol().deserialize<_icj80dj0.ShopTeam>(
               jsonSerialization['team'],
             ),
-      profileId: jsonSerialization['profileId'] as int,
+      profileId: jsonSerialization['profileId'] as int?,
       profile: jsonSerialization['profile'] == null
           ? null
           : _iicbhma1.Protocol().deserialize<_i09u2zl9.ShopProfile>(
@@ -68,7 +68,7 @@ abstract class ShopMember
 
   _icj80dj0.ShopTeam? team;
 
-  int profileId;
+  int? profileId;
 
   _i09u2zl9.ShopProfile? profile;
 
@@ -94,7 +94,7 @@ abstract class ShopMember
       'name': name,
       'teamId': teamId,
       if (team != null) 'team': team?.toJson(),
-      'profileId': profileId,
+      if (profileId != null) 'profileId': profileId,
       if (profile != null) 'profile': profile?.toJson(),
     };
   }
@@ -107,7 +107,7 @@ abstract class ShopMember
       'name': name,
       'teamId': teamId,
       if (team != null) 'team': team?.toJsonForProtocol(),
-      'profileId': profileId,
+      if (profileId != null) 'profileId': profileId,
       if (profile != null) 'profile': profile?.toJsonForProtocol(),
     };
   }
@@ -151,7 +151,7 @@ class _ShopMemberImpl extends ShopMember {
     required String name,
     required int teamId,
     _icj80dj0.ShopTeam? team,
-    required int profileId,
+    int? profileId,
     _i09u2zl9.ShopProfile? profile,
   }) : super._(
          id: id,
@@ -171,7 +171,7 @@ class _ShopMemberImpl extends ShopMember {
     String? name,
     int? teamId,
     Object? team = _Undefined,
-    int? profileId,
+    Object? profileId = _Undefined,
     Object? profile = _Undefined,
   }) {
     return ShopMember(
@@ -179,7 +179,7 @@ class _ShopMemberImpl extends ShopMember {
       name: name ?? this.name,
       teamId: teamId ?? this.teamId,
       team: team is _icj80dj0.ShopTeam? ? team : this.team?.copyWith(),
-      profileId: profileId ?? this.profileId,
+      profileId: profileId is int? ? profileId : this.profileId,
       profile: profile is _i09u2zl9.ShopProfile?
           ? profile
           : this.profile?.copyWith(),
@@ -196,7 +196,7 @@ class ShopMemberUpdateTable extends _is.UpdateTable<ShopMemberTable> {
   _is.ColumnValue<int, int> teamId(int value) =>
       _is.ColumnValue(table.teamId, value);
 
-  _is.ColumnValue<int, int> profileId(int value) =>
+  _is.ColumnValue<int, int> profileId(int? value) =>
       _is.ColumnValue(table.profileId, value);
 }
 
@@ -204,8 +204,8 @@ class ShopMemberTable extends _is.Table<int?> {
   ShopMemberTable({super.tableRelation}) : super(tableName: 'shop_members') {
     updateTable = ShopMemberUpdateTable(this);
     name = _is.ColumnString('name', this);
-    teamId = _is.ColumnInt('teamId', this);
-    profileId = _is.ColumnInt('profileId', this);
+    teamId = _is.ColumnInt('team_id', this, fieldName: 'teamId');
+    profileId = _is.ColumnInt('profile_ref', this, fieldName: 'profileId');
   }
 
   late final ShopMemberUpdateTable updateTable;
@@ -307,6 +307,8 @@ class ShopMemberRepository {
   const ShopMemberRepository._();
 
   final attachRow = const ShopMemberAttachRowRepository._();
+
+  final detachRow = const ShopMemberDetachRowRepository._();
 
   /// Returns a list of [ShopMember]s matching the given query parameters.
   ///
@@ -742,6 +744,32 @@ class ShopMemberAttachRowRepository {
     }
 
     var $shopMember = shopMember.copyWith(profileId: profile.id);
+    await session.db.updateRow<ShopMember>(
+      $shopMember,
+      columns: [ShopMember.t.profileId],
+      transaction: transaction,
+    );
+  }
+}
+
+class ShopMemberDetachRowRepository {
+  const ShopMemberDetachRowRepository._();
+
+  /// Detaches the relation between this [ShopMember] and the [ShopProfile] set in `profile`
+  /// by setting the [ShopMember]'s foreign key `profileId` to `null`.
+  ///
+  /// This removes the association between the two models without deleting
+  /// the related record.
+  Future<void> profile(
+    _is.DatabaseSession session,
+    ShopMember shopMember, {
+    _is.Transaction? transaction,
+  }) async {
+    if (shopMember.id == null) {
+      throw ArgumentError.notNull('shopMember.id');
+    }
+
+    var $shopMember = shopMember.copyWith(profileId: null);
     await session.db.updateRow<ShopMember>(
       $shopMember,
       columns: [ShopMember.t.profileId],

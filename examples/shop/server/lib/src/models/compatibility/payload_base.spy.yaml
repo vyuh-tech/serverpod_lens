@@ -1,0 +1,4 @@
+class: ShopPayloadBase
+sealed: true
+fields:
+  label: String

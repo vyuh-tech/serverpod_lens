@@ -43,6 +43,15 @@ jobs:
           PUB_VYUH_TOKEN: ${{ secrets.PUB_VYUH_TOKEN }}
         run: flutter pub get --enforce-lockfile
 
+      - name: Verify native Serverpod generation
+        env:
+          PUB_VYUH_TOKEN: ${{ secrets.PUB_VYUH_TOKEN }}
+        run: |
+          dart pub global activate serverpod_cli 4.0.4
+          dart pub global run serverpod_cli:serverpod generate --directory examples/shop/server --force
+          dart pub global run serverpod_cli:serverpod generate --directory examples/large_schema/server --force
+          git diff --exit-code -- examples/shop/server/lib/src/generated examples/shop/client examples/large_schema/server/lib/src/generated examples/large_schema/client
+
       - name: Analyze, check formatting, and run all Dart and Flutter suites
         env:
           # Only the managed, disposable test database uses this credential.

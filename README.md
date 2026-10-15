@@ -43,11 +43,22 @@ The launcher runs from this checkout. See [local tool setup](tool/lens/README.md
 Moving tables changes the view. Model definitions and database records remain
 unchanged.
 
+## Serverpod support
+
+Tested against **Serverpod 4.0.4**: every native column type, inherited persisted
+fields, keys and defaults, indexes, and foreign-key relationships. Authored
+models enrich the inspector with Dart aliases, enum values, and nested types.
+Composite relationships connect every field pair; labels show optionality.
+
+See the [verified support matrix](docs/SERVERPOD_SUPPORT.md) for coverage and
+boundaries. The generated database target remains the source of truth.
+
 ## Packages and examples
 
 Both packages are published as **0.1.1** on
 [pub.vyuh.tech](https://pub.vyuh.tech) in the **internal** tier. Installing them
-requires registry access. See each package's README for the hosted dependency
+requires registry access. This branch prepares **0.2.0** for manual publication;
+its new support is available from this checkout. See each package's README for the hosted dependency
 declaration and API examples.
 
 | Path | Contents |
@@ -72,7 +83,7 @@ tool/verify.sh
 
 This runs analysis, formatting checks, and the Dart/Flutter test suites. Server
 tests use managed embedded PostgreSQL. The verification workflow runs these
-checks, PostgreSQL parser tests, and public dependency advisory checks on pushes
+checks, reproducible Serverpod generation, PostgreSQL parser tests, and public dependency advisory checks on pushes
 to `main` and pull requests.
 Server tests need a test database password in the local Serverpod configuration
 or `SERVERPOD_PASSWORD_database`; CI supplies a disposable test-only value.
@@ -85,7 +96,8 @@ name at organization level.
 
 To rebuild the Cloud demo from the published packages, run
 `dart run tool/build_cloud_release.dart`. It prepares an isolated build outside
-the checkout and prints the deployment directory. See the
+the checkout and prints the deployment directory. A new package version must be
+published and its archive hashes pinned before the Cloud build can proceed. See the
 [Cloud build instructions](examples/large_schema/README.md#cloud-demo).
 
 Lens code is [MIT licensed](LICENSE). Third-party dependencies retain their own

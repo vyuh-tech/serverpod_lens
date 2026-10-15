@@ -2,8 +2,10 @@ class: ShopMember
 table: shop_members
 fields:
   name: String
-  team: ShopTeam?, relation(name=shop_team_members, onDelete=Cascade)
-  profile: ShopProfile?, relation
+  teamId: int, column=team_id
+  team: ShopTeam?, relation(field=teamId, name=shop_team_members, onDelete=Cascade)
+  profileId: int?, column=profile_ref
+  profile: ShopProfile?, relation(field=profileId, optional)
 indexes:
   shop_member_profile:
     fields: profileId

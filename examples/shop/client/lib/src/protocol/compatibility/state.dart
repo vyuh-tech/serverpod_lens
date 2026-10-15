@@ -13,8 +13,12 @@
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 
 enum ShopState implements _isc.SerializableModel {
-  draft,
-  active;
+  draft('Draft order'),
+  active('Active order');
+
+  const ShopState(this.label);
+
+  final String label;
 
   static ShopState fromJson(String name) {
     switch (name) {

@@ -6,3 +6,4 @@ environment:
 dependencies:
   serverpod_client: 4.0.4
   serverpod_database: 4.0.4
+  http: ^1.6.0

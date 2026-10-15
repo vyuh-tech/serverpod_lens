@@ -1,3 +1,10 @@
+## Unreleased
+
+- Inspect enum values/properties, inherited aliases, nested containers/records and recursive objects.
+- Bind every composite foreign-key pair using native Vyuh connectors and show optional cardinality.
+- Share inspector chips/code containers and expose advanced native metadata.
+- Verify every Serverpod 4.0.4 column type through the native renderer.
+
 ## 0.1.1
 
 - Upgrade Vyuh Diagram to 3.7.2 with native shape and connector selection outlines.

@@ -166,7 +166,7 @@ void main() {
           .first
           .story
           .plainText,
-      'N',
+      '0..N',
     );
   });
   test('model paths reject traversal, URLs and absolute paths', () {

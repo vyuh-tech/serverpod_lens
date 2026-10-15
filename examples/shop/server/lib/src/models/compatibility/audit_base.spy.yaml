@@ -1,4 +1,4 @@
 class: ShopAuditBase
 fields:
   id: UuidValue?, defaultPersist=random_v7
-  createdAt: DateTime, default=now
+  createdAt: DateTime, default=now, column=created_at

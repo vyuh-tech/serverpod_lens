@@ -43,6 +43,22 @@ void main() {
 
   tearDown(() => temporary.deleteSync(recursive: true));
 
+  test(
+    'Cloud build refuses a newer workspace until publication pins are updated',
+    () {
+      for (final name in lensArchives.keys) {
+        final spec = File('${repo.path}/packages/$name/pubspec.yaml');
+        writeManifest(spec, {'name': name, 'version': lensRelease});
+      }
+      expect(() => requireCurrentReleasePins(repo), returnsNormally);
+      writeManifest(
+        File('${repo.path}/packages/serverpod_lens_schema/pubspec.yaml'),
+        {'name': 'serverpod_lens_schema', 'version': '999.0.0'},
+      );
+      expect(() => requireCurrentReleasePins(repo), throwsStateError);
+    },
+  );
+
   test('accepts the pinned registry releases outside the repository', () {
     expect(
       publishedLensRoots(frontend, repo).keys,

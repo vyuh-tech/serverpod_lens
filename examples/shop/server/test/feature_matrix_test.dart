@@ -11,7 +11,7 @@ void main() {
   late Map<String, SchemaTable> tables;
 
   setUpAll(() {
-    final models = ModelSourceIndex().read();
+    final models = ModelSourceIndex().readBundle();
     snapshot = LensSchemaSource(projectId: 'shop').read(
       Protocol()
           .getTargetTableDefinitions()
@@ -19,6 +19,7 @@ void main() {
           .toList(),
       sourcePaths: models.paths,
       modelSources: models.sources,
+      modelCatalog: models.catalog,
     );
     tables = {for (final table in snapshot.graph!.tables) table.name: table};
   });
@@ -33,12 +34,13 @@ void main() {
       expect(column('id').dbType, 'uuid');
       expect(column('id').isPrimaryKey, isTrue);
       expect(column('id').defaultValue, 'random_v7');
-      expect(column('createdAt').dbType, 'timestamp');
-      expect(column('createdAt').defaultValue, 'now');
+      expect(column('created_at').dbType, 'timestamp');
+      expect(column('created_at').fieldName, 'createdAt');
+      expect(column('created_at').defaultValue, 'now');
       expect(column('enabled').defaultValue, 'true');
       expect(column('display_name').isUnique, isTrue);
       expect(table('records').indexes.single.columns, ['display_name']);
-      // The native target exposes the database name, not its Dart alias.
+      // Authored metadata restores the alias omitted by the native target.
       expect(
         snapshot.modelSources![table('records').name],
         contains('column=display_name'),
@@ -58,8 +60,12 @@ void main() {
       expect(column('state').defaultValue, "'draft'");
       expect(column('priority').dartType, 'protocol:ShopPriority');
       expect(column('priority').dbType, 'bigint');
-      // A server database target has enum column types, not an enum catalogue.
-      expect(snapshot.graph!.enums, isEmpty);
+      // Authored metadata supplies enum values absent from the server target.
+      expect(snapshot.graph!.enums.map((value) => value.name), [
+        'ShopPriority',
+        'ShopState',
+      ]);
+      expect(snapshot.graph!.enums.last.values, ['draft', 'active']);
       expect(
         tables.values.any((table) => table.className == 'ShopState'),
         isFalse,
@@ -133,11 +139,29 @@ void main() {
       final team = members.foreignKeys.singleWhere(
         (key) => key.refTable == table('teams').name,
       );
-      expect(team.columns, ['teamId']);
+      expect(team.columns, ['team_id']);
+      expect(
+        members.columns
+            .singleWhere((column) => column.name == 'team_id')
+            .fieldName,
+        'teamId',
+      );
+      expect(
+        members.columns
+            .singleWhere((column) => column.name == 'profile_ref')
+            .fieldName,
+        'profileId',
+      );
+      expect(
+        members.columns
+            .singleWhere((column) => column.name == 'profile_ref')
+            .isNullable,
+        isTrue,
+      );
       expect(team.onDelete, 'cascade');
       expect(
         members.columns
-            .singleWhere((column) => column.name == 'profileId')
+            .singleWhere((column) => column.name == 'profile_ref')
             .isUnique,
         isTrue,
       );
@@ -173,6 +197,12 @@ void main() {
         isTrue,
       );
       final junction = table('product_tags');
+      expect(
+        junction.columns
+            .singleWhere((column) => column.name == 'tag_id')
+            .fieldName,
+        'tagId',
+      );
       expect(junction.foreignKeys.map((key) => key.refTable).toSet(), {
         table('products').name,
         table('tags').name,
@@ -182,13 +212,13 @@ void main() {
         isTrue,
       );
       expect(junction.indexes.single.unique, isTrue);
-      expect(junction.indexes.single.columns, ['productId', 'tagId']);
+      expect(junction.indexes.single.columns, ['productId', 'tag_id']);
       expect(junction.columns.where((column) => column.isUnique), isEmpty);
     },
   );
 
   test('client-only models stay outside server graph and source mappings', () {
-    final models = ModelSourceIndex().read();
+    final models = ModelSourceIndex().readBundle();
     expect(models.paths, contains('public.shop_client_drafts'));
     expect(tables, isNot(contains('public.shop_client_drafts')));
     expect(snapshot.sourcePaths, isNot(contains('public.shop_client_drafts')));
@@ -216,7 +246,10 @@ void main() {
           containsAll(key.refColumns),
         );
       }
-      expect(jsonDecode(resolved.definition!), native.toJson());
+      expect(
+        jsonDecode(resolved.definition!)..remove('lensModel'),
+        native.toJson(),
+      );
     }
     expect(
       SchemaGraph.fromJson(
@@ -240,10 +273,7 @@ void main() {
     );
     Map<String, dynamic> storage(SchemaTable table) => table.toJson()
       ..remove('definition')
-      ..['columns'] = [
-        for (final column in table.columns)
-          column.toJson()..remove('fieldName'),
-      ];
+      ..['columns'] = [for (final column in table.columns) column.toJson()];
     expect(
       migrated.tables.map((table) => table.name).toSet(),
       tables.keys.toSet(),
@@ -256,6 +286,6 @@ void main() {
         .columns
         .singleWhere((column) => column.name == 'display_name');
     expect(alias.fieldName, 'displayName');
-    expect(column('display_name').fieldName, 'display_name');
+    expect(column('display_name').fieldName, 'displayName');
   });
 }

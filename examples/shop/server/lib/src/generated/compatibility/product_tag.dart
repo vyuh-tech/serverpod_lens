@@ -13,7 +13,6 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:shop_server/src/generated/protocol.dart' as _iicbhma1;
-import '../compatibility/tag.dart' as _ijbcfp2v;
 import '../product.dart' as _iowwd3dh;
 
 abstract class ShopProductTag
@@ -23,7 +22,6 @@ abstract class ShopProductTag
     required this.productId,
     this.product,
     required this.tagId,
-    this.tag,
   });
 
   factory ShopProductTag({
@@ -31,7 +29,6 @@ abstract class ShopProductTag
     required int productId,
     _iowwd3dh.Product? product,
     required int tagId,
-    _ijbcfp2v.ShopTag? tag,
   }) = _ShopProductTagImpl;
 
   factory ShopProductTag.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -44,11 +41,6 @@ abstract class ShopProductTag
               jsonSerialization['product'],
             ),
       tagId: jsonSerialization['tagId'] as int,
-      tag: jsonSerialization['tag'] == null
-          ? null
-          : _iicbhma1.Protocol().deserialize<_ijbcfp2v.ShopTag>(
-              jsonSerialization['tag'],
-            ),
     );
   }
 
@@ -65,8 +57,6 @@ abstract class ShopProductTag
 
   int tagId;
 
-  _ijbcfp2v.ShopTag? tag;
-
   @override
   _is.Table<int?> get table => t;
 
@@ -78,7 +68,6 @@ abstract class ShopProductTag
     int? productId,
     _iowwd3dh.Product? product,
     int? tagId,
-    _ijbcfp2v.ShopTag? tag,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -88,7 +77,6 @@ abstract class ShopProductTag
       'productId': productId,
       if (product != null) 'product': product?.toJson(),
       'tagId': tagId,
-      if (tag != null) 'tag': tag?.toJson(),
     };
   }
 
@@ -100,15 +88,11 @@ abstract class ShopProductTag
       'productId': productId,
       if (product != null) 'product': product?.toJsonForProtocol(),
       'tagId': tagId,
-      if (tag != null) 'tag': tag?.toJsonForProtocol(),
     };
   }
 
-  static ShopProductTagInclude include({
-    _iowwd3dh.ProductInclude? product,
-    _ijbcfp2v.ShopTagInclude? tag,
-  }) {
-    return ShopProductTagInclude._(product: product, tag: tag);
+  static ShopProductTagInclude include({_iowwd3dh.ProductInclude? product}) {
+    return ShopProductTagInclude._(product: product);
   }
 
   static ShopProductTagIncludeList includeList({
@@ -143,14 +127,7 @@ class _ShopProductTagImpl extends ShopProductTag {
     required int productId,
     _iowwd3dh.Product? product,
     required int tagId,
-    _ijbcfp2v.ShopTag? tag,
-  }) : super._(
-         id: id,
-         productId: productId,
-         product: product,
-         tagId: tagId,
-         tag: tag,
-       );
+  }) : super._(id: id, productId: productId, product: product, tagId: tagId);
 
   /// Returns a shallow copy of this [ShopProductTag]
   /// with some or all fields replaced by the given arguments.
@@ -161,7 +138,6 @@ class _ShopProductTagImpl extends ShopProductTag {
     int? productId,
     Object? product = _Undefined,
     int? tagId,
-    Object? tag = _Undefined,
   }) {
     return ShopProductTag(
       id: id is int? ? id : this.id,
@@ -170,7 +146,6 @@ class _ShopProductTagImpl extends ShopProductTag {
           ? product
           : this.product?.copyWith(),
       tagId: tagId ?? this.tagId,
-      tag: tag is _ijbcfp2v.ShopTag? ? tag : this.tag?.copyWith(),
     );
   }
 }
@@ -190,7 +165,7 @@ class ShopProductTagTable extends _is.Table<int?> {
     : super(tableName: 'shop_product_tags') {
     updateTable = ShopProductTagUpdateTable(this);
     productId = _is.ColumnInt('productId', this);
-    tagId = _is.ColumnInt('tagId', this);
+    tagId = _is.ColumnInt('tag_id', this, fieldName: 'tagId');
   }
 
   late final ShopProductTagUpdateTable updateTable;
@@ -200,8 +175,6 @@ class ShopProductTagTable extends _is.Table<int?> {
   _iowwd3dh.ProductTable? _product;
 
   late final _is.ColumnInt tagId;
-
-  _ijbcfp2v.ShopTagTable? _tag;
 
   _iowwd3dh.ProductTable get product {
     if (_product != null) return _product!;
@@ -216,19 +189,6 @@ class ShopProductTagTable extends _is.Table<int?> {
     return _product!;
   }
 
-  _ijbcfp2v.ShopTagTable get tag {
-    if (_tag != null) return _tag!;
-    _tag = _is.createRelationTable(
-      relationFieldName: 'tag',
-      field: ShopProductTag.t.tagId,
-      foreignField: _ijbcfp2v.ShopTag.t.id,
-      tableRelation: tableRelation,
-      createTable: (foreignTableRelation) =>
-          _ijbcfp2v.ShopTagTable(tableRelation: foreignTableRelation),
-    );
-    return _tag!;
-  }
-
   @override
   List<_is.Column> get columns => [id, productId, tagId];
 
@@ -237,28 +197,19 @@ class ShopProductTagTable extends _is.Table<int?> {
     if (relationField == 'product') {
       return product;
     }
-    if (relationField == 'tag') {
-      return tag;
-    }
     return null;
   }
 }
 
 class ShopProductTagInclude extends _is.IncludeObject {
-  ShopProductTagInclude._({
-    _iowwd3dh.ProductInclude? product,
-    _ijbcfp2v.ShopTagInclude? tag,
-  }) {
+  ShopProductTagInclude._({_iowwd3dh.ProductInclude? product}) {
     _product = product;
-    _tag = tag;
   }
 
   _iowwd3dh.ProductInclude? _product;
 
-  _ijbcfp2v.ShopTagInclude? _tag;
-
   @override
-  Map<String, _is.Include?> get includes => {'product': _product, 'tag': _tag};
+  Map<String, _is.Include?> get includes => {'product': _product};
 
   @override
   _is.Table<int?> get table => ShopProductTag.t;
@@ -702,29 +653,6 @@ class ShopProductTagAttachRowRepository {
     await session.db.updateRow<ShopProductTag>(
       $shopProductTag,
       columns: [ShopProductTag.t.productId],
-      transaction: transaction,
-    );
-  }
-
-  /// Creates a relation between the given [ShopProductTag] and [ShopTag]
-  /// by setting the [ShopProductTag]'s foreign key `tagId` to refer to the [ShopTag].
-  Future<void> tag(
-    _is.DatabaseSession session,
-    ShopProductTag shopProductTag,
-    _ijbcfp2v.ShopTag tag, {
-    _is.Transaction? transaction,
-  }) async {
-    if (shopProductTag.id == null) {
-      throw ArgumentError.notNull('shopProductTag.id');
-    }
-    if (tag.id == null) {
-      throw ArgumentError.notNull('tag.id');
-    }
-
-    var $shopProductTag = shopProductTag.copyWith(tagId: tag.id);
-    await session.db.updateRow<ShopProductTag>(
-      $shopProductTag,
-      columns: [ShopProductTag.t.tagId],
       transaction: transaction,
     );
   }

@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
 
+import 'schema_model_catalog.dart';
+
 /// Indexes only this host's authored models. Never accepts a client file path.
 final class ModelSourceIndex {
   ModelSourceIndex({this.root = 'lib', this.projectDirectory});
@@ -10,12 +12,20 @@ final class ModelSourceIndex {
   final String root;
 
   ({Map<String, String> paths, Map<String, String> sources}) read() {
+    final bundle = readBundle();
+    return (paths: bundle.paths, sources: bundle.sources);
+  }
+
+  ModelSourceBundle readBundle() {
     final directory = Directory(
       projectDirectory == null ? root : path.join(projectDirectory!, root),
     );
     final paths = <String, String>{};
     final sources = <String, String>{};
-    if (!directory.existsSync()) return (paths: paths, sources: sources);
+    final contents = <String, String>{};
+    if (!directory.existsSync()) {
+      return ModelSourceBundle(paths, sources, contents);
+    }
     final files =
         _authoredFiles(directory)
             .where(
@@ -29,6 +39,12 @@ final class ModelSourceIndex {
       final stat = file.statSync();
       if (stat.size > 256 * 1024) continue;
       final source = file.readAsStringSync();
+      final relative =
+          (projectDirectory == null
+                  ? file.path
+                  : path.relative(file.path, from: projectDirectory))
+              .replaceAll('\\', '/');
+      contents[relative] = source;
       String? identity;
       try {
         final yaml = loadYaml(source);
@@ -52,7 +68,7 @@ final class ModelSourceIndex {
               .replaceAll('\\', '/');
       sources[identity] = source;
     }
-    return (paths: paths, sources: sources);
+    return ModelSourceBundle(paths, sources, contents);
   }
 }
 
@@ -67,4 +83,20 @@ Iterable<File> _authoredFiles(Directory directory) sync* {
       yield* _authoredFiles(entity);
     }
   }
+}
+
+/// Authored files remain host-local; only reachable metadata is attached to tables.
+final class ModelSourceBundle {
+  ModelSourceBundle(
+    Map<String, String> paths,
+    Map<String, String> sources,
+    Map<String, String> files,
+  ) : paths = Map.unmodifiable(paths),
+      sources = Map.unmodifiable(sources),
+      files = Map.unmodifiable(files),
+      catalog = SchemaModelCatalog.fromSources(files.values);
+  final Map<String, String> paths;
+  final Map<String, String> sources;
+  final Map<String, String> files;
+  final SchemaModelCatalog catalog;
 }

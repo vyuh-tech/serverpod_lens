@@ -86,6 +86,9 @@ void main() {
     final oneToOne = edges.singleWhere(
       (edge) => edge.id == 'public.shop_members::relation::1',
     );
-    expect(oneToOne.labels.map((label) => label.story.plainText), ['1', '1']);
+    expect(oneToOne.labels.map((label) => label.story.plainText), [
+      '0..1',
+      '0..1',
+    ]);
   }, timeout: const Timeout(Duration(minutes: 2)));
 }

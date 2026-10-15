@@ -31,7 +31,10 @@ final class SchemaNeighborhood {
 /// Cached graph traversal and relationship inspection, independent of Flutter.
 final class SchemaContext {
   SchemaContext(SchemaGraph graph)
-    : tables = Map.unmodifiable({for (final t in graph.tables) t.name: t}) {
+    : enums = Map.unmodifiable({
+        for (final value in graph.enums) value.name: value,
+      }),
+      tables = Map.unmodifiable({for (final t in graph.tables) t.name: t}) {
     for (final table in graph.tables) {
       for (final key in table.foreignKeys) {
         final relation = ContextRelation(table.name, key);
@@ -42,6 +45,7 @@ final class SchemaContext {
   }
 
   final Map<String, SchemaTable> tables;
+  final Map<String, SchemaEnum> enums;
   final _outgoing = <String, List<ContextRelation>>{};
   final _incoming = <String, List<ContextRelation>>{};
 

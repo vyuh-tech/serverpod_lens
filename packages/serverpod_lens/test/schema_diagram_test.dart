@@ -73,7 +73,7 @@ void main() {
       final edge = controller.document.elements
           .whereType<ConnectorElement>()
           .single;
-      expect(edge.labels.first.story.plainText, 'N');
+      expect(edge.labels.first.story.plainText, '0..N');
     },
   );
 
@@ -146,7 +146,10 @@ void main() {
       }
     }
     for (final edge in edges) {
-      expect(edge.labels.map((label) => label.story.plainText).last, '1');
+      expect(
+        edge.labels.map((label) => label.story.plainText).last,
+        isIn(['1', '0..1']),
+      );
       for (final end in [edge.start, edge.end]) {
         if (end is BoundEndpoint && end.portId != null) {
           final shape = shapes.firstWhere((shape) => shape.id == end.elementId);
