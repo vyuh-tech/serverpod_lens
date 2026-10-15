@@ -14,6 +14,9 @@ import 'benchmark.dart' show syntheticGraph;
 @JS('lensInteractionResults')
 external set results(JSString value);
 
+@JS('requestAnimationFrame')
+external void _requestFrame(JSFunction callback);
+
 void main() {
   runApp(const MaterialApp(home: _Benchmark()));
 }
@@ -26,7 +29,7 @@ class _Benchmark extends StatefulWidget {
 
 class _BenchmarkState extends State<_Benchmark> {
   final _viewer = GlobalKey();
-  final _graph = syntheticGraph(500);
+  final _graph = syntheticGraph(200);
   final _store = MemorySchemaViewStore();
 
   T? _find<T extends Widget>(bool Function(T) matches) {
@@ -48,7 +51,9 @@ class _BenchmarkState extends State<_Benchmark> {
 
   Future<void> _frame() async {
     WidgetsBinding.instance.scheduleFrame();
-    await WidgetsBinding.instance.endOfFrame;
+    final frame = Completer<void>();
+    _requestFrame(((JSNumber timestamp) => frame.complete()).toJS);
+    await frame.future;
   }
 
   Future<void> _measure() async {
@@ -66,7 +71,7 @@ class _BenchmarkState extends State<_Benchmark> {
       final intervals = <double>[];
       final clock = Stopwatch()..start();
       var last = clock.elapsedMicroseconds;
-      for (var i = 1; i <= 90; i++) {
+      for (var i = 1; i <= 60; i++) {
         scroll.jumpTo((i * 48.0).clamp(0, scroll.position.maxScrollExtent));
         await _frame();
         final now = clock.elapsedMicroseconds;

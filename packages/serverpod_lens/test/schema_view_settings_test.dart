@@ -156,6 +156,7 @@ void main() {
             .first;
         for (final tolerance in [2.0, 16.0]) {
           enabledSlider.onChanged!(tolerance);
+          enabledSlider.onChangeEnd!(tolerance);
           await tester.pump();
           expect(controller.options<SnapGuidesOptions>().tolerance, tolerance);
           expect(preferences.snapTolerance, tolerance);
