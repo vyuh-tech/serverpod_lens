@@ -3,19 +3,23 @@
 A read-only Flutter viewer for Serverpod database schemas, built with Vyuh
 Diagram. It displays tables, columns, foreign keys, indexes, and model source.
 
-## Serverpod coverage
+## Serverpod support
 
-All Serverpod 4.0.4 native column variants render as field rows, including vector,
-geography, JSON/JSONB, and the unknown-type sentinel. The inspector shows aliases,
-nullable/default/key information, enum values and properties, nested collections,
-records, and authored object structures. Recursive types expand safely.
+Displays every native database field type in **Serverpod 4.0.4**, including
+vectors, geography and JSON. Table cards show all columns; the inspector shows
+field names, types, nullability, defaults, keys, indexes and model source.
 
-Relationships use native Vyuh field ports for every composite-key pair. Labels
-show `0..1`, `1`, and `0..N` bounds derived from nullability and unconditional
-uniqueness. Advanced field, index, and constraint metadata stays inspectable.
+With model sources supplied through `serverpod_lens_schema`, you can inspect
+inherited fields, aliases, enum values and properties, nested collections,
+records and objects. Recursive models expand safely. Foreign-key connections
+attach to the fields they reference, including every pair in a composite key.
+Relationship labels show optionality and whether a reference allows one or many
+rows.
 
-[Coverage and boundaries](../../docs/SERVERPOD_SUPPORT.md). Version **0.2.0** is
-prepared for manual publication; use this workspace until it is released.
+The [support matrix](https://github.com/vyuh-tech/serverpod_lens/blob/main/docs/SERVERPOD_SUPPORT.md)
+lists the verified features and scope. These additions are prepared for **0.2.0**;
+use this checkout until that version is published. The installation below uses
+the currently published **0.1.1**.
 
 ## Install
 
@@ -79,9 +83,9 @@ tables changes their displayed positions only.
 Advanced native diagram integration is exported from
 `package:serverpod_lens/diagram.dart`.
 
-The [shop example](../../examples/shop/) and
-[connected large-schema demo](../../examples/large_schema/) use this viewer.
-The [local launcher](../../tool/lens/) serves it in a browser.
+The [shop example](https://github.com/vyuh-tech/serverpod_lens/tree/main/examples/shop/) and
+[connected large-schema demo](https://github.com/vyuh-tech/serverpod_lens/tree/main/examples/large_schema/) use this viewer.
+The [local launcher](https://github.com/vyuh-tech/serverpod_lens/tree/main/tool/lens/) serves it in a browser.
 
 Lens code is [MIT licensed](LICENSE). Vyuh extensions require their own registry
 access and license.

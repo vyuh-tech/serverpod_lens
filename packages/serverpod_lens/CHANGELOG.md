@@ -4,6 +4,7 @@
 - Bind every composite foreign-key pair using native Vyuh connectors and show optional cardinality.
 - Share inspector chips/code containers and expose advanced native metadata.
 - Verify every Serverpod 4.0.4 column type through the native renderer.
+- Keep persisted fields inspectable when optional model metadata is malformed.
 
 ## 0.1.1
 

@@ -4,6 +4,10 @@ The local launcher reads a Serverpod project's generated `Protocol` and model
 sources, then serves the shared Flutter viewer on a loopback URL. It does not
 start the application server or connect to its database.
 
+The generated definition supplies the database structure. Authored `.spy.yaml`
+files supply Dart field names, enums, inheritance and nested model details for
+the inspector. See the [Serverpod support matrix](../../docs/SERVERPOD_SUPPORT.md).
+
 ## In this repository
 
 ```sh

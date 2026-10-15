@@ -53,13 +53,18 @@ codes appear in server logs.
 [Open the hosted application](https://serverpod-lens.serverpod.space/).
 Username: `test`. Password: `test123!`.
 
+The Cloud release is currently pinned to **0.1.1**. This checkout prepares
+**0.2.0**. Before deploying it, publish the approved packages and update the
+version and archive hashes in `tool/cloud_release.dart`. The build checks that
+these match the workspace versions.
+
 From the repository root, with registry access configured:
 
 ```sh
 dart run tool/build_cloud_release.dart
 ```
 
-The tool builds Flutter using the published Lens **0.1.1** releases from
+The tool builds Flutter using published Lens packages from
 `https://pub.vyuh.tech`. It checks their archive hashes and bundles the downloaded
 schema package in the backend workspace because
 [Cloud does not support custom package registries](https://docs.serverpod.dev/cloud/reference/private-dependencies).

@@ -1,7 +1,8 @@
 # Serverpod Lens
 
-A read-only schema viewer for Serverpod projects. Browse tables, inspect fields
-and indexes, follow foreign keys, and view the model source.
+Explore the database behind your Serverpod models. Lens gives you a read-only
+map of tables, fields and relationships, so you can follow how your backend fits
+together without jumping between model files.
 
 ## Try the demo
 
@@ -10,7 +11,8 @@ Sign in with username `test` and password `test123!`.
 
 The Cloud demo explores a fictional university campus with 156 tables and uses
 Serverpod authentication.
-![Serverpod Lens schema explorer](docs/schema-map.png)
+
+![Serverpod Lens in dark mode, exploring the campus schema](docs/schema-map.png)
 
 ## Run locally
 
@@ -45,13 +47,19 @@ unchanged.
 
 ## Serverpod support
 
-Tested against **Serverpod 4.0.4**: every native column type, inherited persisted
-fields, keys and defaults, indexes, and foreign-key relationships. Authored
-models enrich the inspector with Dart aliases, enum values, and nested types.
-Composite relationships connect every field pair; labels show optionality.
+Lens supports every native database field type in **Serverpod 4.0.4**, including
+vectors, geography and JSON. It reads tables, schemas, module identities, keys,
+defaults, indexes and foreign-key relationships from Serverpod's generated schema.
+Composite relationships connect each pair of fields.
 
-See the [verified support matrix](docs/SERVERPOD_SUPPORT.md) for coverage and
-boundaries. The generated database target remains the source of truth.
+Your `.spy.yaml` files provide the model details: Dart field names, inheritance,
+enum values and properties, nested collections, records and objects. Recursive
+models can be explored without expanding forever. Models without a database
+table appear as field details when referenced by a persisted field.
+
+We verify this against generated Serverpod projects and all native database
+column types. See the [support matrix](docs/SERVERPOD_SUPPORT.md) for the tests
+and the scope of support.
 
 ## Packages and examples
 
@@ -70,8 +78,9 @@ and API examples.
 | [Local launcher](tool/lens/) | CLI and browser host |
 | [Optional imports](tool/lens/imports/) | ZIP, YAML, and PostgreSQL SQL adapters |
 
-Serverpod supplies the resolved database schema. Lens maps it to a graph, and
-Vyuh Diagram renders the tables and connections. See [architecture](docs/PLAN.md).
+Serverpod supplies the database definition. Lens reads it and adds model details;
+Vyuh Diagram handles the canvas, connections, movement and layouts.
+See [how the pieces fit together](docs/PLAN.md).
 
 ## Development
 
@@ -81,24 +90,13 @@ After installing workspace dependencies, run:
 tool/verify.sh
 ```
 
-This runs analysis, formatting checks, and the Dart/Flutter test suites. Server
-tests use managed embedded PostgreSQL. The verification workflow runs these
-checks, reproducible Serverpod generation, PostgreSQL parser tests, and public
-dependency advisory checks on pushes to `main` and pull requests.
-Server tests need a test database password in the local Serverpod configuration
-or `SERVERPOD_PASSWORD_database`; CI supplies a disposable test-only value.
+Runs analysis, formatting checks and the Dart/Flutter test suites. Server tests
+use managed PostgreSQL; provide a disposable test password through
+`SERVERPOD_PASSWORD_database` or local Serverpod configuration.
 
-Package publication uses the manual
-[Publish internal Lens packages workflow](.github/workflows/publish-packages.yml).
-It defaults to a dry run. Publishing requires a `PUB_VYUH_TOKEN` secret with
-`package:publish` permission; a repository secret overrides one with the same
-name at organization level.
-
-To rebuild the Cloud demo from the published packages, run
-`dart run tool/build_cloud_release.dart`. It prepares an isolated build outside
-the checkout and prints the deployment directory. A new package version must be
-published and its archive hashes pinned before the Cloud build can proceed. See the
-[Cloud build instructions](examples/large_schema/README.md#cloud-demo).
+Package releases use the manual [publishing workflow](.github/workflows/publish-packages.yml),
+which defaults to a dry run. The [Cloud build instructions](examples/large_schema/README.md#cloud-demo)
+explain how to build the demo from published packages.
 
 Lens code is [MIT licensed](LICENSE). Third-party dependencies retain their own
 licenses.

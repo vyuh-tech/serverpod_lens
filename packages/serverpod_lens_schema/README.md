@@ -4,20 +4,22 @@ Plain Dart models and extraction for Serverpod database schemas. The package
 maps resolved definitions to tables, columns, foreign keys, indexes, and their
 metadata. It has no Flutter or Serverpod runtime dependency.
 
-## Serverpod coverage
+## Serverpod support
 
-Extraction and rendering are tested against **Serverpod 4.0.4**: every native
-column variant, int/UUID IDs, persisted defaults and inherited fields, foreign
-keys and actions, indexes, database schemas, and module identities. Complete
-native table metadata is retained, including attributes the viewer does not
-interpret yet.
+Reads every native database field type in **Serverpod 4.0.4**, including vectors,
+geography and JSON. It preserves tables, schemas, module identities, integer and
+UUID IDs, keys, nullability, defaults, indexes and foreign keys. Native metadata
+is kept with each table so hosts can inspect additional database attributes.
 
-Optional authored-model enrichment restores Dart aliases and adds enum values,
-properties, inheritance details, and nested type declarations. It adds no tables,
-columns, or inferred constraints. Native metadata takes precedence.
+When you supply `.spy.yaml` sources, Lens also restores Dart field names and
+records enum values and properties, inheritance, nested collections, records and
+objects. The generated database definition decides which tables and columns
+exist. Model sources add the details needed to understand them.
 
-[Coverage and boundaries](../../docs/SERVERPOD_SUPPORT.md). Version **0.2.0** is
-prepared for manual publication; use this workspace until it is released.
+The [support matrix](https://github.com/vyuh-tech/serverpod_lens/blob/main/docs/SERVERPOD_SUPPORT.md)
+lists the verified features and scope. These additions are prepared for **0.2.0**;
+use this checkout until that version is published. The installation below uses
+the currently published **0.1.1**.
 
 ## Install
 
@@ -53,7 +55,7 @@ Input is Serverpod's resolved database definition JSON. Extraction is tested
 against the Serverpod 4.0.4 database contract. Database schemas and Serverpod
 modules retain separate identities.
 
-Pass the graph to the [Flutter viewer](../serverpod_lens/), serialize it with
+Pass the graph to the [Flutter viewer](https://github.com/vyuh-tech/serverpod_lens/tree/main/packages/serverpod_lens/), serialize it with
 `toJson()`, or query it in another Dart host.
 
 ## Current-target snapshots
@@ -101,6 +103,8 @@ LensSchemaSnapshot readProject(
   );
 }
 ```
+
+This source-bundle API is available in the prepared **0.2.0** release.
 
 The host supplies `generatedTables` from its generated Serverpod protocol. For
 compiled deployments, retain the authored table, parent, enum, and embedded-model

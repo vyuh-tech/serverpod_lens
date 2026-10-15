@@ -63,6 +63,12 @@ contract**, rather than every Serverpod feature or every possible model combinat
 
 ## Verification and release
 
+Verified locally on 2026-10-15: **244 Dart/Flutter tests** and **5 PostgreSQL
+parser tests** pass. Both examples regenerate with Serverpod 4.0.4 without
+changing checked-in generated code. Both 0.2.0 package publication dry runs pass
+with only the expected custom-registry tier warning. The public dependency
+advisory scan reports no known advisories across 282 locked packages.
+
 Run `tool/verify.sh` after resolving the workspace. Server tests use managed
 PostgreSQL and need a local test credential or `SERVERPOD_PASSWORD_database`.
 CI additionally regenerates the examples with Serverpod 4.0.4 and rejects stale
