@@ -59,7 +59,7 @@ From the repository root, with registry access configured:
 dart run tool/build_cloud_release.dart
 ```
 
-The tool builds Flutter using the published Lens **0.1.0** releases from
+The tool builds Flutter using the published Lens **0.1.1** releases from
 `https://pub.vyuh.tech`. It checks their archive hashes and bundles the downloaded
 schema package in the backend workspace because
 [Cloud does not support custom package registries](https://docs.serverpod.dev/cloud/reference/private-dependencies).

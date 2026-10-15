@@ -4,12 +4,12 @@ import 'dart:io';
 import 'package:yaml/yaml.dart';
 
 const lensRegistry = 'https://pub.vyuh.tech';
-const lensRelease = '0.1.0';
+const lensRelease = '0.1.1';
 const lensArchives = {
   'serverpod_lens':
-      '61dceb245a30d4991119fb0dd6b9cdd742d74e70d377ec07e2e77bc56f498ee7',
+      '8052cb9849ebce68327e057c6a1398fdcdf58d3bec7287d7fbbfcee588183394',
   'serverpod_lens_schema':
-      'fadbf5b23c31224f0d77b78a706eec4ee7f8e698299f4b5b8571c07078941675',
+      '2c4504d1b5653fd096279ae87d55fbcdb0983019387e15c2ae708a9434423f96',
 };
 
 Map<String, dynamic> readManifest(File file) =>

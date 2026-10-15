@@ -45,7 +45,7 @@ unchanged.
 
 ## Packages and examples
 
-Both packages are published as **0.1.0** on
+Both packages are published as **0.1.1** on
 [pub.vyuh.tech](https://pub.vyuh.tech) in the **internal** tier. Installing them
 requires registry access. See each package's README for the hosted dependency
 declaration and API examples.

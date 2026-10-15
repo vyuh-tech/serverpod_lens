@@ -31,3 +31,34 @@ build/
 
 # Flutter generated plugin metadata
 .flutter-plugins-dependencies
+
+# Local credentials and environment configuration
+.env
+.env.*
+!.env.example
+!.env.sample
+**/config/passwords.yaml
+**/config/google_client_secret.json
+**/config/firebase_service_account_key.json
+pub-tokens.json
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local reports, recordings, and deployment archives
+/local/
+/private/
+/tmp/
+/artifacts/
+/recordings/
+*.log
+*.mp4
+*.mov
+*.mkv
+*.webm
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+.DS_Store
