@@ -58,6 +58,10 @@ jobs:
           SERVERPOD_PASSWORD_database: lens-ci-${{ github.run_id }}-${{ github.run_attempt }}
         run: tool/verify.sh
 
+      - name: Verify selection on large web schemas
+        working-directory: packages/serverpod_lens
+        run: flutter test --no-pub --platform chrome test/dense_selection_test.dart
+
       - name: Setup Node for the PostgreSQL parser tests
         uses: actions/setup-node@v4
         with:

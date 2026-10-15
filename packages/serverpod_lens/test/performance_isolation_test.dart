@@ -17,7 +17,7 @@ import 'support/navigation_fixture.dart';
 
 void main() {
   test(
-    'web canvas uses native caching and adaptive paint without dropping tables',
+    'web canvas keeps vector content sharp after camera motion settles',
     () async {
       final graph = fixture(neighbors: 120);
       final controller = await buildSchemaCanvas(
@@ -27,7 +27,8 @@ void main() {
       );
       try {
         final options = controller.options<RenderingOptions>();
-        expect(options.render.rasterContent, isTrue);
+        expect(options.render.rasterContent, isFalse);
+        expect(options.render.retainContent, isFalse);
         expect(options.lod.adaptive, isTrue);
         expect(
           controller.document.elements.whereType<ShapeElement>(),

@@ -84,7 +84,12 @@ Future<DiagramController> buildSchemaCanvas(
               compactBelowPixels: 64,
               thumbnailBelowPixels: 16,
             ),
-            render: const DiagramRenderPolicy(rasterContent: true),
+            // Native retained pictures stay vector-sharp when the camera stops.
+            // Settled bitmap batches can soften text and thin connector lines.
+            render: const DiagramRenderPolicy(
+              retainContent: false,
+              rasterContent: false,
+            ),
           ),
         schemaViewInteractions,
         ConnectorsExtension(),

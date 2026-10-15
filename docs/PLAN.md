@@ -47,10 +47,12 @@ layout at 100 tables; force layout uses a bounded iteration count.
 
 The browser caches filtered rows and keeps list painting separate from the
 canvas. Settings sliders preview locally and commit diagram changes on release.
-Web canvases use Vyuh's bounded raster cache. At 100 tables, native adaptive
-detail omits unreadable text at overview zoom; selecting a table restores its
-full detail. Large web scopes emphasize connections without fading every
-unrelated table, which would invalidate cached content during selection.
+Web canvases use Vyuh's retained vector pictures. Experimental bitmap caching
+stays off so text and lines remain sharp after panning or zooming. At 100 tables,
+native adaptive detail omits unreadable text at overview zoom; selecting a table
+restores its full detail. Selection keeps the table and its direct neighbors
+readable while native effects dim unrelated tables and connections at every
+schema size.
 
 ## Local host
 
