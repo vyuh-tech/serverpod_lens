@@ -1,0 +1,11 @@
+### Fictional university fixture: research.
+class: CampusGrantExpense
+table: campus_grant_expenses
+fields:
+  id: UuidValue?, defaultPersist=random
+  budgetId: UuidValue, relation(parent=campus_grant_budgets)
+  invoiceId: UuidValue?, relation(parent=campus_invoices)
+  description: String
+  amountMinor: int
+  spentAt: DateTime
+  createdAt: DateTime, default=now

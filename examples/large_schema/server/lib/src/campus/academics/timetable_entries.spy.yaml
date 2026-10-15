@@ -1,0 +1,13 @@
+### Fictional university fixture: academics.
+class: CampusTimetableEntry
+table: campus_timetable_entries
+fields:
+  id: UuidValue?, defaultPersist=random
+  timetableId: UuidValue, relation(parent=campus_timetables)
+  meetingId: UuidValue, relation(parent=campus_section_meetings)
+  sequence: int
+  createdAt: DateTime, default=now
+indexes:
+  campus_timetable_entries_u0:
+    fields: timetableId,meetingId
+    unique: true

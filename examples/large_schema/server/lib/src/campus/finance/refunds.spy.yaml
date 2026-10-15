@@ -1,0 +1,11 @@
+### Fictional university fixture: finance.
+class: CampusRefund
+table: campus_refunds
+fields:
+  id: UuidValue?, defaultPersist=random
+  paymentId: UuidValue, relation(parent=campus_payments)
+  invoiceId: UuidValue?, relation(parent=campus_invoices)
+  amountMinor: int
+  reason: String
+  processedAt: DateTime?
+  createdAt: DateTime, default=now

@@ -1,0 +1,11 @@
+### Fictional university fixture: admissions.
+class: CampusStudentDocument
+table: campus_student_documents
+fields:
+  id: UuidValue?, defaultPersist=random
+  studentId: UuidValue, relation(parent=campus_students)
+  title: String
+  documentType: String
+  fileUrl: String
+  verified: bool
+  createdAt: DateTime, default=now

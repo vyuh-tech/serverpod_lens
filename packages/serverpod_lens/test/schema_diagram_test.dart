@@ -159,7 +159,9 @@ void main() {
   test('native grid layout is undoable and native codecs retain table content and ports', () async {
     final controller = await SchemaDiagram.build(
       graph.copyWith(
-        tables: graph.tables.where((table) => table.schema == 'sso').toList(),
+        tables: graph.tables
+            .where((table) => table.schema == 'library')
+            .toList(),
       ),
     );
     addTearDown(controller.dispose);

@@ -1,0 +1,13 @@
+### Fictional university fixture: enrolment.
+class: CampusStudyPlanCourse
+table: campus_study_plan_courses
+fields:
+  id: UuidValue?, defaultPersist=random
+  studyPlanId: UuidValue, relation(parent=campus_study_plans)
+  courseId: UuidValue, relation(parent=campus_courses)
+  plannedTermId: UuidValue?, relation(parent=campus_terms)
+  createdAt: DateTime, default=now
+indexes:
+  campus_study_plan_courses_u0:
+    fields: studyPlanId,courseId
+    unique: true

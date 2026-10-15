@@ -1,0 +1,15 @@
+### Fictional university fixture: campus.
+class: CampusRoom
+table: campus_rooms
+fields:
+  id: UuidValue?, defaultPersist=random
+  buildingId: UuidValue, relation(parent=campus_buildings)
+  code: String
+  capacity: int
+  accessible: bool
+  facilities: List<String>
+  createdAt: DateTime, default=now
+indexes:
+  campus_rooms_u0:
+    fields: buildingId,code
+    unique: true

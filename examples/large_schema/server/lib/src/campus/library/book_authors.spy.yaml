@@ -1,0 +1,13 @@
+### Fictional university fixture: library.
+class: CampusBookAuthor
+table: campus_book_authors
+fields:
+  id: UuidValue?, defaultPersist=random
+  bookId: UuidValue, relation(parent=campus_books)
+  authorId: UuidValue, relation(parent=campus_authors)
+  sequence: int
+  createdAt: DateTime, default=now
+indexes:
+  campus_book_authors_u0:
+    fields: bookId,authorId
+    unique: true

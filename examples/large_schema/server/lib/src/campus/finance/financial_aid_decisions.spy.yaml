@@ -1,0 +1,14 @@
+### Fictional university fixture: finance.
+class: CampusFinancialAidDecision
+table: campus_financial_aid_decisions
+fields:
+  id: UuidValue?, defaultPersist=random
+  applicationId: UuidValue, relation(parent=campus_financial_aid_applications)
+  awardedMinor: int
+  decidedAt: DateTime
+  notes: String?
+  createdAt: DateTime, default=now
+indexes:
+  campus_financial_aid_decisions_u0:
+    fields: applicationId
+    unique: true

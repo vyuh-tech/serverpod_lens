@@ -1,0 +1,11 @@
+### Fictional university fixture: finance.
+class: CampusScholarship
+table: campus_scholarships
+fields:
+  id: UuidValue?, defaultPersist=random
+  name: String
+  departmentId: UuidValue?, relation(parent=campus_departments)
+  sponsorId: UuidValue?, relation(parent=campus_sponsors)
+  annualBudgetMinor: int
+  currency: String
+  createdAt: DateTime, default=now

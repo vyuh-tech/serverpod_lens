@@ -1,0 +1,15 @@
+### Fictional university fixture: housing.
+class: CampusHousingContract
+table: campus_housing_contracts
+fields:
+  id: UuidValue?, defaultPersist=random
+  allocationId: UuidValue, relation(parent=campus_housing_allocations)
+  reference: String
+  signedAt: DateTime?
+  rentMinor: int
+  currency: String
+  createdAt: DateTime, default=now
+indexes:
+  campus_housing_contracts_u0:
+    fields: reference
+    unique: true

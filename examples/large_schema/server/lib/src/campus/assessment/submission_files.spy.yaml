@@ -1,0 +1,11 @@
+### Fictional university fixture: assessment.
+class: CampusSubmissionFile
+table: campus_submission_files
+fields:
+  id: UuidValue?, defaultPersist=random
+  submissionId: UuidValue, relation(parent=campus_assessment_submissions)
+  fileName: String
+  fileUrl: String
+  sizeBytes: int
+  checksum: String?
+  createdAt: DateTime, default=now

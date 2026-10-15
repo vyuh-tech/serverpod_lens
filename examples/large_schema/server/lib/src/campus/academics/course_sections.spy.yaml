@@ -1,0 +1,15 @@
+### Fictional university fixture: academics.
+class: CampusCourseSection
+table: campus_course_sections
+fields:
+  id: UuidValue?, defaultPersist=random
+  courseId: UuidValue, relation(parent=campus_courses)
+  termId: UuidValue, relation(parent=campus_terms)
+  code: String
+  capacity: int
+  deliveryMode: String
+  createdAt: DateTime, default=now
+indexes:
+  campus_course_sections_u0:
+    fields: courseId,termId,code
+    unique: true

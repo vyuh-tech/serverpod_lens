@@ -1,0 +1,11 @@
+### Fictional university fixture: research.
+class: CampusProjectMilestone
+table: campus_project_milestones
+fields:
+  id: UuidValue?, defaultPersist=random
+  projectId: UuidValue, relation(parent=campus_research_projects)
+  title: String
+  dueAt: DateTime
+  completedAt: DateTime?
+  parentId: UuidValue?, relation(parent=campus_project_milestones)
+  createdAt: DateTime, default=now

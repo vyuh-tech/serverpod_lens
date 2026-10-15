@@ -1,0 +1,9 @@
+### Fictional university fixture: library.
+class: CampusLibraryBranch
+table: campus_library_branches
+fields:
+  id: UuidValue?, defaultPersist=random
+  campusId: UuidValue, relation(parent=campus_campuses)
+  name: String
+  openingHours: String
+  createdAt: DateTime, default=now

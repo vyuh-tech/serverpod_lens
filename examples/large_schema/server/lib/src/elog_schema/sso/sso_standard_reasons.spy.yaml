@@ -1,8 +1,0 @@
-class: SsoStandardReasons
-table: sso_standard_reasons
-fields:
-  id: UuidValue?, defaultPersist=random
-  name: String
-  description: String?
-  code: String
-  displayOrder: int?

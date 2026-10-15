@@ -1,0 +1,10 @@
+### Fictional university fixture: library.
+class: CampusLibraryVisit
+table: campus_library_visits
+fields:
+  id: UuidValue?, defaultPersist=random
+  branchId: UuidValue, relation(parent=campus_library_branches)
+  studentId: UuidValue, relation(parent=campus_students)
+  enteredAt: DateTime
+  exitedAt: DateTime?
+  createdAt: DateTime, default=now

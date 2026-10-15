@@ -1,0 +1,19 @@
+### Fictional university fixture: admissions.
+class: CampusStudent
+table: campus_students
+fields:
+  id: UuidValue?, defaultPersist=random
+  programmeId: UuidValue?, relation(parent=campus_programmes)
+  studentNumber: String
+  name: String
+  email: String
+  dateOfBirth: DateTime
+  active: bool
+  createdAt: DateTime, default=now
+indexes:
+  campus_students_u0:
+    fields: studentNumber
+    unique: true
+  campus_students_u1:
+    fields: email
+    unique: true

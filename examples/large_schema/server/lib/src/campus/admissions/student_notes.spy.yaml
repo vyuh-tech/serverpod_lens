@@ -1,0 +1,10 @@
+### Fictional university fixture: admissions.
+class: CampusStudentNote
+table: campus_student_notes
+fields:
+  id: UuidValue?, defaultPersist=random
+  studentId: UuidValue, relation(parent=campus_students)
+  lecturerId: UuidValue, relation(parent=campus_lecturers)
+  category: String
+  note: String
+  createdAt: DateTime, default=now

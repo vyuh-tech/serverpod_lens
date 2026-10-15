@@ -1,0 +1,9 @@
+### Fictional university fixture: finance.
+class: CampusSponsor
+table: campus_sponsors
+fields:
+  id: UuidValue?, defaultPersist=random
+  name: String
+  contactEmail: String
+  organisation: String?
+  createdAt: DateTime, default=now

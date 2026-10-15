@@ -1,0 +1,11 @@
+### Fictional university fixture: library.
+class: CampusFine
+table: campus_fines
+fields:
+  id: UuidValue?, defaultPersist=random
+  loanId: UuidValue, relation(parent=campus_loans)
+  amountMinor: int
+  currency: String
+  invoiceLineId: UuidValue?, relation(parent=campus_invoice_lines)
+  waived: bool
+  createdAt: DateTime, default=now

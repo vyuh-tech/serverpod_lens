@@ -1,0 +1,14 @@
+### Fictional university fixture: assessment.
+class: CampusGradeScaleBand
+table: campus_grade_scale_bands
+fields:
+  id: UuidValue?, defaultPersist=random
+  gradeScaleId: UuidValue, relation(parent=campus_grade_scales)
+  label: String
+  minimumScore: double
+  maximumScore: double
+  createdAt: DateTime, default=now
+indexes:
+  campus_grade_scale_bands_u0:
+    fields: gradeScaleId,label
+    unique: true

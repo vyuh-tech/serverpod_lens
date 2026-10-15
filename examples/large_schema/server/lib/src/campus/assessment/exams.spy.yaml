@@ -1,0 +1,10 @@
+### Fictional university fixture: assessment.
+class: CampusExam
+table: campus_exams
+fields:
+  id: UuidValue?, defaultPersist=random
+  courseId: UuidValue, relation(parent=campus_courses)
+  title: String
+  durationMinutes: int
+  maximumScore: double
+  createdAt: DateTime, default=now

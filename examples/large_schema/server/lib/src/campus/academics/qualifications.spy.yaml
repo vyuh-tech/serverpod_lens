@@ -1,0 +1,14 @@
+### Fictional university fixture: academics.
+class: CampusQualification
+table: campus_qualifications
+fields:
+  id: UuidValue?, defaultPersist=random
+  code: String
+  title: String
+  level: int
+  requiredCredits: int
+  createdAt: DateTime, default=now
+indexes:
+  campus_qualifications_u0:
+    fields: code
+    unique: true

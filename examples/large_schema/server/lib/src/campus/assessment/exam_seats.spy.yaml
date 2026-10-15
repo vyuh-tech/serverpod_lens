@@ -1,0 +1,13 @@
+### Fictional university fixture: assessment.
+class: CampusExamSeat
+table: campus_exam_seats
+fields:
+  id: UuidValue?, defaultPersist=random
+  examSessionId: UuidValue, relation(parent=campus_exam_sessions)
+  label: String
+  accessible: bool
+  createdAt: DateTime, default=now
+indexes:
+  campus_exam_seats_u0:
+    fields: examSessionId,label
+    unique: true

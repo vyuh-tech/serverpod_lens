@@ -1,0 +1,16 @@
+### Fictional university fixture: finance.
+class: CampusPayment
+table: campus_payments
+fields:
+  id: UuidValue?, defaultPersist=random
+  studentId: UuidValue, relation(parent=campus_students)
+  reference: String
+  amountMinor: int
+  currency: String
+  receivedAt: DateTime
+  method: String
+  createdAt: DateTime, default=now
+indexes:
+  campus_payments_u0:
+    fields: reference
+    unique: true

@@ -1,0 +1,14 @@
+### Fictional university fixture: finance.
+class: CampusScholarshipAward
+table: campus_scholarship_awards
+fields:
+  id: UuidValue?, defaultPersist=random
+  scholarshipId: UuidValue, relation(parent=campus_scholarships)
+  studentId: UuidValue, relation(parent=campus_students)
+  academicYearId: UuidValue, relation(parent=campus_academic_years)
+  amountMinor: int
+  createdAt: DateTime, default=now
+indexes:
+  campus_scholarship_awards_u0:
+    fields: scholarshipId,studentId,academicYearId
+    unique: true

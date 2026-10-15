@@ -1,0 +1,9 @@
+### Fictional university fixture: admissions.
+class: CampusGuardian
+table: campus_guardians
+fields:
+  id: UuidValue?, defaultPersist=random
+  name: String
+  email: String?
+  phone: String?
+  createdAt: DateTime, default=now

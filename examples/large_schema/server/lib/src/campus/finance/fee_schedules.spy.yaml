@@ -1,0 +1,9 @@
+### Fictional university fixture: finance.
+class: CampusFeeSchedule
+table: campus_fee_schedules
+fields:
+  id: UuidValue?, defaultPersist=random
+  programmeId: UuidValue, relation(parent=campus_programmes)
+  academicYearId: UuidValue, relation(parent=campus_academic_years)
+  currency: String
+  createdAt: DateTime, default=now

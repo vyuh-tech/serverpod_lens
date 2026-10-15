@@ -1,0 +1,11 @@
+### Fictional university fixture: research.
+class: CampusResearchDataset
+table: campus_research_datasets
+fields:
+  id: UuidValue?, defaultPersist=random
+  projectId: UuidValue, relation(parent=campus_research_projects)
+  title: String
+  resourceUrl: String
+  licence: String
+  publicAccess: bool
+  createdAt: DateTime, default=now

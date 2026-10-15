@@ -8,7 +8,7 @@ and indexes, follow foreign keys, and view the model source.
 [Open the Cloud demo](https://serverpod-lens.serverpod.space/).
 Sign in with username `test` and password `test123!`.
 
-The demo contains 156 tables and uses Serverpod authentication.
+The large example contains 156 tables and uses Serverpod authentication.
 [Watch the two-minute walkthrough](https://youtu.be/KS58H6Fy5Hw).
 
 ![Serverpod Lens schema explorer](docs/schema-map.png)
@@ -56,7 +56,7 @@ declaration and API examples.
 | [serverpod_lens](packages/serverpod_lens/) | Flutter viewer and host integration |
 | [serverpod_lens_schema](packages/serverpod_lens_schema/) | Plain Dart schema graph, reader, and snapshots |
 | [Shop example](examples/shop/) | Customers, products, orders, and order items |
-| [Large-schema example](examples/large_schema/) | 156-table Serverpod project and connected Cloud demo |
+| [Large-schema example](examples/large_schema/) | 156-table university campus project and connected Cloud host |
 | [Local launcher](tool/lens/) | CLI and browser host |
 | [Optional imports](tool/lens/imports/) | ZIP, YAML, and PostgreSQL SQL adapters |
 

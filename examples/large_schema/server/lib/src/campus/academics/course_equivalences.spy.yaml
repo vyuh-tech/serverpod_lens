@@ -1,0 +1,13 @@
+### Fictional university fixture: academics.
+class: CampusCourseEquivalence
+table: campus_course_equivalences
+fields:
+  id: UuidValue?, defaultPersist=random
+  courseId: UuidValue, relation(parent=campus_courses)
+  equivalentCourseId: UuidValue, relation(parent=campus_courses)
+  approvedAt: DateTime
+  createdAt: DateTime, default=now
+indexes:
+  campus_course_equivalences_u0:
+    fields: courseId,equivalentCourseId
+    unique: true

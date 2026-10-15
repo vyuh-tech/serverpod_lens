@@ -1,0 +1,13 @@
+### Fictional university fixture: housing.
+class: CampusHousingPreference
+table: campus_housing_preferences
+fields:
+  id: UuidValue?, defaultPersist=random
+  housingApplicationId: UuidValue, relation(parent=campus_housing_applications)
+  residenceId: UuidValue, relation(parent=campus_residences)
+  rank: int
+  createdAt: DateTime, default=now
+indexes:
+  campus_housing_preferences_u0:
+    fields: housingApplicationId,rank
+    unique: true

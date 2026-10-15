@@ -1,9 +1,0 @@
-class: ElogOperations
-table: elog_operations
-fields:
-  id: UuidValue?, defaultPersist=random
-  code: String
-  name: String
-  description: String?
-  displayOrder: int
-  entityTypes: List<String>?

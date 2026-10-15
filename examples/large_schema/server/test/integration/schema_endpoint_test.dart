@@ -50,6 +50,18 @@ void main() {
         expect(snapshot.projectId, project);
         expect(snapshot.revision, hasLength(64));
         expect(snapshot.graph!.tables.length, greaterThan(122));
+        final campus = snapshot.graph!.tables
+            .where((table) => table.name.startsWith('public.campus_'))
+            .toList();
+        expect(campus, hasLength(122));
+        expect(snapshot.sourcePaths, hasLength(122));
+        expect(snapshot.modelSources, hasLength(122));
+        expect(
+          snapshot.graph!.tables
+              .where((table) => table.module == 'serverpod_lens')
+              .every((table) => table.name.startsWith('public.campus_')),
+          isTrue,
+        );
         expect(
           snapshot.graph!.tables.map((table) => table.name).toSet(),
           hasLength(snapshot.graph!.tables.length),

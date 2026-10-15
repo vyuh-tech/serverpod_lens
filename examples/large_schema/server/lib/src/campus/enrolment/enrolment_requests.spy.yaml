@@ -1,0 +1,10 @@
+### Fictional university fixture: enrolment.
+class: CampusEnrolmentRequest
+table: campus_enrolment_requests
+fields:
+  id: UuidValue?, defaultPersist=random
+  studentId: UuidValue, relation(parent=campus_students)
+  sectionId: UuidValue, relation(parent=campus_course_sections)
+  requestedAt: DateTime
+  status: String
+  createdAt: DateTime, default=now

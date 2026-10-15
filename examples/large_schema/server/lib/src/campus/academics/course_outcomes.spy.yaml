@@ -1,0 +1,13 @@
+### Fictional university fixture: academics.
+class: CampusCourseOutcome
+table: campus_course_outcomes
+fields:
+  id: UuidValue?, defaultPersist=random
+  courseId: UuidValue, relation(parent=campus_courses)
+  code: String
+  description: String
+  createdAt: DateTime, default=now
+indexes:
+  campus_course_outcomes_u0:
+    fields: courseId,code
+    unique: true

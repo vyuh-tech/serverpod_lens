@@ -1,0 +1,13 @@
+### Fictional university fixture: admissions.
+class: CampusApplicationChoice
+table: campus_application_choices
+fields:
+  id: UuidValue?, defaultPersist=random
+  applicationId: UuidValue, relation(parent=campus_applications)
+  programmeId: UuidValue, relation(parent=campus_programmes)
+  preference: int
+  createdAt: DateTime, default=now
+indexes:
+  campus_application_choices_u0:
+    fields: applicationId,preference
+    unique: true

@@ -1,0 +1,13 @@
+### Fictional university fixture: finance.
+class: CampusFeeType
+table: campus_fee_types
+fields:
+  id: UuidValue?, defaultPersist=random
+  code: String
+  name: String
+  refundable: bool
+  createdAt: DateTime, default=now
+indexes:
+  campus_fee_types_u0:
+    fields: code
+    unique: true

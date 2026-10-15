@@ -1,7 +1,13 @@
 # Large-schema example
 
-A Serverpod project with 156 resolved database tables and 122 authored model
-sources. It supplies the local Lens viewer and the connected Cloud demo.
+A fictional university and campus-management project with 156 resolved database
+tables and 122 authored models. Students, courses, enrolments, exams, library
+loans, housing, research, and billing form one connected example.
+
+Models live under `server/lib/src/campus/`. Folder names describe subject areas;
+Serverpod's generated database target remains the authority for database schemas.
+The viewer's separate test fixture uses nine database schemas to exercise
+navigation and relationships across schema boundaries.
 
 ## Local schema viewer
 

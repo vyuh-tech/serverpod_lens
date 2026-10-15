@@ -1,0 +1,13 @@
+### Fictional university fixture: campus.
+class: CampusAcademicYear
+table: campus_academic_years
+fields:
+  id: UuidValue?, defaultPersist=random
+  label: String
+  startsAt: DateTime
+  endsAt: DateTime
+  createdAt: DateTime, default=now
+indexes:
+  campus_academic_years_u0:
+    fields: label
+    unique: true

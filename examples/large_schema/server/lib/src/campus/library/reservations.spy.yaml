@@ -1,0 +1,11 @@
+### Fictional university fixture: library.
+class: CampusReservation
+table: campus_reservations
+fields:
+  id: UuidValue?, defaultPersist=random
+  bookId: UuidValue, relation(parent=campus_books)
+  studentId: UuidValue, relation(parent=campus_students)
+  pickupBranchId: UuidValue, relation(parent=campus_library_branches)
+  expiresAt: DateTime
+  status: String
+  createdAt: DateTime, default=now

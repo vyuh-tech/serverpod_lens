@@ -1,9 +1,0 @@
-class: SsoUserProductSiteMappings
-table: sso_user_product_site_mappings
-fields:
-  id: UuidValue?, defaultPersist=random
-  userId: UuidValue, relation(parent=sso_users)
-  productId: UuidValue, relation(parent=sso_products)
-  siteId: UuidValue, relation(parent=sso_sites)
-  productRole: String?
-  metadata: String?

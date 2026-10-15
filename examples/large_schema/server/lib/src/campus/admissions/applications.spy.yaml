@@ -1,0 +1,15 @@
+### Fictional university fixture: admissions.
+class: CampusApplication
+table: campus_applications
+fields:
+  id: UuidValue?, defaultPersist=random
+  studentId: UuidValue, relation(parent=campus_students)
+  academicYearId: UuidValue, relation(parent=campus_academic_years)
+  reference: String
+  submittedAt: DateTime?
+  status: String
+  createdAt: DateTime, default=now
+indexes:
+  campus_applications_u0:
+    fields: reference
+    unique: true

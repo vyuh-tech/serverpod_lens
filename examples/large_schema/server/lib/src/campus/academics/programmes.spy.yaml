@@ -1,0 +1,15 @@
+### Fictional university fixture: academics.
+class: CampusProgramme
+table: campus_programmes
+fields:
+  id: UuidValue?, defaultPersist=random
+  departmentId: UuidValue, relation(parent=campus_departments)
+  qualificationId: UuidValue, relation(parent=campus_qualifications)
+  code: String
+  title: String
+  durationTerms: int
+  createdAt: DateTime, default=now
+indexes:
+  campus_programmes_u0:
+    fields: code
+    unique: true

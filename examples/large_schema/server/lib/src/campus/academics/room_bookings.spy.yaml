@@ -1,0 +1,11 @@
+### Fictional university fixture: academics.
+class: CampusRoomBooking
+table: campus_room_bookings
+fields:
+  id: UuidValue?, defaultPersist=random
+  roomId: UuidValue, relation(parent=campus_rooms)
+  lecturerId: UuidValue, relation(parent=campus_lecturers)
+  startsAt: DateTime
+  endsAt: DateTime
+  purpose: String
+  createdAt: DateTime, default=now

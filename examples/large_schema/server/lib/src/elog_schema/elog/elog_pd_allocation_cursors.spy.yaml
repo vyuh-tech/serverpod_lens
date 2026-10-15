@@ -1,6 +1,0 @@
-class: ElogPdAllocationCursors
-table: elog_pd_allocation_cursors
-fields:
-  id: UuidValue?, defaultPersist=random
-  punchSetId: UuidValue, relation(parent=elog_punch_sets)
-  lastOrdinal: int

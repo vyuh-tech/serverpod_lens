@@ -1,0 +1,11 @@
+### Fictional university fixture: enrolment.
+class: CampusCreditTransfer
+table: campus_credit_transfers
+fields:
+  id: UuidValue?, defaultPersist=random
+  studentId: UuidValue, relation(parent=campus_students)
+  courseId: UuidValue, relation(parent=campus_courses)
+  institution: String
+  awardedCredits: int
+  approvedById: UuidValue?, relation(parent=campus_lecturers)
+  createdAt: DateTime, default=now

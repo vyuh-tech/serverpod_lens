@@ -1,0 +1,15 @@
+### Fictional university fixture: library.
+class: CampusBookCopy
+table: campus_book_copies
+fields:
+  id: UuidValue?, defaultPersist=random
+  editionId: UuidValue, relation(parent=campus_book_editions)
+  branchId: UuidValue, relation(parent=campus_library_branches)
+  barcode: String
+  shelf: String
+  status: String
+  createdAt: DateTime, default=now
+indexes:
+  campus_book_copies_u0:
+    fields: barcode
+    unique: true

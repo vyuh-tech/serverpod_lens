@@ -1,6 +1,0 @@
-class: ElogPdComponentReservations
-table: elog_pd_component_reservations
-fields:
-  id: UuidValue?, defaultPersist=random
-  componentId: UuidValue, relation(parent=elog_equipment_parts)
-  operationId: UuidValue, relation(parent=elog_pd_operations)

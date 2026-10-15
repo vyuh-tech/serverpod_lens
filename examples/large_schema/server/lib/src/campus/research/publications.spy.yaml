@@ -1,0 +1,15 @@
+### Fictional university fixture: research.
+class: CampusPublication
+table: campus_publications
+fields:
+  id: UuidValue?, defaultPersist=random
+  projectId: UuidValue, relation(parent=campus_research_projects)
+  title: String
+  doi: String?
+  publishedAt: DateTime?
+  venue: String?
+  createdAt: DateTime, default=now
+indexes:
+  campus_publications_u0:
+    fields: doi
+    unique: true

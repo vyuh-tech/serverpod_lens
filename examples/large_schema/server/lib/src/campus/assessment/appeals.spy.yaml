@@ -1,0 +1,11 @@
+### Fictional university fixture: assessment.
+class: CampusAppeal
+table: campus_appeals
+fields:
+  id: UuidValue?, defaultPersist=random
+  studentId: UuidValue, relation(parent=campus_students)
+  gradeId: UuidValue, relation(parent=campus_grades)
+  reason: String
+  status: String
+  reviewedById: UuidValue?, relation(parent=campus_lecturers)
+  createdAt: DateTime, default=now

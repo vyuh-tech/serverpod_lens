@@ -1,0 +1,10 @@
+### Fictional university fixture: library.
+class: CampusLoanRenewal
+table: campus_loan_renewals
+fields:
+  id: UuidValue?, defaultPersist=random
+  loanId: UuidValue, relation(parent=campus_loans)
+  previousDueAt: DateTime
+  nextDueAt: DateTime
+  reason: String?
+  createdAt: DateTime, default=now

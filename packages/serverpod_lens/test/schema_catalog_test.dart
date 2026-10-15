@@ -5,7 +5,7 @@ import 'package:serverpod_lens/diagram.dart';
 
 void main() {
   test(
-    'elog schema selection filters by database schema, with an All view',
+    'campus schema selection filters by database schema, with an All view',
     () {
       final graph = SchemaDiagram.graphFromJson(
         File('test/fixtures/large_schema.json').readAsStringSync(),
@@ -14,30 +14,32 @@ void main() {
       expect(
         catalog.schemaCounts.keys,
         containsAll([
-          'public',
-          'sso',
-          'elog',
-          'docs_iq',
-          'workflow_runtime',
-          'assure_iq',
+          'campus',
+          'library',
+          'academics',
+          'admissions',
+          'enrolment',
+          'finance',
         ]),
       );
       expect(catalog.tables().length, graph.tables.length);
       expect(
-        catalog.tables(schema: 'sso'),
-        hasLength(catalog.schemaCounts['sso']!),
+        catalog.tables(schema: 'library'),
+        hasLength(catalog.schemaCounts['library']!),
       );
       expect(
-        catalog.tables(schema: 'sso').every((table) => table.schema == 'sso'),
+        catalog
+            .tables(schema: 'library')
+            .every((table) => table.schema == 'library'),
         isTrue,
       );
       expect(
         catalog
-            .tables(schema: 'elog', query: 'id')
-            .every((table) => table.schema == 'elog'),
+            .tables(schema: 'academics', query: 'id')
+            .every((table) => table.schema == 'academics'),
         isTrue,
       );
-      expect(graph.source, 'flutter_elog');
+      expect(graph.source, 'University campus');
       expect(
         graph.tables.map((table) => table.name).toSet().length,
         graph.tables.length,

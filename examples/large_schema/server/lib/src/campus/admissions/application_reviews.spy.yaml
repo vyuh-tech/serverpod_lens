@@ -1,0 +1,11 @@
+### Fictional university fixture: admissions.
+class: CampusApplicationReview
+table: campus_application_reviews
+fields:
+  id: UuidValue?, defaultPersist=random
+  applicationId: UuidValue, relation(parent=campus_applications)
+  lecturerId: UuidValue, relation(parent=campus_lecturers)
+  score: double?
+  recommendation: String
+  reviewedAt: DateTime?
+  createdAt: DateTime, default=now

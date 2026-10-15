@@ -1,0 +1,14 @@
+### Fictional university fixture: academics.
+class: CampusProgrammeVersion
+table: campus_programme_versions
+fields:
+  id: UuidValue?, defaultPersist=random
+  programmeId: UuidValue, relation(parent=campus_programmes)
+  academicYearId: UuidValue, relation(parent=campus_academic_years)
+  version: int
+  published: bool
+  createdAt: DateTime, default=now
+indexes:
+  campus_programme_versions_u0:
+    fields: programmeId,version
+    unique: true

@@ -1,0 +1,17 @@
+### Fictional university fixture: finance.
+class: CampusInvoice
+table: campus_invoices
+fields:
+  id: UuidValue?, defaultPersist=random
+  studentId: UuidValue, relation(parent=campus_students)
+  termId: UuidValue?, relation(parent=campus_terms)
+  number: String
+  currency: String
+  issuedAt: DateTime
+  dueAt: DateTime
+  status: String
+  createdAt: DateTime, default=now
+indexes:
+  campus_invoices_u0:
+    fields: number
+    unique: true

@@ -1,7 +1,0 @@
-class: SsoDepartmentTypes
-table: sso_department_types
-fields:
-  id: UuidValue?, defaultPersist=random
-  code: String
-  name: String
-  description: String?

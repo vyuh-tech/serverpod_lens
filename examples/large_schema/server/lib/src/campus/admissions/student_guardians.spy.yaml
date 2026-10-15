@@ -1,0 +1,14 @@
+### Fictional university fixture: admissions.
+class: CampusStudentGuardian
+table: campus_student_guardians
+fields:
+  id: UuidValue?, defaultPersist=random
+  studentId: UuidValue, relation(parent=campus_students)
+  guardianId: UuidValue, relation(parent=campus_guardians)
+  relationship: String
+  emergencyContact: bool
+  createdAt: DateTime, default=now
+indexes:
+  campus_student_guardians_u0:
+    fields: studentId,guardianId
+    unique: true

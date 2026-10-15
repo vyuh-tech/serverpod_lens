@@ -1,0 +1,11 @@
+### Fictional university fixture: housing.
+class: CampusHousingCharge
+table: campus_housing_charges
+fields:
+  id: UuidValue?, defaultPersist=random
+  contractId: UuidValue, relation(parent=campus_housing_contracts)
+  feeTypeId: UuidValue, relation(parent=campus_fee_types)
+  invoiceLineId: UuidValue?, relation(parent=campus_invoice_lines)
+  amountMinor: int
+  currency: String
+  createdAt: DateTime, default=now

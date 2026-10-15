@@ -1,0 +1,13 @@
+### Fictional university fixture: assessment.
+class: CampusAssessmentMarker
+table: campus_assessment_markers
+fields:
+  id: UuidValue?, defaultPersist=random
+  assessmentId: UuidValue, relation(parent=campus_assessments)
+  lecturerId: UuidValue, relation(parent=campus_lecturers)
+  moderation: bool
+  createdAt: DateTime, default=now
+indexes:
+  campus_assessment_markers_u0:
+    fields: assessmentId,lecturerId
+    unique: true

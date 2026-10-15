@@ -1,0 +1,9 @@
+### Fictional university fixture: admissions.
+class: CampusCohort
+table: campus_cohorts
+fields:
+  id: UuidValue?, defaultPersist=random
+  programmeId: UuidValue, relation(parent=campus_programmes)
+  academicYearId: UuidValue, relation(parent=campus_academic_years)
+  name: String
+  createdAt: DateTime, default=now

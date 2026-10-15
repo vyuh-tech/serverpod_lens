@@ -1,0 +1,13 @@
+### Fictional university fixture: academics.
+class: CampusCoursePrerequisite
+table: campus_course_prerequisites
+fields:
+  id: UuidValue?, defaultPersist=random
+  courseId: UuidValue, relation(parent=campus_courses)
+  prerequisiteId: UuidValue, relation(parent=campus_courses)
+  minimumGrade: String?
+  createdAt: DateTime, default=now
+indexes:
+  campus_course_prerequisites_u0:
+    fields: courseId,prerequisiteId
+    unique: true

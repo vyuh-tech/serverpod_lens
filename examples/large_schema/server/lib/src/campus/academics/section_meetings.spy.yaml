@@ -1,0 +1,11 @@
+### Fictional university fixture: academics.
+class: CampusSectionMeeting
+table: campus_section_meetings
+fields:
+  id: UuidValue?, defaultPersist=random
+  sectionId: UuidValue, relation(parent=campus_course_sections)
+  roomId: UuidValue, relation(parent=campus_rooms)
+  weekday: int
+  startsAt: DateTime
+  endsAt: DateTime
+  createdAt: DateTime, default=now

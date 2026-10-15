@@ -1,0 +1,10 @@
+### Fictional university fixture: academics.
+class: CampusTimetable
+table: campus_timetables
+fields:
+  id: UuidValue?, defaultPersist=random
+  termId: UuidValue, relation(parent=campus_terms)
+  programmeId: UuidValue, relation(parent=campus_programmes)
+  title: String
+  published: bool
+  createdAt: DateTime, default=now

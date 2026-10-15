@@ -1,0 +1,13 @@
+### Fictional university fixture: admissions.
+class: CampusCohortMembership
+table: campus_cohort_memberships
+fields:
+  id: UuidValue?, defaultPersist=random
+  cohortId: UuidValue, relation(parent=campus_cohorts)
+  studentId: UuidValue, relation(parent=campus_students)
+  joinedAt: DateTime
+  createdAt: DateTime, default=now
+indexes:
+  campus_cohort_memberships_u0:
+    fields: cohortId,studentId
+    unique: true

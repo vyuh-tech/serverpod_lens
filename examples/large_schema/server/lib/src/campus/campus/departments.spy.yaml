@@ -1,0 +1,14 @@
+### Fictional university fixture: campus.
+class: CampusDepartment
+table: campus_departments
+fields:
+  id: UuidValue?, defaultPersist=random
+  facultyId: UuidValue, relation(parent=campus_faculties)
+  code: String
+  name: String
+  parentId: UuidValue?, relation(parent=campus_departments)
+  createdAt: DateTime, default=now
+indexes:
+  campus_departments_u0:
+    fields: facultyId,code
+    unique: true

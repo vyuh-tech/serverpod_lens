@@ -1,0 +1,10 @@
+### Fictional university fixture: enrolment.
+class: CampusAttendanceSession
+table: campus_attendance_sessions
+fields:
+  id: UuidValue?, defaultPersist=random
+  sectionId: UuidValue, relation(parent=campus_course_sections)
+  meetingId: UuidValue?, relation(parent=campus_section_meetings)
+  heldAt: DateTime
+  topic: String?
+  createdAt: DateTime, default=now

@@ -1,0 +1,14 @@
+### Fictional university fixture: enrolment.
+class: CampusWaitlistEntry
+table: campus_waitlist_entries
+fields:
+  id: UuidValue?, defaultPersist=random
+  studentId: UuidValue, relation(parent=campus_students)
+  sectionId: UuidValue, relation(parent=campus_course_sections)
+  position: int
+  offeredAt: DateTime?
+  createdAt: DateTime, default=now
+indexes:
+  campus_waitlist_entries_u0:
+    fields: studentId,sectionId
+    unique: true

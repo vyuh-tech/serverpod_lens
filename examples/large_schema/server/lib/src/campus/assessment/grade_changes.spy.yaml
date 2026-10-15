@@ -1,0 +1,11 @@
+### Fictional university fixture: assessment.
+class: CampusGradeChange
+table: campus_grade_changes
+fields:
+  id: UuidValue?, defaultPersist=random
+  gradeId: UuidValue, relation(parent=campus_grades)
+  changedById: UuidValue, relation(parent=campus_lecturers)
+  previousScore: double
+  nextScore: double
+  reason: String
+  createdAt: DateTime, default=now

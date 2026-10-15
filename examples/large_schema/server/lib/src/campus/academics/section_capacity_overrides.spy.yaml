@@ -1,0 +1,10 @@
+### Fictional university fixture: academics.
+class: CampusSectionCapacityOverride
+table: campus_section_capacity_overrides
+fields:
+  id: UuidValue?, defaultPersist=random
+  sectionId: UuidValue, relation(parent=campus_course_sections)
+  lecturerId: UuidValue, relation(parent=campus_lecturers)
+  extraPlaces: int
+  reason: String
+  createdAt: DateTime, default=now

@@ -1,0 +1,14 @@
+### Fictional university fixture: campus.
+class: CampusCampus
+table: campus_campuses
+fields:
+  id: UuidValue?, defaultPersist=random
+  code: String
+  name: String
+  city: String
+  countryCode: String
+  createdAt: DateTime, default=now
+indexes:
+  campus_campuses_u0:
+    fields: code
+    unique: true

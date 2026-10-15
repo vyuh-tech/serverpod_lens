@@ -11,7 +11,7 @@ void main() {
     File('test/fixtures/large_schema.json').readAsStringSync(),
   );
   final graph = imported.copyWith(
-    tables: imported.tables.where((t) => t.schema == 'sso').toList(),
+    tables: imported.tables.where((t) => t.schema == 'library').toList(),
   );
 
   for (final entry in <String, Layout>{

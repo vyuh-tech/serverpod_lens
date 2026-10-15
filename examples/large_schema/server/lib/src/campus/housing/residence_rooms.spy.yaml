@@ -1,0 +1,14 @@
+### Fictional university fixture: housing.
+class: CampusResidenceRoom
+table: campus_residence_rooms
+fields:
+  id: UuidValue?, defaultPersist=random
+  floorId: UuidValue, relation(parent=campus_residence_floors)
+  roomId: UuidValue?, relation(parent=campus_rooms)
+  number: String
+  roomType: String
+  createdAt: DateTime, default=now
+indexes:
+  campus_residence_rooms_u0:
+    fields: floorId,number
+    unique: true

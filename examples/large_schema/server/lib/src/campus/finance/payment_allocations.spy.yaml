@@ -1,0 +1,13 @@
+### Fictional university fixture: finance.
+class: CampusPaymentAllocation
+table: campus_payment_allocations
+fields:
+  id: UuidValue?, defaultPersist=random
+  paymentId: UuidValue, relation(parent=campus_payments)
+  invoiceId: UuidValue, relation(parent=campus_invoices)
+  amountMinor: int
+  createdAt: DateTime, default=now
+indexes:
+  campus_payment_allocations_u0:
+    fields: paymentId,invoiceId
+    unique: true

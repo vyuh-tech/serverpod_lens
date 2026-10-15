@@ -1,0 +1,11 @@
+### Fictional university fixture: research.
+class: CampusEthicsApplication
+table: campus_ethics_applications
+fields:
+  id: UuidValue?, defaultPersist=random
+  projectId: UuidValue, relation(parent=campus_research_projects)
+  submittedById: UuidValue, relation(parent=campus_lecturers)
+  submittedAt: DateTime
+  summary: String
+  status: String
+  createdAt: DateTime, default=now

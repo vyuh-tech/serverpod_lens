@@ -1,0 +1,11 @@
+### Fictional university fixture: assessment.
+class: CampusExamSession
+table: campus_exam_sessions
+fields:
+  id: UuidValue?, defaultPersist=random
+  examId: UuidValue, relation(parent=campus_exams)
+  termId: UuidValue, relation(parent=campus_terms)
+  roomId: UuidValue, relation(parent=campus_rooms)
+  startsAt: DateTime
+  capacity: int
+  createdAt: DateTime, default=now

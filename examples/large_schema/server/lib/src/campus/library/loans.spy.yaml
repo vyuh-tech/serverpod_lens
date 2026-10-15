@@ -1,0 +1,11 @@
+### Fictional university fixture: library.
+class: CampusLoan
+table: campus_loans
+fields:
+  id: UuidValue?, defaultPersist=random
+  copyId: UuidValue, relation(parent=campus_book_copies)
+  studentId: UuidValue, relation(parent=campus_students)
+  borrowedAt: DateTime
+  dueAt: DateTime
+  returnedAt: DateTime?
+  createdAt: DateTime, default=now

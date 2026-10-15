@@ -1,0 +1,15 @@
+### Fictional university fixture: library.
+class: CampusBookEdition
+table: campus_book_editions
+fields:
+  id: UuidValue?, defaultPersist=random
+  bookId: UuidValue, relation(parent=campus_books)
+  publisherId: UuidValue, relation(parent=campus_publishers)
+  isbn: String
+  publishedYear: int
+  edition: int
+  createdAt: DateTime, default=now
+indexes:
+  campus_book_editions_u0:
+    fields: isbn
+    unique: true

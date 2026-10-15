@@ -1,0 +1,13 @@
+### Fictional university fixture: admissions.
+class: CampusApplicationDocument
+table: campus_application_documents
+fields:
+  id: UuidValue?, defaultPersist=random
+  applicationId: UuidValue, relation(parent=campus_applications)
+  documentId: UuidValue, relation(parent=campus_student_documents)
+  required: bool
+  createdAt: DateTime, default=now
+indexes:
+  campus_application_documents_u0:
+    fields: applicationId,documentId
+    unique: true

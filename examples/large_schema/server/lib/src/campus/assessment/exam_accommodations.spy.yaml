@@ -1,0 +1,10 @@
+### Fictional university fixture: assessment.
+class: CampusExamAccommodation
+table: campus_exam_accommodations
+fields:
+  id: UuidValue?, defaultPersist=random
+  registrationId: UuidValue, relation(parent=campus_exam_registrations)
+  extraMinutes: int
+  requirements: List<String>
+  approvedById: UuidValue?, relation(parent=campus_lecturers)
+  createdAt: DateTime, default=now

@@ -1,0 +1,10 @@
+### Fictional university fixture: admissions.
+class: CampusOfferCondition
+table: campus_offer_conditions
+fields:
+  id: UuidValue?, defaultPersist=random
+  offerId: UuidValue, relation(parent=campus_offers)
+  description: String
+  satisfied: bool
+  satisfiedAt: DateTime?
+  createdAt: DateTime, default=now

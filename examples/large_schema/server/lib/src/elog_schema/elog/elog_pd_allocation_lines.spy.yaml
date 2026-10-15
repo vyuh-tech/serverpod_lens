@@ -1,9 +1,0 @@
-class: ElogPdAllocationLines
-table: elog_pd_allocation_lines
-fields:
-  id: UuidValue?, defaultPersist=random
-  allocationId: UuidValue, relation(parent=elog_pd_allocations)
-  assemblyId: UuidValue, relation(parent=elog_pd_assemblies)
-  ordinal: int
-  status: String
-  returnedOperationId: UuidValue?, relation(parent=elog_pd_operations)

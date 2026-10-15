@@ -1,0 +1,9 @@
+### Fictional university fixture: library.
+class: CampusReadingList
+table: campus_reading_lists
+fields:
+  id: UuidValue?, defaultPersist=random
+  courseId: UuidValue, relation(parent=campus_courses)
+  lecturerId: UuidValue, relation(parent=campus_lecturers)
+  title: String
+  createdAt: DateTime, default=now

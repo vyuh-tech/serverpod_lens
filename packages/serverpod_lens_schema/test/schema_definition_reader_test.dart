@@ -43,7 +43,7 @@ void main() {
             {'name': 'users', 'schema': 'public'},
             {
               'name': 'users',
-              'schema': 'sso',
+              'schema': 'admissions',
               'foreignKeys': [
                 {
                   'columns': ['owner'],
@@ -60,7 +60,7 @@ void main() {
       final tables = graph['tables'] as List;
       expect(tables.map((table) => table['name']), [
         'public.users',
-        'sso.users',
+        'admissions.users',
       ]);
       expect(tables.last['foreignKeys'].single['refTable'], 'public.users');
     },

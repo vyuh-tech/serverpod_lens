@@ -1,7 +1,0 @@
-class: ElogEquipmentUserGroups
-table: elog_equipment_user_groups
-fields:
-  id: UuidValue?, defaultPersist=random
-  equipmentId: UuidValue, relation(parent=elog_equipments)
-  userGroupId: UuidValue, relation(parent=elog_user_groups)
-  isActive: bool?

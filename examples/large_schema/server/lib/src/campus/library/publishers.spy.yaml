@@ -1,0 +1,9 @@
+### Fictional university fixture: library.
+class: CampusPublisher
+table: campus_publishers
+fields:
+  id: UuidValue?, defaultPersist=random
+  name: String
+  countryCode: String?
+  website: String?
+  createdAt: DateTime, default=now

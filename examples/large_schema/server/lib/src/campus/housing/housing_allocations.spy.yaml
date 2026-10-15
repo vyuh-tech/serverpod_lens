@@ -1,0 +1,11 @@
+### Fictional university fixture: housing.
+class: CampusHousingAllocation
+table: campus_housing_allocations
+fields:
+  id: UuidValue?, defaultPersist=random
+  housingApplicationId: UuidValue, relation(parent=campus_housing_applications)
+  bedId: UuidValue, relation(parent=campus_residence_beds)
+  startsAt: DateTime
+  endsAt: DateTime
+  status: String
+  createdAt: DateTime, default=now

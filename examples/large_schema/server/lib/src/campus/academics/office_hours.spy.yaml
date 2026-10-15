@@ -1,0 +1,11 @@
+### Fictional university fixture: academics.
+class: CampusOfficeHour
+table: campus_office_hours
+fields:
+  id: UuidValue?, defaultPersist=random
+  lecturerId: UuidValue, relation(parent=campus_lecturers)
+  roomId: UuidValue?, relation(parent=campus_rooms)
+  weekday: int
+  startsAt: DateTime
+  endsAt: DateTime
+  createdAt: DateTime, default=now

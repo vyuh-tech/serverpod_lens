@@ -1,0 +1,8 @@
+### Fictional university fixture: library.
+class: CampusAuthor
+table: campus_authors
+fields:
+  id: UuidValue?, defaultPersist=random
+  name: String
+  biography: String?
+  createdAt: DateTime, default=now

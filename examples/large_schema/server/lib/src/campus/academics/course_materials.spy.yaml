@@ -1,0 +1,10 @@
+### Fictional university fixture: academics.
+class: CampusCourseMaterial
+table: campus_course_materials
+fields:
+  id: UuidValue?, defaultPersist=random
+  courseId: UuidValue, relation(parent=campus_courses)
+  title: String
+  resourceUrl: String
+  required: bool
+  createdAt: DateTime, default=now

@@ -1,0 +1,15 @@
+### Fictional university fixture: assessment.
+class: CampusAssessmentSubmission
+table: campus_assessment_submissions
+fields:
+  id: UuidValue?, defaultPersist=random
+  assessmentId: UuidValue, relation(parent=campus_assessments)
+  enrolmentId: UuidValue, relation(parent=campus_enrolments)
+  submittedAt: DateTime?
+  attempt: int
+  status: String
+  createdAt: DateTime, default=now
+indexes:
+  campus_assessment_submissions_u0:
+    fields: assessmentId,enrolmentId,attempt
+    unique: true

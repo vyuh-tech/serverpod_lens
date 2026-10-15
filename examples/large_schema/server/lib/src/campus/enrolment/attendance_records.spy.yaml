@@ -1,0 +1,14 @@
+### Fictional university fixture: enrolment.
+class: CampusAttendanceRecord
+table: campus_attendance_records
+fields:
+  id: UuidValue?, defaultPersist=random
+  sessionId: UuidValue, relation(parent=campus_attendance_sessions)
+  enrolmentId: UuidValue, relation(parent=campus_enrolments)
+  status: String
+  checkedInAt: DateTime?
+  createdAt: DateTime, default=now
+indexes:
+  campus_attendance_records_u0:
+    fields: sessionId,enrolmentId
+    unique: true

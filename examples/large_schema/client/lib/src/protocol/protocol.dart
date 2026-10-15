@@ -16,130 +16,128 @@ import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
     as _iaic;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
-import 'elog_schema/elog/elog_activities.dart' as _ishyozd5;
-import 'elog_schema/elog/elog_activity_artifacts.dart' as _i6kgjla4;
-import 'elog_schema/elog/elog_area_adjacency.dart' as _iz387z77;
-import 'elog_schema/elog/elog_area_categories.dart' as _i9o3y69x;
-import 'elog_schema/elog/elog_area_equipment.dart' as _isgi7gk9;
-import 'elog_schema/elog/elog_area_user_groups.dart' as _iv2byy67;
-import 'elog_schema/elog/elog_areas.dart' as _ilczj6al;
-import 'elog_schema/elog/elog_batches.dart' as _ippbjru9;
-import 'elog_schema/elog/elog_business_associates.dart' as _ie8nm0xf;
-import 'elog_schema/elog/elog_campaigns.dart' as _iea2komd;
-import 'elog_schema/elog/elog_checklist_templates.dart' as _i943t8qk;
-import 'elog_schema/elog/elog_checklist_usage_instructions.dart' as _im2l27wp;
-import 'elog_schema/elog/elog_checklist_usage_sets.dart' as _iyg55fu5;
-import 'elog_schema/elog/elog_checklist_usages.dart' as _i2d67kfy;
-import 'elog_schema/elog/elog_cleaning_types.dart' as _iaxzy4al;
-import 'elog_schema/elog/elog_dashboard_configs.dart' as _ig1scdm6;
-import 'elog_schema/elog/elog_equipment_categories.dart' as _i465o1vf;
-import 'elog_schema/elog/elog_equipment_parts.dart' as _iy7mbkyp;
-import 'elog_schema/elog/elog_equipment_types.dart' as _iizl2nep;
-import 'elog_schema/elog/elog_equipment_user_groups.dart' as _ihodx11y;
-import 'elog_schema/elog/elog_equipments.dart' as _ir29oi5q;
-import 'elog_schema/elog/elog_event_reactor_state.dart' as _iksvpml2;
-import 'elog_schema/elog/elog_events.dart' as _imjwa56c;
-import 'elog_schema/elog/elog_external_integrations.dart' as _iei4fdsy;
-import 'elog_schema/elog/elog_holiday_calendars.dart' as _iuxjq0du;
-import 'elog_schema/elog/elog_holiday_entries.dart' as _ip7nvc9p;
-import 'elog_schema/elog/elog_log_report_generations.dart' as _i4th50rj;
-import 'elog_schema/elog/elog_log_templates.dart' as _iab28y1e;
-import 'elog_schema/elog/elog_log_usages.dart' as _i05usxet;
-import 'elog_schema/elog/elog_notification_group_states.dart' as _izf4mrur;
-import 'elog_schema/elog/elog_notifications.dart' as _idk983fe;
-import 'elog_schema/elog/elog_notifications_archive.dart' as _izmtc39o;
-import 'elog_schema/elog/elog_onboarding_status.dart' as _i0ssuutp;
-import 'elog_schema/elog/elog_operations.dart' as _i7g8bf6c;
-import 'elog_schema/elog/elog_pd_allocation_cursors.dart' as _i8i2tmym;
-import 'elog_schema/elog/elog_pd_allocation_lines.dart' as _iwsiolx8;
-import 'elog_schema/elog/elog_pd_allocations.dart' as _ie75ho22;
-import 'elog_schema/elog/elog_pd_assemblies.dart' as _i3lnfsnn;
-import 'elog_schema/elog/elog_pd_assembly_members.dart' as _iccws1xa;
-import 'elog_schema/elog/elog_pd_component_reservations.dart' as _ipr5ee30;
-import 'elog_schema/elog/elog_pd_module_config.dart' as _i6kwotqx;
-import 'elog_schema/elog/elog_pd_operations.dart' as _ip7k2fyr;
-import 'elog_schema/elog/elog_pd_usage_ledger.dart' as _iwoewitv;
-import 'elog_schema/elog/elog_preset_area_categories.dart' as _idcsbifx;
-import 'elog_schema/elog/elog_preset_areas.dart' as _ien2z5wb;
-import 'elog_schema/elog/elog_preset_checklists.dart' as _imeic21z;
-import 'elog_schema/elog/elog_preset_dashboards.dart' as _i1i32x6j;
-import 'elog_schema/elog/elog_preset_equipment.dart' as _igzp2y8c;
-import 'elog_schema/elog/elog_preset_equipment_categories.dart' as _imoi4ypf;
-import 'elog_schema/elog/elog_preset_industries.dart' as _io6t2sgk;
-import 'elog_schema/elog/elog_preset_log_templates.dart' as _izdzedtk;
-import 'elog_schema/elog/elog_preset_policies.dart' as _irzfy450;
-import 'elog_schema/elog/elog_preset_role_categories.dart' as _iimbkgrt;
-import 'elog_schema/elog/elog_preset_roles.dart' as _i1n67tzi;
-import 'elog_schema/elog/elog_preset_schedules.dart' as _i01c1yxy;
-import 'elog_schema/elog/elog_problem_types.dart' as _ib0e9qbb;
-import 'elog_schema/elog/elog_problems.dart' as _i4hmoti8;
-import 'elog_schema/elog/elog_product_cleaning_requirements.dart' as _iele6hju;
-import 'elog_schema/elog/elog_products.dart' as _i0caxd73;
-import 'elog_schema/elog/elog_punch_sets.dart' as _iq0nwjzy;
-import 'elog_schema/elog/elog_report_templates.dart' as _iryvos7o;
-import 'elog_schema/elog/elog_resource_activity_daily_rollups.dart'
-    as _iqykw8hs;
-import 'elog_schema/elog/elog_resource_flag_types.dart' as _ial2wvcr;
-import 'elog_schema/elog/elog_resource_flags.dart' as _if40xrph;
-import 'elog_schema/elog/elog_resource_policies.dart' as _il71c5vn;
-import 'elog_schema/elog/elog_resource_states.dart' as _iw7vxuxk;
-import 'elog_schema/elog/elog_resource_usages.dart' as _ijudmfzt;
-import 'elog_schema/elog/elog_role_categories.dart' as _ik7tju34;
-import 'elog_schema/elog/elog_role_dashboards.dart' as _is5x0ozk;
-import 'elog_schema/elog/elog_role_permissions.dart' as _i8swalwe;
-import 'elog_schema/elog/elog_roles.dart' as _i2dkzfxx;
-import 'elog_schema/elog/elog_saved_views.dart' as _i91j1h6n;
-import 'elog_schema/elog/elog_tooling_product_qualifications.dart' as _iyvpac9s;
-import 'elog_schema/elog/elog_tooling_types.dart' as _i2a97saf;
-import 'elog_schema/elog/elog_unit_of_measures.dart' as _ici4vys7;
-import 'elog_schema/elog/elog_user_group_members.dart' as _iu9388z4;
-import 'elog_schema/elog/elog_user_groups.dart' as _id7xfj5e;
-import 'elog_schema/elog/elog_user_roles.dart' as _i2xv5f50;
-import 'elog_schema/elog/elog_work_items.dart' as _iqfb1ejb;
-import 'elog_schema/elog/elog_workflow_events.dart' as _i2qhvyny;
-import 'elog_schema/elog/elog_workflow_instances.dart' as _ifguuifm;
-import 'elog_schema/elog/elog_workflows.dart' as _ijr902rd;
-import 'elog_schema/public/public_e_signatures.dart' as _iw9e7ahv;
-import 'elog_schema/public/public_entity_drafts_audit.dart' as _iq44tjyb;
-import 'elog_schema/public/public_entity_drafts_versions.dart' as _iqjzr2vi;
-import 'elog_schema/public/public_entity_lifecycle_configurations.dart'
-    as _i37bl2c2;
-import 'elog_schema/public/public_entity_workflow_instances.dart' as _i7ltqb3m;
-import 'elog_schema/public/public_entity_workflow_tasks.dart' as _iu718lvo;
-import 'elog_schema/public/public_public.dart' as _i6x532bo;
-import 'elog_schema/public/public_workflow_events.dart' as _ixdgb3pg;
-import 'elog_schema/public/public_workflow_instances.dart' as _iku0se9c;
-import 'elog_schema/public/public_workflow_user_tasks.dart' as _ixdjky6f;
-import 'elog_schema/sso/sso_account_unlock_requests.dart' as _icl3enxx;
-import 'elog_schema/sso/sso_ad_connections.dart' as _ikffiba3;
-import 'elog_schema/sso/sso_companies.dart' as _ioy9xegh;
-import 'elog_schema/sso/sso_company_site_assignments.dart' as _ih26k2g9;
-import 'elog_schema/sso/sso_dashboard_configs.dart' as _i0v3k9y4;
-import 'elog_schema/sso/sso_department_types.dart' as _iwzh4spq;
-import 'elog_schema/sso/sso_departments.dart' as _isoagnd2;
-import 'elog_schema/sso/sso_designations.dart' as _ivpbyrtu;
-import 'elog_schema/sso/sso_login_challenges.dart' as _id58jpdy;
-import 'elog_schema/sso/sso_login_events.dart' as _ivkuiv43;
-import 'elog_schema/sso/sso_notifications.dart' as _iv9au2ux;
-import 'elog_schema/sso/sso_password_reset_requests.dart' as _ism6jhlu;
-import 'elog_schema/sso/sso_product_settings.dart' as _iqttiq1b;
-import 'elog_schema/sso/sso_product_site_mappings.dart' as _ir4axp6j;
-import 'elog_schema/sso/sso_products.dart' as _id96jnp7;
-import 'elog_schema/sso/sso_report_exports.dart' as _iu1qu58n;
-import 'elog_schema/sso/sso_report_templates.dart' as _ichwrbiz;
-import 'elog_schema/sso/sso_role_dashboards.dart' as _ib0ko46b;
-import 'elog_schema/sso/sso_role_permissions.dart' as _ifv6xkhy;
-import 'elog_schema/sso/sso_roles.dart' as _i0gr1peg;
-import 'elog_schema/sso/sso_saved_views.dart' as _if33sioe;
-import 'elog_schema/sso/sso_security_policies.dart' as _ilqjh0sx;
-import 'elog_schema/sso/sso_sites.dart' as _i4g0kvm8;
-import 'elog_schema/sso/sso_standard_reasons.dart' as _iugbun52;
-import 'elog_schema/sso/sso_user_password_history.dart' as _i2qrs2ax;
-import 'elog_schema/sso/sso_user_preferences.dart' as _izdzo98l;
-import 'elog_schema/sso/sso_user_product_site_mappings.dart' as _i7stpwby;
-import 'elog_schema/sso/sso_user_roles.dart' as _iew7uxuv;
-import 'elog_schema/sso/sso_user_sessions.dart' as _ir5ofehs;
-import 'elog_schema/sso/sso_users.dart' as _i4fj2l14;
+import 'campus/academics/course_categories.dart' as _icbi7gwo;
+import 'campus/academics/course_equivalences.dart' as _izhnn43s;
+import 'campus/academics/course_materials.dart' as _i60iovqj;
+import 'campus/academics/course_outcomes.dart' as _ifd85uwc;
+import 'campus/academics/course_prerequisites.dart' as _ihnnsiks;
+import 'campus/academics/course_sections.dart' as _iporzlvp;
+import 'campus/academics/courses.dart' as _iik9idpd;
+import 'campus/academics/lecturer_departments.dart' as _i6p3cs2n;
+import 'campus/academics/lecturers.dart' as _ixrb3pvm;
+import 'campus/academics/office_hours.dart' as _i90s5rli;
+import 'campus/academics/programme_courses.dart' as _idvibfro;
+import 'campus/academics/programme_versions.dart' as _ikq440cu;
+import 'campus/academics/programmes.dart' as _i49ncx41;
+import 'campus/academics/qualifications.dart' as _iuk3rrc1;
+import 'campus/academics/room_bookings.dart' as _igrg8f15;
+import 'campus/academics/section_capacity_overrides.dart' as _i4dxex9j;
+import 'campus/academics/section_instructors.dart' as _i60vl9yy;
+import 'campus/academics/section_meetings.dart' as _i1ujp85c;
+import 'campus/academics/timetable_entries.dart' as _i5vbc563;
+import 'campus/academics/timetables.dart' as _iztuz2v2;
+import 'campus/admissions/acceptances.dart' as _ioijgh15;
+import 'campus/admissions/application_choices.dart' as _iszjqqz2;
+import 'campus/admissions/application_documents.dart' as _i3p9hmqv;
+import 'campus/admissions/application_reviews.dart' as _iwgn7l2z;
+import 'campus/admissions/applications.dart' as _i84qe6g5;
+import 'campus/admissions/cohort_memberships.dart' as _iz7cqiiz;
+import 'campus/admissions/cohorts.dart' as _iu4vottr;
+import 'campus/admissions/guardians.dart' as _i2lpxeo5;
+import 'campus/admissions/offer_conditions.dart' as _id663sq3;
+import 'campus/admissions/offers.dart' as _icm8cu4v;
+import 'campus/admissions/student_addresses.dart' as _i4ls3qtz;
+import 'campus/admissions/student_contacts.dart' as _irvnuni5;
+import 'campus/admissions/student_documents.dart' as _iwai6mlf;
+import 'campus/admissions/student_guardians.dart' as _i16zyk3v;
+import 'campus/admissions/student_holds.dart' as _iz31h8i4;
+import 'campus/admissions/student_notes.dart' as _idvhf8qa;
+import 'campus/admissions/student_status_events.dart' as _i6c5z7zh;
+import 'campus/admissions/students.dart' as _ixciykx6;
+import 'campus/assessment/appeals.dart' as _izef6fak;
+import 'campus/assessment/assessment_components.dart' as _ipsxsf4b;
+import 'campus/assessment/assessment_markers.dart' as _if8a84ek;
+import 'campus/assessment/assessment_submissions.dart' as _iuohle5e;
+import 'campus/assessment/assessments.dart' as _iy95bowl;
+import 'campus/assessment/exam_accommodations.dart' as _i968i8hm;
+import 'campus/assessment/exam_registrations.dart' as _iqsus0ia;
+import 'campus/assessment/exam_seats.dart' as _iq0v8pha;
+import 'campus/assessment/exam_sessions.dart' as _igek713o;
+import 'campus/assessment/exams.dart' as _iej23kcn;
+import 'campus/assessment/grade_changes.dart' as _i2oqkkd6;
+import 'campus/assessment/grade_scale_bands.dart' as _i12uv7b6;
+import 'campus/assessment/grade_scales.dart' as _ielxdmeu;
+import 'campus/assessment/grades.dart' as _ips0lupm;
+import 'campus/assessment/submission_files.dart' as _iv6t9wps;
+import 'campus/campus/academic_years.dart' as _idxtqeho;
+import 'campus/campus/buildings.dart' as _ijg49dtu;
+import 'campus/campus/campuses.dart' as _ii5cv0xg;
+import 'campus/campus/departments.dart' as _ieaagiip;
+import 'campus/campus/faculties.dart' as _iw9evvci;
+import 'campus/campus/rooms.dart' as _i5697to7;
+import 'campus/campus/terms.dart' as _iny6aho6;
+import 'campus/enrolment/attendance_records.dart' as _i7ljm6m0;
+import 'campus/enrolment/attendance_sessions.dart' as _i5rv3lv9;
+import 'campus/enrolment/completions.dart' as _iftc8tcu;
+import 'campus/enrolment/credit_transfers.dart' as _ixqnp4lw;
+import 'campus/enrolment/enrolment_requests.dart' as _iij70sau;
+import 'campus/enrolment/enrolments.dart' as _ikbz98ec;
+import 'campus/enrolment/study_plan_courses.dart' as _i6lqa8un;
+import 'campus/enrolment/study_plans.dart' as _i5anj6ne;
+import 'campus/enrolment/waitlist_entries.dart' as _imquh55n;
+import 'campus/enrolment/withdrawals.dart' as _i6xgcgm2;
+import 'campus/finance/fee_schedule_lines.dart' as _isewgl0f;
+import 'campus/finance/fee_schedules.dart' as _i6ur2gi2;
+import 'campus/finance/fee_types.dart' as _ivd0ctvz;
+import 'campus/finance/financial_aid_applications.dart' as _iy3qqd34;
+import 'campus/finance/financial_aid_decisions.dart' as _i6aphuzg;
+import 'campus/finance/invoice_lines.dart' as _i785d3eu;
+import 'campus/finance/invoices.dart' as _ih7yrsa3;
+import 'campus/finance/payment_allocations.dart' as _ip72wm5q;
+import 'campus/finance/payments.dart' as _igjjsnon;
+import 'campus/finance/refunds.dart' as _ih0zxat5;
+import 'campus/finance/scholarship_awards.dart' as _i2d8zb54;
+import 'campus/finance/scholarships.dart' as _i12o4a5n;
+import 'campus/finance/sponsor_contributions.dart' as _imm1bvl9;
+import 'campus/finance/sponsors.dart' as _iufogsm9;
+import 'campus/finance/sponsorships.dart' as _i5w6z1o1;
+import 'campus/housing/housing_allocations.dart' as _id1yl7ms;
+import 'campus/housing/housing_applications.dart' as _inj6rnis;
+import 'campus/housing/housing_charges.dart' as _i9sv4sdm;
+import 'campus/housing/housing_contracts.dart' as _is5welzq;
+import 'campus/housing/housing_guests.dart' as _ieupa5nm;
+import 'campus/housing/housing_inspections.dart' as _i33gygjf;
+import 'campus/housing/housing_maintenance_requests.dart' as _ip7dqx68;
+import 'campus/housing/housing_preferences.dart' as _i1chn6z5;
+import 'campus/housing/residence_beds.dart' as _ijjla5z9;
+import 'campus/housing/residence_floors.dart' as _ioguw2d9;
+import 'campus/housing/residence_rooms.dart' as _i4wllryj;
+import 'campus/housing/residences.dart' as _ilwtmbox;
+import 'campus/library/authors.dart' as _im17xq9s;
+import 'campus/library/book_authors.dart' as _ieum417b;
+import 'campus/library/book_copies.dart' as _i8iyxmm6;
+import 'campus/library/book_editions.dart' as _idwj8oog;
+import 'campus/library/books.dart' as _i91fxs7d;
+import 'campus/library/fines.dart' as _imao42n2;
+import 'campus/library/library_branches.dart' as _i7d3ow2m;
+import 'campus/library/library_visits.dart' as _ife2jm2t;
+import 'campus/library/loan_renewals.dart' as _iz85k6nw;
+import 'campus/library/loans.dart' as _ivrsnad5;
+import 'campus/library/publishers.dart' as _i7uvxqby;
+import 'campus/library/reading_list_entries.dart' as _i8fl0bcz;
+import 'campus/library/reading_lists.dart' as _iuf8fw82;
+import 'campus/library/reservations.dart' as _izrbvszp;
+import 'campus/research/ethics_applications.dart' as _ilkwpsep;
+import 'campus/research/ethics_reviews.dart' as _i23unika;
+import 'campus/research/grant_budgets.dart' as _irnr71yk;
+import 'campus/research/grant_expenses.dart' as _io3zc5dl;
+import 'campus/research/grants.dart' as _irh7kw2j;
+import 'campus/research/project_milestones.dart' as _i6qyipky;
+import 'campus/research/publication_authors.dart' as _i2rtf719;
+import 'campus/research/publications.dart' as _i5u1ue6j;
+import 'campus/research/research_datasets.dart' as _ik725i35;
+import 'campus/research/research_memberships.dart' as _i5h5n425;
+import 'campus/research/research_projects.dart' as _it8rg4yy;
 import 'schema/schema_access_exception.dart' as _iqdes7hr;
 import 'schema/schema_column.dart' as _ip7yl2xa;
 import 'schema/schema_enum.dart' as _irxuw07j;
@@ -149,128 +147,128 @@ import 'schema/schema_index.dart' as _id0qwmzg;
 import 'schema/schema_module.dart' as _iyw9pr81;
 import 'schema/schema_snapshot.dart' as _iaxhcc5o;
 import 'schema/schema_table.dart' as _ixxyfkud;
-export 'elog_schema/elog/elog_activities.dart';
-export 'elog_schema/elog/elog_activity_artifacts.dart';
-export 'elog_schema/elog/elog_area_adjacency.dart';
-export 'elog_schema/elog/elog_area_categories.dart';
-export 'elog_schema/elog/elog_area_equipment.dart';
-export 'elog_schema/elog/elog_area_user_groups.dart';
-export 'elog_schema/elog/elog_areas.dart';
-export 'elog_schema/elog/elog_batches.dart';
-export 'elog_schema/elog/elog_business_associates.dart';
-export 'elog_schema/elog/elog_campaigns.dart';
-export 'elog_schema/elog/elog_checklist_templates.dart';
-export 'elog_schema/elog/elog_checklist_usage_instructions.dart';
-export 'elog_schema/elog/elog_checklist_usage_sets.dart';
-export 'elog_schema/elog/elog_checklist_usages.dart';
-export 'elog_schema/elog/elog_cleaning_types.dart';
-export 'elog_schema/elog/elog_dashboard_configs.dart';
-export 'elog_schema/elog/elog_equipment_categories.dart';
-export 'elog_schema/elog/elog_equipment_parts.dart';
-export 'elog_schema/elog/elog_equipment_types.dart';
-export 'elog_schema/elog/elog_equipment_user_groups.dart';
-export 'elog_schema/elog/elog_equipments.dart';
-export 'elog_schema/elog/elog_event_reactor_state.dart';
-export 'elog_schema/elog/elog_events.dart';
-export 'elog_schema/elog/elog_external_integrations.dart';
-export 'elog_schema/elog/elog_holiday_calendars.dart';
-export 'elog_schema/elog/elog_holiday_entries.dart';
-export 'elog_schema/elog/elog_log_report_generations.dart';
-export 'elog_schema/elog/elog_log_templates.dart';
-export 'elog_schema/elog/elog_log_usages.dart';
-export 'elog_schema/elog/elog_notification_group_states.dart';
-export 'elog_schema/elog/elog_notifications.dart';
-export 'elog_schema/elog/elog_notifications_archive.dart';
-export 'elog_schema/elog/elog_onboarding_status.dart';
-export 'elog_schema/elog/elog_operations.dart';
-export 'elog_schema/elog/elog_pd_allocation_cursors.dart';
-export 'elog_schema/elog/elog_pd_allocation_lines.dart';
-export 'elog_schema/elog/elog_pd_allocations.dart';
-export 'elog_schema/elog/elog_pd_assemblies.dart';
-export 'elog_schema/elog/elog_pd_assembly_members.dart';
-export 'elog_schema/elog/elog_pd_component_reservations.dart';
-export 'elog_schema/elog/elog_pd_module_config.dart';
-export 'elog_schema/elog/elog_pd_operations.dart';
-export 'elog_schema/elog/elog_pd_usage_ledger.dart';
-export 'elog_schema/elog/elog_preset_area_categories.dart';
-export 'elog_schema/elog/elog_preset_areas.dart';
-export 'elog_schema/elog/elog_preset_checklists.dart';
-export 'elog_schema/elog/elog_preset_dashboards.dart';
-export 'elog_schema/elog/elog_preset_equipment.dart';
-export 'elog_schema/elog/elog_preset_equipment_categories.dart';
-export 'elog_schema/elog/elog_preset_industries.dart';
-export 'elog_schema/elog/elog_preset_log_templates.dart';
-export 'elog_schema/elog/elog_preset_policies.dart';
-export 'elog_schema/elog/elog_preset_role_categories.dart';
-export 'elog_schema/elog/elog_preset_roles.dart';
-export 'elog_schema/elog/elog_preset_schedules.dart';
-export 'elog_schema/elog/elog_problem_types.dart';
-export 'elog_schema/elog/elog_problems.dart';
-export 'elog_schema/elog/elog_product_cleaning_requirements.dart';
-export 'elog_schema/elog/elog_products.dart';
-export 'elog_schema/elog/elog_punch_sets.dart';
-export 'elog_schema/elog/elog_report_templates.dart';
-export 'elog_schema/elog/elog_resource_activity_daily_rollups.dart';
-export 'elog_schema/elog/elog_resource_flag_types.dart';
-export 'elog_schema/elog/elog_resource_flags.dart';
-export 'elog_schema/elog/elog_resource_policies.dart';
-export 'elog_schema/elog/elog_resource_states.dart';
-export 'elog_schema/elog/elog_resource_usages.dart';
-export 'elog_schema/elog/elog_role_categories.dart';
-export 'elog_schema/elog/elog_role_dashboards.dart';
-export 'elog_schema/elog/elog_role_permissions.dart';
-export 'elog_schema/elog/elog_roles.dart';
-export 'elog_schema/elog/elog_saved_views.dart';
-export 'elog_schema/elog/elog_tooling_product_qualifications.dart';
-export 'elog_schema/elog/elog_tooling_types.dart';
-export 'elog_schema/elog/elog_unit_of_measures.dart';
-export 'elog_schema/elog/elog_user_group_members.dart';
-export 'elog_schema/elog/elog_user_groups.dart';
-export 'elog_schema/elog/elog_user_roles.dart';
-export 'elog_schema/elog/elog_work_items.dart';
-export 'elog_schema/elog/elog_workflow_events.dart';
-export 'elog_schema/elog/elog_workflow_instances.dart';
-export 'elog_schema/elog/elog_workflows.dart';
-export 'elog_schema/public/public_e_signatures.dart';
-export 'elog_schema/public/public_entity_drafts_audit.dart';
-export 'elog_schema/public/public_entity_drafts_versions.dart';
-export 'elog_schema/public/public_entity_lifecycle_configurations.dart';
-export 'elog_schema/public/public_entity_workflow_instances.dart';
-export 'elog_schema/public/public_entity_workflow_tasks.dart';
-export 'elog_schema/public/public_public.dart';
-export 'elog_schema/public/public_workflow_events.dart';
-export 'elog_schema/public/public_workflow_instances.dart';
-export 'elog_schema/public/public_workflow_user_tasks.dart';
-export 'elog_schema/sso/sso_account_unlock_requests.dart';
-export 'elog_schema/sso/sso_ad_connections.dart';
-export 'elog_schema/sso/sso_companies.dart';
-export 'elog_schema/sso/sso_company_site_assignments.dart';
-export 'elog_schema/sso/sso_dashboard_configs.dart';
-export 'elog_schema/sso/sso_department_types.dart';
-export 'elog_schema/sso/sso_departments.dart';
-export 'elog_schema/sso/sso_designations.dart';
-export 'elog_schema/sso/sso_login_challenges.dart';
-export 'elog_schema/sso/sso_login_events.dart';
-export 'elog_schema/sso/sso_notifications.dart';
-export 'elog_schema/sso/sso_password_reset_requests.dart';
-export 'elog_schema/sso/sso_product_settings.dart';
-export 'elog_schema/sso/sso_product_site_mappings.dart';
-export 'elog_schema/sso/sso_products.dart';
-export 'elog_schema/sso/sso_report_exports.dart';
-export 'elog_schema/sso/sso_report_templates.dart';
-export 'elog_schema/sso/sso_role_dashboards.dart';
-export 'elog_schema/sso/sso_role_permissions.dart';
-export 'elog_schema/sso/sso_roles.dart';
-export 'elog_schema/sso/sso_saved_views.dart';
-export 'elog_schema/sso/sso_security_policies.dart';
-export 'elog_schema/sso/sso_sites.dart';
-export 'elog_schema/sso/sso_standard_reasons.dart';
-export 'elog_schema/sso/sso_user_password_history.dart';
-export 'elog_schema/sso/sso_user_preferences.dart';
-export 'elog_schema/sso/sso_user_product_site_mappings.dart';
-export 'elog_schema/sso/sso_user_roles.dart';
-export 'elog_schema/sso/sso_user_sessions.dart';
-export 'elog_schema/sso/sso_users.dart';
+export 'campus/academics/course_categories.dart';
+export 'campus/academics/course_equivalences.dart';
+export 'campus/academics/course_materials.dart';
+export 'campus/academics/course_outcomes.dart';
+export 'campus/academics/course_prerequisites.dart';
+export 'campus/academics/course_sections.dart';
+export 'campus/academics/courses.dart';
+export 'campus/academics/lecturer_departments.dart';
+export 'campus/academics/lecturers.dart';
+export 'campus/academics/office_hours.dart';
+export 'campus/academics/programme_courses.dart';
+export 'campus/academics/programme_versions.dart';
+export 'campus/academics/programmes.dart';
+export 'campus/academics/qualifications.dart';
+export 'campus/academics/room_bookings.dart';
+export 'campus/academics/section_capacity_overrides.dart';
+export 'campus/academics/section_instructors.dart';
+export 'campus/academics/section_meetings.dart';
+export 'campus/academics/timetable_entries.dart';
+export 'campus/academics/timetables.dart';
+export 'campus/admissions/acceptances.dart';
+export 'campus/admissions/application_choices.dart';
+export 'campus/admissions/application_documents.dart';
+export 'campus/admissions/application_reviews.dart';
+export 'campus/admissions/applications.dart';
+export 'campus/admissions/cohort_memberships.dart';
+export 'campus/admissions/cohorts.dart';
+export 'campus/admissions/guardians.dart';
+export 'campus/admissions/offer_conditions.dart';
+export 'campus/admissions/offers.dart';
+export 'campus/admissions/student_addresses.dart';
+export 'campus/admissions/student_contacts.dart';
+export 'campus/admissions/student_documents.dart';
+export 'campus/admissions/student_guardians.dart';
+export 'campus/admissions/student_holds.dart';
+export 'campus/admissions/student_notes.dart';
+export 'campus/admissions/student_status_events.dart';
+export 'campus/admissions/students.dart';
+export 'campus/assessment/appeals.dart';
+export 'campus/assessment/assessment_components.dart';
+export 'campus/assessment/assessment_markers.dart';
+export 'campus/assessment/assessment_submissions.dart';
+export 'campus/assessment/assessments.dart';
+export 'campus/assessment/exam_accommodations.dart';
+export 'campus/assessment/exam_registrations.dart';
+export 'campus/assessment/exam_seats.dart';
+export 'campus/assessment/exam_sessions.dart';
+export 'campus/assessment/exams.dart';
+export 'campus/assessment/grade_changes.dart';
+export 'campus/assessment/grade_scale_bands.dart';
+export 'campus/assessment/grade_scales.dart';
+export 'campus/assessment/grades.dart';
+export 'campus/assessment/submission_files.dart';
+export 'campus/campus/academic_years.dart';
+export 'campus/campus/buildings.dart';
+export 'campus/campus/campuses.dart';
+export 'campus/campus/departments.dart';
+export 'campus/campus/faculties.dart';
+export 'campus/campus/rooms.dart';
+export 'campus/campus/terms.dart';
+export 'campus/enrolment/attendance_records.dart';
+export 'campus/enrolment/attendance_sessions.dart';
+export 'campus/enrolment/completions.dart';
+export 'campus/enrolment/credit_transfers.dart';
+export 'campus/enrolment/enrolment_requests.dart';
+export 'campus/enrolment/enrolments.dart';
+export 'campus/enrolment/study_plan_courses.dart';
+export 'campus/enrolment/study_plans.dart';
+export 'campus/enrolment/waitlist_entries.dart';
+export 'campus/enrolment/withdrawals.dart';
+export 'campus/finance/fee_schedule_lines.dart';
+export 'campus/finance/fee_schedules.dart';
+export 'campus/finance/fee_types.dart';
+export 'campus/finance/financial_aid_applications.dart';
+export 'campus/finance/financial_aid_decisions.dart';
+export 'campus/finance/invoice_lines.dart';
+export 'campus/finance/invoices.dart';
+export 'campus/finance/payment_allocations.dart';
+export 'campus/finance/payments.dart';
+export 'campus/finance/refunds.dart';
+export 'campus/finance/scholarship_awards.dart';
+export 'campus/finance/scholarships.dart';
+export 'campus/finance/sponsor_contributions.dart';
+export 'campus/finance/sponsors.dart';
+export 'campus/finance/sponsorships.dart';
+export 'campus/housing/housing_allocations.dart';
+export 'campus/housing/housing_applications.dart';
+export 'campus/housing/housing_charges.dart';
+export 'campus/housing/housing_contracts.dart';
+export 'campus/housing/housing_guests.dart';
+export 'campus/housing/housing_inspections.dart';
+export 'campus/housing/housing_maintenance_requests.dart';
+export 'campus/housing/housing_preferences.dart';
+export 'campus/housing/residence_beds.dart';
+export 'campus/housing/residence_floors.dart';
+export 'campus/housing/residence_rooms.dart';
+export 'campus/housing/residences.dart';
+export 'campus/library/authors.dart';
+export 'campus/library/book_authors.dart';
+export 'campus/library/book_copies.dart';
+export 'campus/library/book_editions.dart';
+export 'campus/library/books.dart';
+export 'campus/library/fines.dart';
+export 'campus/library/library_branches.dart';
+export 'campus/library/library_visits.dart';
+export 'campus/library/loan_renewals.dart';
+export 'campus/library/loans.dart';
+export 'campus/library/publishers.dart';
+export 'campus/library/reading_list_entries.dart';
+export 'campus/library/reading_lists.dart';
+export 'campus/library/reservations.dart';
+export 'campus/research/ethics_applications.dart';
+export 'campus/research/ethics_reviews.dart';
+export 'campus/research/grant_budgets.dart';
+export 'campus/research/grant_expenses.dart';
+export 'campus/research/grants.dart';
+export 'campus/research/project_milestones.dart';
+export 'campus/research/publication_authors.dart';
+export 'campus/research/publications.dart';
+export 'campus/research/research_datasets.dart';
+export 'campus/research/research_memberships.dart';
+export 'campus/research/research_projects.dart';
 export 'schema/schema_access_exception.dart';
 export 'schema/schema_column.dart';
 export 'schema/schema_enum.dart';
@@ -316,371 +314,371 @@ class Protocol extends _isc.SerializationManager {
       }
     }
 
-    if (t == _ishyozd5.ElogActivities) {
-      return _ishyozd5.ElogActivities.fromJson(data) as T;
+    if (t == _icbi7gwo.CampusCourseCategory) {
+      return _icbi7gwo.CampusCourseCategory.fromJson(data) as T;
     }
-    if (t == _i6kgjla4.ElogActivityArtifacts) {
-      return _i6kgjla4.ElogActivityArtifacts.fromJson(data) as T;
+    if (t == _izhnn43s.CampusCourseEquivalence) {
+      return _izhnn43s.CampusCourseEquivalence.fromJson(data) as T;
     }
-    if (t == _iz387z77.ElogAreaAdjacency) {
-      return _iz387z77.ElogAreaAdjacency.fromJson(data) as T;
+    if (t == _i60iovqj.CampusCourseMaterial) {
+      return _i60iovqj.CampusCourseMaterial.fromJson(data) as T;
     }
-    if (t == _i9o3y69x.ElogAreaCategories) {
-      return _i9o3y69x.ElogAreaCategories.fromJson(data) as T;
+    if (t == _ifd85uwc.CampusCourseOutcome) {
+      return _ifd85uwc.CampusCourseOutcome.fromJson(data) as T;
     }
-    if (t == _isgi7gk9.ElogAreaEquipment) {
-      return _isgi7gk9.ElogAreaEquipment.fromJson(data) as T;
+    if (t == _ihnnsiks.CampusCoursePrerequisite) {
+      return _ihnnsiks.CampusCoursePrerequisite.fromJson(data) as T;
     }
-    if (t == _iv2byy67.ElogAreaUserGroups) {
-      return _iv2byy67.ElogAreaUserGroups.fromJson(data) as T;
+    if (t == _iporzlvp.CampusCourseSection) {
+      return _iporzlvp.CampusCourseSection.fromJson(data) as T;
     }
-    if (t == _ilczj6al.ElogAreas) {
-      return _ilczj6al.ElogAreas.fromJson(data) as T;
+    if (t == _iik9idpd.CampusCourse) {
+      return _iik9idpd.CampusCourse.fromJson(data) as T;
     }
-    if (t == _ippbjru9.ElogBatches) {
-      return _ippbjru9.ElogBatches.fromJson(data) as T;
+    if (t == _i6p3cs2n.CampusLecturerDepartment) {
+      return _i6p3cs2n.CampusLecturerDepartment.fromJson(data) as T;
     }
-    if (t == _ie8nm0xf.ElogBusinessAssociates) {
-      return _ie8nm0xf.ElogBusinessAssociates.fromJson(data) as T;
+    if (t == _ixrb3pvm.CampusLecturer) {
+      return _ixrb3pvm.CampusLecturer.fromJson(data) as T;
     }
-    if (t == _iea2komd.ElogCampaigns) {
-      return _iea2komd.ElogCampaigns.fromJson(data) as T;
+    if (t == _i90s5rli.CampusOfficeHour) {
+      return _i90s5rli.CampusOfficeHour.fromJson(data) as T;
     }
-    if (t == _i943t8qk.ElogChecklistTemplates) {
-      return _i943t8qk.ElogChecklistTemplates.fromJson(data) as T;
+    if (t == _idvibfro.CampusProgrammeCourse) {
+      return _idvibfro.CampusProgrammeCourse.fromJson(data) as T;
     }
-    if (t == _im2l27wp.ElogChecklistUsageInstructions) {
-      return _im2l27wp.ElogChecklistUsageInstructions.fromJson(data) as T;
+    if (t == _ikq440cu.CampusProgrammeVersion) {
+      return _ikq440cu.CampusProgrammeVersion.fromJson(data) as T;
     }
-    if (t == _iyg55fu5.ElogChecklistUsageSets) {
-      return _iyg55fu5.ElogChecklistUsageSets.fromJson(data) as T;
+    if (t == _i49ncx41.CampusProgramme) {
+      return _i49ncx41.CampusProgramme.fromJson(data) as T;
     }
-    if (t == _i2d67kfy.ElogChecklistUsages) {
-      return _i2d67kfy.ElogChecklistUsages.fromJson(data) as T;
+    if (t == _iuk3rrc1.CampusQualification) {
+      return _iuk3rrc1.CampusQualification.fromJson(data) as T;
     }
-    if (t == _iaxzy4al.ElogCleaningTypes) {
-      return _iaxzy4al.ElogCleaningTypes.fromJson(data) as T;
+    if (t == _igrg8f15.CampusRoomBooking) {
+      return _igrg8f15.CampusRoomBooking.fromJson(data) as T;
     }
-    if (t == _ig1scdm6.ElogDashboardConfigs) {
-      return _ig1scdm6.ElogDashboardConfigs.fromJson(data) as T;
+    if (t == _i4dxex9j.CampusSectionCapacityOverride) {
+      return _i4dxex9j.CampusSectionCapacityOverride.fromJson(data) as T;
     }
-    if (t == _i465o1vf.ElogEquipmentCategories) {
-      return _i465o1vf.ElogEquipmentCategories.fromJson(data) as T;
+    if (t == _i60vl9yy.CampusSectionInstructor) {
+      return _i60vl9yy.CampusSectionInstructor.fromJson(data) as T;
     }
-    if (t == _iy7mbkyp.ElogEquipmentParts) {
-      return _iy7mbkyp.ElogEquipmentParts.fromJson(data) as T;
+    if (t == _i1ujp85c.CampusSectionMeeting) {
+      return _i1ujp85c.CampusSectionMeeting.fromJson(data) as T;
     }
-    if (t == _iizl2nep.ElogEquipmentTypes) {
-      return _iizl2nep.ElogEquipmentTypes.fromJson(data) as T;
+    if (t == _i5vbc563.CampusTimetableEntry) {
+      return _i5vbc563.CampusTimetableEntry.fromJson(data) as T;
     }
-    if (t == _ihodx11y.ElogEquipmentUserGroups) {
-      return _ihodx11y.ElogEquipmentUserGroups.fromJson(data) as T;
+    if (t == _iztuz2v2.CampusTimetable) {
+      return _iztuz2v2.CampusTimetable.fromJson(data) as T;
     }
-    if (t == _ir29oi5q.ElogEquipments) {
-      return _ir29oi5q.ElogEquipments.fromJson(data) as T;
+    if (t == _ioijgh15.CampusAcceptance) {
+      return _ioijgh15.CampusAcceptance.fromJson(data) as T;
     }
-    if (t == _iksvpml2.ElogEventReactorState) {
-      return _iksvpml2.ElogEventReactorState.fromJson(data) as T;
+    if (t == _iszjqqz2.CampusApplicationChoice) {
+      return _iszjqqz2.CampusApplicationChoice.fromJson(data) as T;
     }
-    if (t == _imjwa56c.ElogEvents) {
-      return _imjwa56c.ElogEvents.fromJson(data) as T;
+    if (t == _i3p9hmqv.CampusApplicationDocument) {
+      return _i3p9hmqv.CampusApplicationDocument.fromJson(data) as T;
     }
-    if (t == _iei4fdsy.ElogExternalIntegrations) {
-      return _iei4fdsy.ElogExternalIntegrations.fromJson(data) as T;
+    if (t == _iwgn7l2z.CampusApplicationReview) {
+      return _iwgn7l2z.CampusApplicationReview.fromJson(data) as T;
     }
-    if (t == _iuxjq0du.ElogHolidayCalendars) {
-      return _iuxjq0du.ElogHolidayCalendars.fromJson(data) as T;
+    if (t == _i84qe6g5.CampusApplication) {
+      return _i84qe6g5.CampusApplication.fromJson(data) as T;
     }
-    if (t == _ip7nvc9p.ElogHolidayEntries) {
-      return _ip7nvc9p.ElogHolidayEntries.fromJson(data) as T;
+    if (t == _iz7cqiiz.CampusCohortMembership) {
+      return _iz7cqiiz.CampusCohortMembership.fromJson(data) as T;
     }
-    if (t == _i4th50rj.ElogLogReportGenerations) {
-      return _i4th50rj.ElogLogReportGenerations.fromJson(data) as T;
+    if (t == _iu4vottr.CampusCohort) {
+      return _iu4vottr.CampusCohort.fromJson(data) as T;
     }
-    if (t == _iab28y1e.ElogLogTemplates) {
-      return _iab28y1e.ElogLogTemplates.fromJson(data) as T;
+    if (t == _i2lpxeo5.CampusGuardian) {
+      return _i2lpxeo5.CampusGuardian.fromJson(data) as T;
     }
-    if (t == _i05usxet.ElogLogUsages) {
-      return _i05usxet.ElogLogUsages.fromJson(data) as T;
+    if (t == _id663sq3.CampusOfferCondition) {
+      return _id663sq3.CampusOfferCondition.fromJson(data) as T;
     }
-    if (t == _izf4mrur.ElogNotificationGroupStates) {
-      return _izf4mrur.ElogNotificationGroupStates.fromJson(data) as T;
+    if (t == _icm8cu4v.CampusOffer) {
+      return _icm8cu4v.CampusOffer.fromJson(data) as T;
     }
-    if (t == _idk983fe.ElogNotifications) {
-      return _idk983fe.ElogNotifications.fromJson(data) as T;
+    if (t == _i4ls3qtz.CampusStudentAddress) {
+      return _i4ls3qtz.CampusStudentAddress.fromJson(data) as T;
     }
-    if (t == _izmtc39o.ElogNotificationsArchive) {
-      return _izmtc39o.ElogNotificationsArchive.fromJson(data) as T;
+    if (t == _irvnuni5.CampusStudentContact) {
+      return _irvnuni5.CampusStudentContact.fromJson(data) as T;
     }
-    if (t == _i0ssuutp.ElogOnboardingStatus) {
-      return _i0ssuutp.ElogOnboardingStatus.fromJson(data) as T;
+    if (t == _iwai6mlf.CampusStudentDocument) {
+      return _iwai6mlf.CampusStudentDocument.fromJson(data) as T;
     }
-    if (t == _i7g8bf6c.ElogOperations) {
-      return _i7g8bf6c.ElogOperations.fromJson(data) as T;
+    if (t == _i16zyk3v.CampusStudentGuardian) {
+      return _i16zyk3v.CampusStudentGuardian.fromJson(data) as T;
     }
-    if (t == _i8i2tmym.ElogPdAllocationCursors) {
-      return _i8i2tmym.ElogPdAllocationCursors.fromJson(data) as T;
+    if (t == _iz31h8i4.CampusStudentHold) {
+      return _iz31h8i4.CampusStudentHold.fromJson(data) as T;
     }
-    if (t == _iwsiolx8.ElogPdAllocationLines) {
-      return _iwsiolx8.ElogPdAllocationLines.fromJson(data) as T;
+    if (t == _idvhf8qa.CampusStudentNote) {
+      return _idvhf8qa.CampusStudentNote.fromJson(data) as T;
     }
-    if (t == _ie75ho22.ElogPdAllocations) {
-      return _ie75ho22.ElogPdAllocations.fromJson(data) as T;
+    if (t == _i6c5z7zh.CampusStudentStatusEvent) {
+      return _i6c5z7zh.CampusStudentStatusEvent.fromJson(data) as T;
     }
-    if (t == _i3lnfsnn.ElogPdAssemblies) {
-      return _i3lnfsnn.ElogPdAssemblies.fromJson(data) as T;
+    if (t == _ixciykx6.CampusStudent) {
+      return _ixciykx6.CampusStudent.fromJson(data) as T;
     }
-    if (t == _iccws1xa.ElogPdAssemblyMembers) {
-      return _iccws1xa.ElogPdAssemblyMembers.fromJson(data) as T;
+    if (t == _izef6fak.CampusAppeal) {
+      return _izef6fak.CampusAppeal.fromJson(data) as T;
     }
-    if (t == _ipr5ee30.ElogPdComponentReservations) {
-      return _ipr5ee30.ElogPdComponentReservations.fromJson(data) as T;
+    if (t == _ipsxsf4b.CampusAssessmentComponent) {
+      return _ipsxsf4b.CampusAssessmentComponent.fromJson(data) as T;
     }
-    if (t == _i6kwotqx.ElogPdModuleConfig) {
-      return _i6kwotqx.ElogPdModuleConfig.fromJson(data) as T;
+    if (t == _if8a84ek.CampusAssessmentMarker) {
+      return _if8a84ek.CampusAssessmentMarker.fromJson(data) as T;
     }
-    if (t == _ip7k2fyr.ElogPdOperations) {
-      return _ip7k2fyr.ElogPdOperations.fromJson(data) as T;
+    if (t == _iuohle5e.CampusAssessmentSubmission) {
+      return _iuohle5e.CampusAssessmentSubmission.fromJson(data) as T;
     }
-    if (t == _iwoewitv.ElogPdUsageLedger) {
-      return _iwoewitv.ElogPdUsageLedger.fromJson(data) as T;
+    if (t == _iy95bowl.CampusAssessment) {
+      return _iy95bowl.CampusAssessment.fromJson(data) as T;
     }
-    if (t == _idcsbifx.ElogPresetAreaCategories) {
-      return _idcsbifx.ElogPresetAreaCategories.fromJson(data) as T;
+    if (t == _i968i8hm.CampusExamAccommodation) {
+      return _i968i8hm.CampusExamAccommodation.fromJson(data) as T;
     }
-    if (t == _ien2z5wb.ElogPresetAreas) {
-      return _ien2z5wb.ElogPresetAreas.fromJson(data) as T;
+    if (t == _iqsus0ia.CampusExamRegistration) {
+      return _iqsus0ia.CampusExamRegistration.fromJson(data) as T;
     }
-    if (t == _imeic21z.ElogPresetChecklists) {
-      return _imeic21z.ElogPresetChecklists.fromJson(data) as T;
+    if (t == _iq0v8pha.CampusExamSeat) {
+      return _iq0v8pha.CampusExamSeat.fromJson(data) as T;
     }
-    if (t == _i1i32x6j.ElogPresetDashboards) {
-      return _i1i32x6j.ElogPresetDashboards.fromJson(data) as T;
+    if (t == _igek713o.CampusExamSession) {
+      return _igek713o.CampusExamSession.fromJson(data) as T;
     }
-    if (t == _igzp2y8c.ElogPresetEquipment) {
-      return _igzp2y8c.ElogPresetEquipment.fromJson(data) as T;
+    if (t == _iej23kcn.CampusExam) {
+      return _iej23kcn.CampusExam.fromJson(data) as T;
     }
-    if (t == _imoi4ypf.ElogPresetEquipmentCategories) {
-      return _imoi4ypf.ElogPresetEquipmentCategories.fromJson(data) as T;
+    if (t == _i2oqkkd6.CampusGradeChange) {
+      return _i2oqkkd6.CampusGradeChange.fromJson(data) as T;
     }
-    if (t == _io6t2sgk.ElogPresetIndustries) {
-      return _io6t2sgk.ElogPresetIndustries.fromJson(data) as T;
+    if (t == _i12uv7b6.CampusGradeScaleBand) {
+      return _i12uv7b6.CampusGradeScaleBand.fromJson(data) as T;
     }
-    if (t == _izdzedtk.ElogPresetLogTemplates) {
-      return _izdzedtk.ElogPresetLogTemplates.fromJson(data) as T;
+    if (t == _ielxdmeu.CampusGradeScale) {
+      return _ielxdmeu.CampusGradeScale.fromJson(data) as T;
     }
-    if (t == _irzfy450.ElogPresetPolicies) {
-      return _irzfy450.ElogPresetPolicies.fromJson(data) as T;
+    if (t == _ips0lupm.CampusGrade) {
+      return _ips0lupm.CampusGrade.fromJson(data) as T;
     }
-    if (t == _iimbkgrt.ElogPresetRoleCategories) {
-      return _iimbkgrt.ElogPresetRoleCategories.fromJson(data) as T;
+    if (t == _iv6t9wps.CampusSubmissionFile) {
+      return _iv6t9wps.CampusSubmissionFile.fromJson(data) as T;
     }
-    if (t == _i1n67tzi.ElogPresetRoles) {
-      return _i1n67tzi.ElogPresetRoles.fromJson(data) as T;
+    if (t == _idxtqeho.CampusAcademicYear) {
+      return _idxtqeho.CampusAcademicYear.fromJson(data) as T;
     }
-    if (t == _i01c1yxy.ElogPresetSchedules) {
-      return _i01c1yxy.ElogPresetSchedules.fromJson(data) as T;
+    if (t == _ijg49dtu.CampusBuilding) {
+      return _ijg49dtu.CampusBuilding.fromJson(data) as T;
     }
-    if (t == _ib0e9qbb.ElogProblemTypes) {
-      return _ib0e9qbb.ElogProblemTypes.fromJson(data) as T;
+    if (t == _ii5cv0xg.CampusCampus) {
+      return _ii5cv0xg.CampusCampus.fromJson(data) as T;
     }
-    if (t == _i4hmoti8.ElogProblems) {
-      return _i4hmoti8.ElogProblems.fromJson(data) as T;
+    if (t == _ieaagiip.CampusDepartment) {
+      return _ieaagiip.CampusDepartment.fromJson(data) as T;
     }
-    if (t == _iele6hju.ElogProductCleaningRequirements) {
-      return _iele6hju.ElogProductCleaningRequirements.fromJson(data) as T;
+    if (t == _iw9evvci.CampusFaculty) {
+      return _iw9evvci.CampusFaculty.fromJson(data) as T;
     }
-    if (t == _i0caxd73.ElogProducts) {
-      return _i0caxd73.ElogProducts.fromJson(data) as T;
+    if (t == _i5697to7.CampusRoom) {
+      return _i5697to7.CampusRoom.fromJson(data) as T;
     }
-    if (t == _iq0nwjzy.ElogPunchSets) {
-      return _iq0nwjzy.ElogPunchSets.fromJson(data) as T;
+    if (t == _iny6aho6.CampusTerm) {
+      return _iny6aho6.CampusTerm.fromJson(data) as T;
     }
-    if (t == _iryvos7o.ElogReportTemplates) {
-      return _iryvos7o.ElogReportTemplates.fromJson(data) as T;
+    if (t == _i7ljm6m0.CampusAttendanceRecord) {
+      return _i7ljm6m0.CampusAttendanceRecord.fromJson(data) as T;
     }
-    if (t == _iqykw8hs.ElogResourceActivityDailyRollups) {
-      return _iqykw8hs.ElogResourceActivityDailyRollups.fromJson(data) as T;
+    if (t == _i5rv3lv9.CampusAttendanceSession) {
+      return _i5rv3lv9.CampusAttendanceSession.fromJson(data) as T;
     }
-    if (t == _ial2wvcr.ElogResourceFlagTypes) {
-      return _ial2wvcr.ElogResourceFlagTypes.fromJson(data) as T;
+    if (t == _iftc8tcu.CampusCompletion) {
+      return _iftc8tcu.CampusCompletion.fromJson(data) as T;
     }
-    if (t == _if40xrph.ElogResourceFlags) {
-      return _if40xrph.ElogResourceFlags.fromJson(data) as T;
+    if (t == _ixqnp4lw.CampusCreditTransfer) {
+      return _ixqnp4lw.CampusCreditTransfer.fromJson(data) as T;
     }
-    if (t == _il71c5vn.ElogResourcePolicies) {
-      return _il71c5vn.ElogResourcePolicies.fromJson(data) as T;
+    if (t == _iij70sau.CampusEnrolmentRequest) {
+      return _iij70sau.CampusEnrolmentRequest.fromJson(data) as T;
     }
-    if (t == _iw7vxuxk.ElogResourceStates) {
-      return _iw7vxuxk.ElogResourceStates.fromJson(data) as T;
+    if (t == _ikbz98ec.CampusEnrolment) {
+      return _ikbz98ec.CampusEnrolment.fromJson(data) as T;
     }
-    if (t == _ijudmfzt.ElogResourceUsages) {
-      return _ijudmfzt.ElogResourceUsages.fromJson(data) as T;
+    if (t == _i6lqa8un.CampusStudyPlanCourse) {
+      return _i6lqa8un.CampusStudyPlanCourse.fromJson(data) as T;
     }
-    if (t == _ik7tju34.ElogRoleCategories) {
-      return _ik7tju34.ElogRoleCategories.fromJson(data) as T;
+    if (t == _i5anj6ne.CampusStudyPlan) {
+      return _i5anj6ne.CampusStudyPlan.fromJson(data) as T;
     }
-    if (t == _is5x0ozk.ElogRoleDashboards) {
-      return _is5x0ozk.ElogRoleDashboards.fromJson(data) as T;
+    if (t == _imquh55n.CampusWaitlistEntry) {
+      return _imquh55n.CampusWaitlistEntry.fromJson(data) as T;
     }
-    if (t == _i8swalwe.ElogRolePermissions) {
-      return _i8swalwe.ElogRolePermissions.fromJson(data) as T;
+    if (t == _i6xgcgm2.CampusWithdrawal) {
+      return _i6xgcgm2.CampusWithdrawal.fromJson(data) as T;
     }
-    if (t == _i2dkzfxx.ElogRoles) {
-      return _i2dkzfxx.ElogRoles.fromJson(data) as T;
+    if (t == _isewgl0f.CampusFeeScheduleLine) {
+      return _isewgl0f.CampusFeeScheduleLine.fromJson(data) as T;
     }
-    if (t == _i91j1h6n.ElogSavedViews) {
-      return _i91j1h6n.ElogSavedViews.fromJson(data) as T;
+    if (t == _i6ur2gi2.CampusFeeSchedule) {
+      return _i6ur2gi2.CampusFeeSchedule.fromJson(data) as T;
     }
-    if (t == _iyvpac9s.ElogToolingProductQualifications) {
-      return _iyvpac9s.ElogToolingProductQualifications.fromJson(data) as T;
+    if (t == _ivd0ctvz.CampusFeeType) {
+      return _ivd0ctvz.CampusFeeType.fromJson(data) as T;
     }
-    if (t == _i2a97saf.ElogToolingTypes) {
-      return _i2a97saf.ElogToolingTypes.fromJson(data) as T;
+    if (t == _iy3qqd34.CampusFinancialAidApplication) {
+      return _iy3qqd34.CampusFinancialAidApplication.fromJson(data) as T;
     }
-    if (t == _ici4vys7.ElogUnitOfMeasures) {
-      return _ici4vys7.ElogUnitOfMeasures.fromJson(data) as T;
+    if (t == _i6aphuzg.CampusFinancialAidDecision) {
+      return _i6aphuzg.CampusFinancialAidDecision.fromJson(data) as T;
     }
-    if (t == _iu9388z4.ElogUserGroupMembers) {
-      return _iu9388z4.ElogUserGroupMembers.fromJson(data) as T;
+    if (t == _i785d3eu.CampusInvoiceLine) {
+      return _i785d3eu.CampusInvoiceLine.fromJson(data) as T;
     }
-    if (t == _id7xfj5e.ElogUserGroups) {
-      return _id7xfj5e.ElogUserGroups.fromJson(data) as T;
+    if (t == _ih7yrsa3.CampusInvoice) {
+      return _ih7yrsa3.CampusInvoice.fromJson(data) as T;
     }
-    if (t == _i2xv5f50.ElogUserRoles) {
-      return _i2xv5f50.ElogUserRoles.fromJson(data) as T;
+    if (t == _ip72wm5q.CampusPaymentAllocation) {
+      return _ip72wm5q.CampusPaymentAllocation.fromJson(data) as T;
     }
-    if (t == _iqfb1ejb.ElogWorkItems) {
-      return _iqfb1ejb.ElogWorkItems.fromJson(data) as T;
+    if (t == _igjjsnon.CampusPayment) {
+      return _igjjsnon.CampusPayment.fromJson(data) as T;
     }
-    if (t == _i2qhvyny.ElogWorkflowEvents) {
-      return _i2qhvyny.ElogWorkflowEvents.fromJson(data) as T;
+    if (t == _ih0zxat5.CampusRefund) {
+      return _ih0zxat5.CampusRefund.fromJson(data) as T;
     }
-    if (t == _ifguuifm.ElogWorkflowInstances) {
-      return _ifguuifm.ElogWorkflowInstances.fromJson(data) as T;
+    if (t == _i2d8zb54.CampusScholarshipAward) {
+      return _i2d8zb54.CampusScholarshipAward.fromJson(data) as T;
     }
-    if (t == _ijr902rd.ElogWorkflows) {
-      return _ijr902rd.ElogWorkflows.fromJson(data) as T;
+    if (t == _i12o4a5n.CampusScholarship) {
+      return _i12o4a5n.CampusScholarship.fromJson(data) as T;
     }
-    if (t == _iw9e7ahv.PublicESignatures) {
-      return _iw9e7ahv.PublicESignatures.fromJson(data) as T;
+    if (t == _imm1bvl9.CampusSponsorContribution) {
+      return _imm1bvl9.CampusSponsorContribution.fromJson(data) as T;
     }
-    if (t == _iq44tjyb.PublicEntityDraftsAudit) {
-      return _iq44tjyb.PublicEntityDraftsAudit.fromJson(data) as T;
+    if (t == _iufogsm9.CampusSponsor) {
+      return _iufogsm9.CampusSponsor.fromJson(data) as T;
     }
-    if (t == _iqjzr2vi.PublicEntityDraftsVersions) {
-      return _iqjzr2vi.PublicEntityDraftsVersions.fromJson(data) as T;
+    if (t == _i5w6z1o1.CampusSponsorship) {
+      return _i5w6z1o1.CampusSponsorship.fromJson(data) as T;
     }
-    if (t == _i37bl2c2.PublicEntityLifecycleConfigurations) {
-      return _i37bl2c2.PublicEntityLifecycleConfigurations.fromJson(data) as T;
+    if (t == _id1yl7ms.CampusHousingAllocation) {
+      return _id1yl7ms.CampusHousingAllocation.fromJson(data) as T;
     }
-    if (t == _i7ltqb3m.PublicEntityWorkflowInstances) {
-      return _i7ltqb3m.PublicEntityWorkflowInstances.fromJson(data) as T;
+    if (t == _inj6rnis.CampusHousingApplication) {
+      return _inj6rnis.CampusHousingApplication.fromJson(data) as T;
     }
-    if (t == _iu718lvo.PublicEntityWorkflowTasks) {
-      return _iu718lvo.PublicEntityWorkflowTasks.fromJson(data) as T;
+    if (t == _i9sv4sdm.CampusHousingCharge) {
+      return _i9sv4sdm.CampusHousingCharge.fromJson(data) as T;
     }
-    if (t == _i6x532bo.PublicPublic) {
-      return _i6x532bo.PublicPublic.fromJson(data) as T;
+    if (t == _is5welzq.CampusHousingContract) {
+      return _is5welzq.CampusHousingContract.fromJson(data) as T;
     }
-    if (t == _ixdgb3pg.PublicWorkflowEvents) {
-      return _ixdgb3pg.PublicWorkflowEvents.fromJson(data) as T;
+    if (t == _ieupa5nm.CampusHousingGuest) {
+      return _ieupa5nm.CampusHousingGuest.fromJson(data) as T;
     }
-    if (t == _iku0se9c.PublicWorkflowInstances) {
-      return _iku0se9c.PublicWorkflowInstances.fromJson(data) as T;
+    if (t == _i33gygjf.CampusHousingInspection) {
+      return _i33gygjf.CampusHousingInspection.fromJson(data) as T;
     }
-    if (t == _ixdjky6f.PublicWorkflowUserTasks) {
-      return _ixdjky6f.PublicWorkflowUserTasks.fromJson(data) as T;
+    if (t == _ip7dqx68.CampusHousingMaintenanceRequest) {
+      return _ip7dqx68.CampusHousingMaintenanceRequest.fromJson(data) as T;
     }
-    if (t == _icl3enxx.SsoAccountUnlockRequests) {
-      return _icl3enxx.SsoAccountUnlockRequests.fromJson(data) as T;
+    if (t == _i1chn6z5.CampusHousingPreference) {
+      return _i1chn6z5.CampusHousingPreference.fromJson(data) as T;
     }
-    if (t == _ikffiba3.SsoAdConnections) {
-      return _ikffiba3.SsoAdConnections.fromJson(data) as T;
+    if (t == _ijjla5z9.CampusResidenceBed) {
+      return _ijjla5z9.CampusResidenceBed.fromJson(data) as T;
     }
-    if (t == _ioy9xegh.SsoCompanies) {
-      return _ioy9xegh.SsoCompanies.fromJson(data) as T;
+    if (t == _ioguw2d9.CampusResidenceFloor) {
+      return _ioguw2d9.CampusResidenceFloor.fromJson(data) as T;
     }
-    if (t == _ih26k2g9.SsoCompanySiteAssignments) {
-      return _ih26k2g9.SsoCompanySiteAssignments.fromJson(data) as T;
+    if (t == _i4wllryj.CampusResidenceRoom) {
+      return _i4wllryj.CampusResidenceRoom.fromJson(data) as T;
     }
-    if (t == _i0v3k9y4.SsoDashboardConfigs) {
-      return _i0v3k9y4.SsoDashboardConfigs.fromJson(data) as T;
+    if (t == _ilwtmbox.CampusResidence) {
+      return _ilwtmbox.CampusResidence.fromJson(data) as T;
     }
-    if (t == _iwzh4spq.SsoDepartmentTypes) {
-      return _iwzh4spq.SsoDepartmentTypes.fromJson(data) as T;
+    if (t == _im17xq9s.CampusAuthor) {
+      return _im17xq9s.CampusAuthor.fromJson(data) as T;
     }
-    if (t == _isoagnd2.SsoDepartments) {
-      return _isoagnd2.SsoDepartments.fromJson(data) as T;
+    if (t == _ieum417b.CampusBookAuthor) {
+      return _ieum417b.CampusBookAuthor.fromJson(data) as T;
     }
-    if (t == _ivpbyrtu.SsoDesignations) {
-      return _ivpbyrtu.SsoDesignations.fromJson(data) as T;
+    if (t == _i8iyxmm6.CampusBookCopy) {
+      return _i8iyxmm6.CampusBookCopy.fromJson(data) as T;
     }
-    if (t == _id58jpdy.SsoLoginChallenges) {
-      return _id58jpdy.SsoLoginChallenges.fromJson(data) as T;
+    if (t == _idwj8oog.CampusBookEdition) {
+      return _idwj8oog.CampusBookEdition.fromJson(data) as T;
     }
-    if (t == _ivkuiv43.SsoLoginEvents) {
-      return _ivkuiv43.SsoLoginEvents.fromJson(data) as T;
+    if (t == _i91fxs7d.CampusBook) {
+      return _i91fxs7d.CampusBook.fromJson(data) as T;
     }
-    if (t == _iv9au2ux.SsoNotifications) {
-      return _iv9au2ux.SsoNotifications.fromJson(data) as T;
+    if (t == _imao42n2.CampusFine) {
+      return _imao42n2.CampusFine.fromJson(data) as T;
     }
-    if (t == _ism6jhlu.SsoPasswordResetRequests) {
-      return _ism6jhlu.SsoPasswordResetRequests.fromJson(data) as T;
+    if (t == _i7d3ow2m.CampusLibraryBranch) {
+      return _i7d3ow2m.CampusLibraryBranch.fromJson(data) as T;
     }
-    if (t == _iqttiq1b.SsoProductSettings) {
-      return _iqttiq1b.SsoProductSettings.fromJson(data) as T;
+    if (t == _ife2jm2t.CampusLibraryVisit) {
+      return _ife2jm2t.CampusLibraryVisit.fromJson(data) as T;
     }
-    if (t == _ir4axp6j.SsoProductSiteMappings) {
-      return _ir4axp6j.SsoProductSiteMappings.fromJson(data) as T;
+    if (t == _iz85k6nw.CampusLoanRenewal) {
+      return _iz85k6nw.CampusLoanRenewal.fromJson(data) as T;
     }
-    if (t == _id96jnp7.SsoProducts) {
-      return _id96jnp7.SsoProducts.fromJson(data) as T;
+    if (t == _ivrsnad5.CampusLoan) {
+      return _ivrsnad5.CampusLoan.fromJson(data) as T;
     }
-    if (t == _iu1qu58n.SsoReportExports) {
-      return _iu1qu58n.SsoReportExports.fromJson(data) as T;
+    if (t == _i7uvxqby.CampusPublisher) {
+      return _i7uvxqby.CampusPublisher.fromJson(data) as T;
     }
-    if (t == _ichwrbiz.SsoReportTemplates) {
-      return _ichwrbiz.SsoReportTemplates.fromJson(data) as T;
+    if (t == _i8fl0bcz.CampusReadingListEntry) {
+      return _i8fl0bcz.CampusReadingListEntry.fromJson(data) as T;
     }
-    if (t == _ib0ko46b.SsoRoleDashboards) {
-      return _ib0ko46b.SsoRoleDashboards.fromJson(data) as T;
+    if (t == _iuf8fw82.CampusReadingList) {
+      return _iuf8fw82.CampusReadingList.fromJson(data) as T;
     }
-    if (t == _ifv6xkhy.SsoRolePermissions) {
-      return _ifv6xkhy.SsoRolePermissions.fromJson(data) as T;
+    if (t == _izrbvszp.CampusReservation) {
+      return _izrbvszp.CampusReservation.fromJson(data) as T;
     }
-    if (t == _i0gr1peg.SsoRoles) {
-      return _i0gr1peg.SsoRoles.fromJson(data) as T;
+    if (t == _ilkwpsep.CampusEthicsApplication) {
+      return _ilkwpsep.CampusEthicsApplication.fromJson(data) as T;
     }
-    if (t == _if33sioe.SsoSavedViews) {
-      return _if33sioe.SsoSavedViews.fromJson(data) as T;
+    if (t == _i23unika.CampusEthicsReview) {
+      return _i23unika.CampusEthicsReview.fromJson(data) as T;
     }
-    if (t == _ilqjh0sx.SsoSecurityPolicies) {
-      return _ilqjh0sx.SsoSecurityPolicies.fromJson(data) as T;
+    if (t == _irnr71yk.CampusGrantBudget) {
+      return _irnr71yk.CampusGrantBudget.fromJson(data) as T;
     }
-    if (t == _i4g0kvm8.SsoSites) {
-      return _i4g0kvm8.SsoSites.fromJson(data) as T;
+    if (t == _io3zc5dl.CampusGrantExpense) {
+      return _io3zc5dl.CampusGrantExpense.fromJson(data) as T;
     }
-    if (t == _iugbun52.SsoStandardReasons) {
-      return _iugbun52.SsoStandardReasons.fromJson(data) as T;
+    if (t == _irh7kw2j.CampusGrant) {
+      return _irh7kw2j.CampusGrant.fromJson(data) as T;
     }
-    if (t == _i2qrs2ax.SsoUserPasswordHistory) {
-      return _i2qrs2ax.SsoUserPasswordHistory.fromJson(data) as T;
+    if (t == _i6qyipky.CampusProjectMilestone) {
+      return _i6qyipky.CampusProjectMilestone.fromJson(data) as T;
     }
-    if (t == _izdzo98l.SsoUserPreferences) {
-      return _izdzo98l.SsoUserPreferences.fromJson(data) as T;
+    if (t == _i2rtf719.CampusPublicationAuthor) {
+      return _i2rtf719.CampusPublicationAuthor.fromJson(data) as T;
     }
-    if (t == _i7stpwby.SsoUserProductSiteMappings) {
-      return _i7stpwby.SsoUserProductSiteMappings.fromJson(data) as T;
+    if (t == _i5u1ue6j.CampusPublication) {
+      return _i5u1ue6j.CampusPublication.fromJson(data) as T;
     }
-    if (t == _iew7uxuv.SsoUserRoles) {
-      return _iew7uxuv.SsoUserRoles.fromJson(data) as T;
+    if (t == _ik725i35.CampusResearchDataset) {
+      return _ik725i35.CampusResearchDataset.fromJson(data) as T;
     }
-    if (t == _ir5ofehs.SsoUserSessions) {
-      return _ir5ofehs.SsoUserSessions.fromJson(data) as T;
+    if (t == _i5h5n425.CampusResearchMembership) {
+      return _i5h5n425.CampusResearchMembership.fromJson(data) as T;
     }
-    if (t == _i4fj2l14.SsoUsers) {
-      return _i4fj2l14.SsoUsers.fromJson(data) as T;
+    if (t == _it8rg4yy.CampusResearchProject) {
+      return _it8rg4yy.CampusResearchProject.fromJson(data) as T;
     }
     if (t == _iqdes7hr.SchemaAccessException) {
       return _iqdes7hr.SchemaAccessException.fromJson(data) as T;
@@ -709,588 +707,598 @@ class Protocol extends _isc.SerializationManager {
     if (t == _ixxyfkud.SchemaTable) {
       return _ixxyfkud.SchemaTable.fromJson(data) as T;
     }
-    if (t == _isc.getType<_ishyozd5.ElogActivities?>()) {
-      return (data != null ? _ishyozd5.ElogActivities.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_i6kgjla4.ElogActivityArtifacts?>()) {
+    if (t == _isc.getType<_icbi7gwo.CampusCourseCategory?>()) {
       return (data != null
-              ? _i6kgjla4.ElogActivityArtifacts.fromJson(data)
+              ? _icbi7gwo.CampusCourseCategory.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_iz387z77.ElogAreaAdjacency?>()) {
-      return (data != null ? _iz387z77.ElogAreaAdjacency.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_i9o3y69x.ElogAreaCategories?>()) {
-      return (data != null ? _i9o3y69x.ElogAreaCategories.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_isgi7gk9.ElogAreaEquipment?>()) {
-      return (data != null ? _isgi7gk9.ElogAreaEquipment.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_iv2byy67.ElogAreaUserGroups?>()) {
-      return (data != null ? _iv2byy67.ElogAreaUserGroups.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_ilczj6al.ElogAreas?>()) {
-      return (data != null ? _ilczj6al.ElogAreas.fromJson(data) : null) as T;
-    }
-    if (t == _isc.getType<_ippbjru9.ElogBatches?>()) {
-      return (data != null ? _ippbjru9.ElogBatches.fromJson(data) : null) as T;
-    }
-    if (t == _isc.getType<_ie8nm0xf.ElogBusinessAssociates?>()) {
+    if (t == _isc.getType<_izhnn43s.CampusCourseEquivalence?>()) {
       return (data != null
-              ? _ie8nm0xf.ElogBusinessAssociates.fromJson(data)
+              ? _izhnn43s.CampusCourseEquivalence.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_iea2komd.ElogCampaigns?>()) {
-      return (data != null ? _iea2komd.ElogCampaigns.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_i943t8qk.ElogChecklistTemplates?>()) {
+    if (t == _isc.getType<_i60iovqj.CampusCourseMaterial?>()) {
       return (data != null
-              ? _i943t8qk.ElogChecklistTemplates.fromJson(data)
+              ? _i60iovqj.CampusCourseMaterial.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_im2l27wp.ElogChecklistUsageInstructions?>()) {
+    if (t == _isc.getType<_ifd85uwc.CampusCourseOutcome?>()) {
       return (data != null
-              ? _im2l27wp.ElogChecklistUsageInstructions.fromJson(data)
+              ? _ifd85uwc.CampusCourseOutcome.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_iyg55fu5.ElogChecklistUsageSets?>()) {
+    if (t == _isc.getType<_ihnnsiks.CampusCoursePrerequisite?>()) {
       return (data != null
-              ? _iyg55fu5.ElogChecklistUsageSets.fromJson(data)
+              ? _ihnnsiks.CampusCoursePrerequisite.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_i2d67kfy.ElogChecklistUsages?>()) {
+    if (t == _isc.getType<_iporzlvp.CampusCourseSection?>()) {
       return (data != null
-              ? _i2d67kfy.ElogChecklistUsages.fromJson(data)
+              ? _iporzlvp.CampusCourseSection.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_iaxzy4al.ElogCleaningTypes?>()) {
-      return (data != null ? _iaxzy4al.ElogCleaningTypes.fromJson(data) : null)
-          as T;
+    if (t == _isc.getType<_iik9idpd.CampusCourse?>()) {
+      return (data != null ? _iik9idpd.CampusCourse.fromJson(data) : null) as T;
     }
-    if (t == _isc.getType<_ig1scdm6.ElogDashboardConfigs?>()) {
+    if (t == _isc.getType<_i6p3cs2n.CampusLecturerDepartment?>()) {
       return (data != null
-              ? _ig1scdm6.ElogDashboardConfigs.fromJson(data)
+              ? _i6p3cs2n.CampusLecturerDepartment.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_i465o1vf.ElogEquipmentCategories?>()) {
+    if (t == _isc.getType<_ixrb3pvm.CampusLecturer?>()) {
+      return (data != null ? _ixrb3pvm.CampusLecturer.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_i90s5rli.CampusOfficeHour?>()) {
+      return (data != null ? _i90s5rli.CampusOfficeHour.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_idvibfro.CampusProgrammeCourse?>()) {
       return (data != null
-              ? _i465o1vf.ElogEquipmentCategories.fromJson(data)
+              ? _idvibfro.CampusProgrammeCourse.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_iy7mbkyp.ElogEquipmentParts?>()) {
-      return (data != null ? _iy7mbkyp.ElogEquipmentParts.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_iizl2nep.ElogEquipmentTypes?>()) {
-      return (data != null ? _iizl2nep.ElogEquipmentTypes.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_ihodx11y.ElogEquipmentUserGroups?>()) {
+    if (t == _isc.getType<_ikq440cu.CampusProgrammeVersion?>()) {
       return (data != null
-              ? _ihodx11y.ElogEquipmentUserGroups.fromJson(data)
+              ? _ikq440cu.CampusProgrammeVersion.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_ir29oi5q.ElogEquipments?>()) {
-      return (data != null ? _ir29oi5q.ElogEquipments.fromJson(data) : null)
+    if (t == _isc.getType<_i49ncx41.CampusProgramme?>()) {
+      return (data != null ? _i49ncx41.CampusProgramme.fromJson(data) : null)
           as T;
     }
-    if (t == _isc.getType<_iksvpml2.ElogEventReactorState?>()) {
+    if (t == _isc.getType<_iuk3rrc1.CampusQualification?>()) {
       return (data != null
-              ? _iksvpml2.ElogEventReactorState.fromJson(data)
+              ? _iuk3rrc1.CampusQualification.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_imjwa56c.ElogEvents?>()) {
-      return (data != null ? _imjwa56c.ElogEvents.fromJson(data) : null) as T;
+    if (t == _isc.getType<_igrg8f15.CampusRoomBooking?>()) {
+      return (data != null ? _igrg8f15.CampusRoomBooking.fromJson(data) : null)
+          as T;
     }
-    if (t == _isc.getType<_iei4fdsy.ElogExternalIntegrations?>()) {
+    if (t == _isc.getType<_i4dxex9j.CampusSectionCapacityOverride?>()) {
       return (data != null
-              ? _iei4fdsy.ElogExternalIntegrations.fromJson(data)
+              ? _i4dxex9j.CampusSectionCapacityOverride.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_iuxjq0du.ElogHolidayCalendars?>()) {
+    if (t == _isc.getType<_i60vl9yy.CampusSectionInstructor?>()) {
       return (data != null
-              ? _iuxjq0du.ElogHolidayCalendars.fromJson(data)
+              ? _i60vl9yy.CampusSectionInstructor.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_ip7nvc9p.ElogHolidayEntries?>()) {
-      return (data != null ? _ip7nvc9p.ElogHolidayEntries.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_i4th50rj.ElogLogReportGenerations?>()) {
+    if (t == _isc.getType<_i1ujp85c.CampusSectionMeeting?>()) {
       return (data != null
-              ? _i4th50rj.ElogLogReportGenerations.fromJson(data)
+              ? _i1ujp85c.CampusSectionMeeting.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_iab28y1e.ElogLogTemplates?>()) {
-      return (data != null ? _iab28y1e.ElogLogTemplates.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_i05usxet.ElogLogUsages?>()) {
-      return (data != null ? _i05usxet.ElogLogUsages.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_izf4mrur.ElogNotificationGroupStates?>()) {
+    if (t == _isc.getType<_i5vbc563.CampusTimetableEntry?>()) {
       return (data != null
-              ? _izf4mrur.ElogNotificationGroupStates.fromJson(data)
+              ? _i5vbc563.CampusTimetableEntry.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_idk983fe.ElogNotifications?>()) {
-      return (data != null ? _idk983fe.ElogNotifications.fromJson(data) : null)
+    if (t == _isc.getType<_iztuz2v2.CampusTimetable?>()) {
+      return (data != null ? _iztuz2v2.CampusTimetable.fromJson(data) : null)
           as T;
     }
-    if (t == _isc.getType<_izmtc39o.ElogNotificationsArchive?>()) {
+    if (t == _isc.getType<_ioijgh15.CampusAcceptance?>()) {
+      return (data != null ? _ioijgh15.CampusAcceptance.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iszjqqz2.CampusApplicationChoice?>()) {
       return (data != null
-              ? _izmtc39o.ElogNotificationsArchive.fromJson(data)
+              ? _iszjqqz2.CampusApplicationChoice.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_i0ssuutp.ElogOnboardingStatus?>()) {
+    if (t == _isc.getType<_i3p9hmqv.CampusApplicationDocument?>()) {
       return (data != null
-              ? _i0ssuutp.ElogOnboardingStatus.fromJson(data)
+              ? _i3p9hmqv.CampusApplicationDocument.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_i7g8bf6c.ElogOperations?>()) {
-      return (data != null ? _i7g8bf6c.ElogOperations.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_i8i2tmym.ElogPdAllocationCursors?>()) {
+    if (t == _isc.getType<_iwgn7l2z.CampusApplicationReview?>()) {
       return (data != null
-              ? _i8i2tmym.ElogPdAllocationCursors.fromJson(data)
+              ? _iwgn7l2z.CampusApplicationReview.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_iwsiolx8.ElogPdAllocationLines?>()) {
+    if (t == _isc.getType<_i84qe6g5.CampusApplication?>()) {
+      return (data != null ? _i84qe6g5.CampusApplication.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iz7cqiiz.CampusCohortMembership?>()) {
       return (data != null
-              ? _iwsiolx8.ElogPdAllocationLines.fromJson(data)
+              ? _iz7cqiiz.CampusCohortMembership.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_ie75ho22.ElogPdAllocations?>()) {
-      return (data != null ? _ie75ho22.ElogPdAllocations.fromJson(data) : null)
+    if (t == _isc.getType<_iu4vottr.CampusCohort?>()) {
+      return (data != null ? _iu4vottr.CampusCohort.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i2lpxeo5.CampusGuardian?>()) {
+      return (data != null ? _i2lpxeo5.CampusGuardian.fromJson(data) : null)
           as T;
     }
-    if (t == _isc.getType<_i3lnfsnn.ElogPdAssemblies?>()) {
-      return (data != null ? _i3lnfsnn.ElogPdAssemblies.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_iccws1xa.ElogPdAssemblyMembers?>()) {
+    if (t == _isc.getType<_id663sq3.CampusOfferCondition?>()) {
       return (data != null
-              ? _iccws1xa.ElogPdAssemblyMembers.fromJson(data)
+              ? _id663sq3.CampusOfferCondition.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_ipr5ee30.ElogPdComponentReservations?>()) {
+    if (t == _isc.getType<_icm8cu4v.CampusOffer?>()) {
+      return (data != null ? _icm8cu4v.CampusOffer.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i4ls3qtz.CampusStudentAddress?>()) {
       return (data != null
-              ? _ipr5ee30.ElogPdComponentReservations.fromJson(data)
+              ? _i4ls3qtz.CampusStudentAddress.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_i6kwotqx.ElogPdModuleConfig?>()) {
-      return (data != null ? _i6kwotqx.ElogPdModuleConfig.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_ip7k2fyr.ElogPdOperations?>()) {
-      return (data != null ? _ip7k2fyr.ElogPdOperations.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_iwoewitv.ElogPdUsageLedger?>()) {
-      return (data != null ? _iwoewitv.ElogPdUsageLedger.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_idcsbifx.ElogPresetAreaCategories?>()) {
+    if (t == _isc.getType<_irvnuni5.CampusStudentContact?>()) {
       return (data != null
-              ? _idcsbifx.ElogPresetAreaCategories.fromJson(data)
+              ? _irvnuni5.CampusStudentContact.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_ien2z5wb.ElogPresetAreas?>()) {
-      return (data != null ? _ien2z5wb.ElogPresetAreas.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_imeic21z.ElogPresetChecklists?>()) {
+    if (t == _isc.getType<_iwai6mlf.CampusStudentDocument?>()) {
       return (data != null
-              ? _imeic21z.ElogPresetChecklists.fromJson(data)
+              ? _iwai6mlf.CampusStudentDocument.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_i1i32x6j.ElogPresetDashboards?>()) {
+    if (t == _isc.getType<_i16zyk3v.CampusStudentGuardian?>()) {
       return (data != null
-              ? _i1i32x6j.ElogPresetDashboards.fromJson(data)
+              ? _i16zyk3v.CampusStudentGuardian.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_igzp2y8c.ElogPresetEquipment?>()) {
+    if (t == _isc.getType<_iz31h8i4.CampusStudentHold?>()) {
+      return (data != null ? _iz31h8i4.CampusStudentHold.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_idvhf8qa.CampusStudentNote?>()) {
+      return (data != null ? _idvhf8qa.CampusStudentNote.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_i6c5z7zh.CampusStudentStatusEvent?>()) {
       return (data != null
-              ? _igzp2y8c.ElogPresetEquipment.fromJson(data)
+              ? _i6c5z7zh.CampusStudentStatusEvent.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_imoi4ypf.ElogPresetEquipmentCategories?>()) {
+    if (t == _isc.getType<_ixciykx6.CampusStudent?>()) {
+      return (data != null ? _ixciykx6.CampusStudent.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_izef6fak.CampusAppeal?>()) {
+      return (data != null ? _izef6fak.CampusAppeal.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_ipsxsf4b.CampusAssessmentComponent?>()) {
       return (data != null
-              ? _imoi4ypf.ElogPresetEquipmentCategories.fromJson(data)
+              ? _ipsxsf4b.CampusAssessmentComponent.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_io6t2sgk.ElogPresetIndustries?>()) {
+    if (t == _isc.getType<_if8a84ek.CampusAssessmentMarker?>()) {
       return (data != null
-              ? _io6t2sgk.ElogPresetIndustries.fromJson(data)
+              ? _if8a84ek.CampusAssessmentMarker.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_izdzedtk.ElogPresetLogTemplates?>()) {
+    if (t == _isc.getType<_iuohle5e.CampusAssessmentSubmission?>()) {
       return (data != null
-              ? _izdzedtk.ElogPresetLogTemplates.fromJson(data)
+              ? _iuohle5e.CampusAssessmentSubmission.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_irzfy450.ElogPresetPolicies?>()) {
-      return (data != null ? _irzfy450.ElogPresetPolicies.fromJson(data) : null)
+    if (t == _isc.getType<_iy95bowl.CampusAssessment?>()) {
+      return (data != null ? _iy95bowl.CampusAssessment.fromJson(data) : null)
           as T;
     }
-    if (t == _isc.getType<_iimbkgrt.ElogPresetRoleCategories?>()) {
+    if (t == _isc.getType<_i968i8hm.CampusExamAccommodation?>()) {
       return (data != null
-              ? _iimbkgrt.ElogPresetRoleCategories.fromJson(data)
+              ? _i968i8hm.CampusExamAccommodation.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_i1n67tzi.ElogPresetRoles?>()) {
-      return (data != null ? _i1n67tzi.ElogPresetRoles.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_i01c1yxy.ElogPresetSchedules?>()) {
+    if (t == _isc.getType<_iqsus0ia.CampusExamRegistration?>()) {
       return (data != null
-              ? _i01c1yxy.ElogPresetSchedules.fromJson(data)
+              ? _iqsus0ia.CampusExamRegistration.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_ib0e9qbb.ElogProblemTypes?>()) {
-      return (data != null ? _ib0e9qbb.ElogProblemTypes.fromJson(data) : null)
+    if (t == _isc.getType<_iq0v8pha.CampusExamSeat?>()) {
+      return (data != null ? _iq0v8pha.CampusExamSeat.fromJson(data) : null)
           as T;
     }
-    if (t == _isc.getType<_i4hmoti8.ElogProblems?>()) {
-      return (data != null ? _i4hmoti8.ElogProblems.fromJson(data) : null) as T;
+    if (t == _isc.getType<_igek713o.CampusExamSession?>()) {
+      return (data != null ? _igek713o.CampusExamSession.fromJson(data) : null)
+          as T;
     }
-    if (t == _isc.getType<_iele6hju.ElogProductCleaningRequirements?>()) {
+    if (t == _isc.getType<_iej23kcn.CampusExam?>()) {
+      return (data != null ? _iej23kcn.CampusExam.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i2oqkkd6.CampusGradeChange?>()) {
+      return (data != null ? _i2oqkkd6.CampusGradeChange.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_i12uv7b6.CampusGradeScaleBand?>()) {
       return (data != null
-              ? _iele6hju.ElogProductCleaningRequirements.fromJson(data)
+              ? _i12uv7b6.CampusGradeScaleBand.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_i0caxd73.ElogProducts?>()) {
-      return (data != null ? _i0caxd73.ElogProducts.fromJson(data) : null) as T;
-    }
-    if (t == _isc.getType<_iq0nwjzy.ElogPunchSets?>()) {
-      return (data != null ? _iq0nwjzy.ElogPunchSets.fromJson(data) : null)
+    if (t == _isc.getType<_ielxdmeu.CampusGradeScale?>()) {
+      return (data != null ? _ielxdmeu.CampusGradeScale.fromJson(data) : null)
           as T;
     }
-    if (t == _isc.getType<_iryvos7o.ElogReportTemplates?>()) {
+    if (t == _isc.getType<_ips0lupm.CampusGrade?>()) {
+      return (data != null ? _ips0lupm.CampusGrade.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iv6t9wps.CampusSubmissionFile?>()) {
       return (data != null
-              ? _iryvos7o.ElogReportTemplates.fromJson(data)
+              ? _iv6t9wps.CampusSubmissionFile.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_iqykw8hs.ElogResourceActivityDailyRollups?>()) {
+    if (t == _isc.getType<_idxtqeho.CampusAcademicYear?>()) {
+      return (data != null ? _idxtqeho.CampusAcademicYear.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_ijg49dtu.CampusBuilding?>()) {
+      return (data != null ? _ijg49dtu.CampusBuilding.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_ii5cv0xg.CampusCampus?>()) {
+      return (data != null ? _ii5cv0xg.CampusCampus.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_ieaagiip.CampusDepartment?>()) {
+      return (data != null ? _ieaagiip.CampusDepartment.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iw9evvci.CampusFaculty?>()) {
+      return (data != null ? _iw9evvci.CampusFaculty.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_i5697to7.CampusRoom?>()) {
+      return (data != null ? _i5697to7.CampusRoom.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iny6aho6.CampusTerm?>()) {
+      return (data != null ? _iny6aho6.CampusTerm.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i7ljm6m0.CampusAttendanceRecord?>()) {
       return (data != null
-              ? _iqykw8hs.ElogResourceActivityDailyRollups.fromJson(data)
+              ? _i7ljm6m0.CampusAttendanceRecord.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_ial2wvcr.ElogResourceFlagTypes?>()) {
+    if (t == _isc.getType<_i5rv3lv9.CampusAttendanceSession?>()) {
       return (data != null
-              ? _ial2wvcr.ElogResourceFlagTypes.fromJson(data)
+              ? _i5rv3lv9.CampusAttendanceSession.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_if40xrph.ElogResourceFlags?>()) {
-      return (data != null ? _if40xrph.ElogResourceFlags.fromJson(data) : null)
+    if (t == _isc.getType<_iftc8tcu.CampusCompletion?>()) {
+      return (data != null ? _iftc8tcu.CampusCompletion.fromJson(data) : null)
           as T;
     }
-    if (t == _isc.getType<_il71c5vn.ElogResourcePolicies?>()) {
+    if (t == _isc.getType<_ixqnp4lw.CampusCreditTransfer?>()) {
       return (data != null
-              ? _il71c5vn.ElogResourcePolicies.fromJson(data)
+              ? _ixqnp4lw.CampusCreditTransfer.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_iw7vxuxk.ElogResourceStates?>()) {
-      return (data != null ? _iw7vxuxk.ElogResourceStates.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_ijudmfzt.ElogResourceUsages?>()) {
-      return (data != null ? _ijudmfzt.ElogResourceUsages.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_ik7tju34.ElogRoleCategories?>()) {
-      return (data != null ? _ik7tju34.ElogRoleCategories.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_is5x0ozk.ElogRoleDashboards?>()) {
-      return (data != null ? _is5x0ozk.ElogRoleDashboards.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_i8swalwe.ElogRolePermissions?>()) {
+    if (t == _isc.getType<_iij70sau.CampusEnrolmentRequest?>()) {
       return (data != null
-              ? _i8swalwe.ElogRolePermissions.fromJson(data)
+              ? _iij70sau.CampusEnrolmentRequest.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_i2dkzfxx.ElogRoles?>()) {
-      return (data != null ? _i2dkzfxx.ElogRoles.fromJson(data) : null) as T;
-    }
-    if (t == _isc.getType<_i91j1h6n.ElogSavedViews?>()) {
-      return (data != null ? _i91j1h6n.ElogSavedViews.fromJson(data) : null)
+    if (t == _isc.getType<_ikbz98ec.CampusEnrolment?>()) {
+      return (data != null ? _ikbz98ec.CampusEnrolment.fromJson(data) : null)
           as T;
     }
-    if (t == _isc.getType<_iyvpac9s.ElogToolingProductQualifications?>()) {
+    if (t == _isc.getType<_i6lqa8un.CampusStudyPlanCourse?>()) {
       return (data != null
-              ? _iyvpac9s.ElogToolingProductQualifications.fromJson(data)
+              ? _i6lqa8un.CampusStudyPlanCourse.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_i2a97saf.ElogToolingTypes?>()) {
-      return (data != null ? _i2a97saf.ElogToolingTypes.fromJson(data) : null)
+    if (t == _isc.getType<_i5anj6ne.CampusStudyPlan?>()) {
+      return (data != null ? _i5anj6ne.CampusStudyPlan.fromJson(data) : null)
           as T;
     }
-    if (t == _isc.getType<_ici4vys7.ElogUnitOfMeasures?>()) {
-      return (data != null ? _ici4vys7.ElogUnitOfMeasures.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_iu9388z4.ElogUserGroupMembers?>()) {
+    if (t == _isc.getType<_imquh55n.CampusWaitlistEntry?>()) {
       return (data != null
-              ? _iu9388z4.ElogUserGroupMembers.fromJson(data)
+              ? _imquh55n.CampusWaitlistEntry.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_id7xfj5e.ElogUserGroups?>()) {
-      return (data != null ? _id7xfj5e.ElogUserGroups.fromJson(data) : null)
+    if (t == _isc.getType<_i6xgcgm2.CampusWithdrawal?>()) {
+      return (data != null ? _i6xgcgm2.CampusWithdrawal.fromJson(data) : null)
           as T;
     }
-    if (t == _isc.getType<_i2xv5f50.ElogUserRoles?>()) {
-      return (data != null ? _i2xv5f50.ElogUserRoles.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_iqfb1ejb.ElogWorkItems?>()) {
-      return (data != null ? _iqfb1ejb.ElogWorkItems.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_i2qhvyny.ElogWorkflowEvents?>()) {
-      return (data != null ? _i2qhvyny.ElogWorkflowEvents.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_ifguuifm.ElogWorkflowInstances?>()) {
+    if (t == _isc.getType<_isewgl0f.CampusFeeScheduleLine?>()) {
       return (data != null
-              ? _ifguuifm.ElogWorkflowInstances.fromJson(data)
+              ? _isewgl0f.CampusFeeScheduleLine.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_ijr902rd.ElogWorkflows?>()) {
-      return (data != null ? _ijr902rd.ElogWorkflows.fromJson(data) : null)
+    if (t == _isc.getType<_i6ur2gi2.CampusFeeSchedule?>()) {
+      return (data != null ? _i6ur2gi2.CampusFeeSchedule.fromJson(data) : null)
           as T;
     }
-    if (t == _isc.getType<_iw9e7ahv.PublicESignatures?>()) {
-      return (data != null ? _iw9e7ahv.PublicESignatures.fromJson(data) : null)
+    if (t == _isc.getType<_ivd0ctvz.CampusFeeType?>()) {
+      return (data != null ? _ivd0ctvz.CampusFeeType.fromJson(data) : null)
           as T;
     }
-    if (t == _isc.getType<_iq44tjyb.PublicEntityDraftsAudit?>()) {
+    if (t == _isc.getType<_iy3qqd34.CampusFinancialAidApplication?>()) {
       return (data != null
-              ? _iq44tjyb.PublicEntityDraftsAudit.fromJson(data)
+              ? _iy3qqd34.CampusFinancialAidApplication.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_iqjzr2vi.PublicEntityDraftsVersions?>()) {
+    if (t == _isc.getType<_i6aphuzg.CampusFinancialAidDecision?>()) {
       return (data != null
-              ? _iqjzr2vi.PublicEntityDraftsVersions.fromJson(data)
+              ? _i6aphuzg.CampusFinancialAidDecision.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_i37bl2c2.PublicEntityLifecycleConfigurations?>()) {
+    if (t == _isc.getType<_i785d3eu.CampusInvoiceLine?>()) {
+      return (data != null ? _i785d3eu.CampusInvoiceLine.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_ih7yrsa3.CampusInvoice?>()) {
+      return (data != null ? _ih7yrsa3.CampusInvoice.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_ip72wm5q.CampusPaymentAllocation?>()) {
       return (data != null
-              ? _i37bl2c2.PublicEntityLifecycleConfigurations.fromJson(data)
+              ? _ip72wm5q.CampusPaymentAllocation.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_i7ltqb3m.PublicEntityWorkflowInstances?>()) {
+    if (t == _isc.getType<_igjjsnon.CampusPayment?>()) {
+      return (data != null ? _igjjsnon.CampusPayment.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_ih0zxat5.CampusRefund?>()) {
+      return (data != null ? _ih0zxat5.CampusRefund.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i2d8zb54.CampusScholarshipAward?>()) {
       return (data != null
-              ? _i7ltqb3m.PublicEntityWorkflowInstances.fromJson(data)
+              ? _i2d8zb54.CampusScholarshipAward.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_iu718lvo.PublicEntityWorkflowTasks?>()) {
+    if (t == _isc.getType<_i12o4a5n.CampusScholarship?>()) {
+      return (data != null ? _i12o4a5n.CampusScholarship.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_imm1bvl9.CampusSponsorContribution?>()) {
       return (data != null
-              ? _iu718lvo.PublicEntityWorkflowTasks.fromJson(data)
+              ? _imm1bvl9.CampusSponsorContribution.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_i6x532bo.PublicPublic?>()) {
-      return (data != null ? _i6x532bo.PublicPublic.fromJson(data) : null) as T;
+    if (t == _isc.getType<_iufogsm9.CampusSponsor?>()) {
+      return (data != null ? _iufogsm9.CampusSponsor.fromJson(data) : null)
+          as T;
     }
-    if (t == _isc.getType<_ixdgb3pg.PublicWorkflowEvents?>()) {
+    if (t == _isc.getType<_i5w6z1o1.CampusSponsorship?>()) {
+      return (data != null ? _i5w6z1o1.CampusSponsorship.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_id1yl7ms.CampusHousingAllocation?>()) {
       return (data != null
-              ? _ixdgb3pg.PublicWorkflowEvents.fromJson(data)
+              ? _id1yl7ms.CampusHousingAllocation.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_iku0se9c.PublicWorkflowInstances?>()) {
+    if (t == _isc.getType<_inj6rnis.CampusHousingApplication?>()) {
       return (data != null
-              ? _iku0se9c.PublicWorkflowInstances.fromJson(data)
+              ? _inj6rnis.CampusHousingApplication.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_ixdjky6f.PublicWorkflowUserTasks?>()) {
+    if (t == _isc.getType<_i9sv4sdm.CampusHousingCharge?>()) {
       return (data != null
-              ? _ixdjky6f.PublicWorkflowUserTasks.fromJson(data)
+              ? _i9sv4sdm.CampusHousingCharge.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_icl3enxx.SsoAccountUnlockRequests?>()) {
+    if (t == _isc.getType<_is5welzq.CampusHousingContract?>()) {
       return (data != null
-              ? _icl3enxx.SsoAccountUnlockRequests.fromJson(data)
+              ? _is5welzq.CampusHousingContract.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_ikffiba3.SsoAdConnections?>()) {
-      return (data != null ? _ikffiba3.SsoAdConnections.fromJson(data) : null)
+    if (t == _isc.getType<_ieupa5nm.CampusHousingGuest?>()) {
+      return (data != null ? _ieupa5nm.CampusHousingGuest.fromJson(data) : null)
           as T;
     }
-    if (t == _isc.getType<_ioy9xegh.SsoCompanies?>()) {
-      return (data != null ? _ioy9xegh.SsoCompanies.fromJson(data) : null) as T;
-    }
-    if (t == _isc.getType<_ih26k2g9.SsoCompanySiteAssignments?>()) {
+    if (t == _isc.getType<_i33gygjf.CampusHousingInspection?>()) {
       return (data != null
-              ? _ih26k2g9.SsoCompanySiteAssignments.fromJson(data)
+              ? _i33gygjf.CampusHousingInspection.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_i0v3k9y4.SsoDashboardConfigs?>()) {
+    if (t == _isc.getType<_ip7dqx68.CampusHousingMaintenanceRequest?>()) {
       return (data != null
-              ? _i0v3k9y4.SsoDashboardConfigs.fromJson(data)
+              ? _ip7dqx68.CampusHousingMaintenanceRequest.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_iwzh4spq.SsoDepartmentTypes?>()) {
-      return (data != null ? _iwzh4spq.SsoDepartmentTypes.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_isoagnd2.SsoDepartments?>()) {
-      return (data != null ? _isoagnd2.SsoDepartments.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_ivpbyrtu.SsoDesignations?>()) {
-      return (data != null ? _ivpbyrtu.SsoDesignations.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_id58jpdy.SsoLoginChallenges?>()) {
-      return (data != null ? _id58jpdy.SsoLoginChallenges.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_ivkuiv43.SsoLoginEvents?>()) {
-      return (data != null ? _ivkuiv43.SsoLoginEvents.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_iv9au2ux.SsoNotifications?>()) {
-      return (data != null ? _iv9au2ux.SsoNotifications.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_ism6jhlu.SsoPasswordResetRequests?>()) {
+    if (t == _isc.getType<_i1chn6z5.CampusHousingPreference?>()) {
       return (data != null
-              ? _ism6jhlu.SsoPasswordResetRequests.fromJson(data)
+              ? _i1chn6z5.CampusHousingPreference.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_iqttiq1b.SsoProductSettings?>()) {
-      return (data != null ? _iqttiq1b.SsoProductSettings.fromJson(data) : null)
+    if (t == _isc.getType<_ijjla5z9.CampusResidenceBed?>()) {
+      return (data != null ? _ijjla5z9.CampusResidenceBed.fromJson(data) : null)
           as T;
     }
-    if (t == _isc.getType<_ir4axp6j.SsoProductSiteMappings?>()) {
+    if (t == _isc.getType<_ioguw2d9.CampusResidenceFloor?>()) {
       return (data != null
-              ? _ir4axp6j.SsoProductSiteMappings.fromJson(data)
+              ? _ioguw2d9.CampusResidenceFloor.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_id96jnp7.SsoProducts?>()) {
-      return (data != null ? _id96jnp7.SsoProducts.fromJson(data) : null) as T;
-    }
-    if (t == _isc.getType<_iu1qu58n.SsoReportExports?>()) {
-      return (data != null ? _iu1qu58n.SsoReportExports.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_ichwrbiz.SsoReportTemplates?>()) {
-      return (data != null ? _ichwrbiz.SsoReportTemplates.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_ib0ko46b.SsoRoleDashboards?>()) {
-      return (data != null ? _ib0ko46b.SsoRoleDashboards.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_ifv6xkhy.SsoRolePermissions?>()) {
-      return (data != null ? _ifv6xkhy.SsoRolePermissions.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_i0gr1peg.SsoRoles?>()) {
-      return (data != null ? _i0gr1peg.SsoRoles.fromJson(data) : null) as T;
-    }
-    if (t == _isc.getType<_if33sioe.SsoSavedViews?>()) {
-      return (data != null ? _if33sioe.SsoSavedViews.fromJson(data) : null)
-          as T;
-    }
-    if (t == _isc.getType<_ilqjh0sx.SsoSecurityPolicies?>()) {
+    if (t == _isc.getType<_i4wllryj.CampusResidenceRoom?>()) {
       return (data != null
-              ? _ilqjh0sx.SsoSecurityPolicies.fromJson(data)
+              ? _i4wllryj.CampusResidenceRoom.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_i4g0kvm8.SsoSites?>()) {
-      return (data != null ? _i4g0kvm8.SsoSites.fromJson(data) : null) as T;
-    }
-    if (t == _isc.getType<_iugbun52.SsoStandardReasons?>()) {
-      return (data != null ? _iugbun52.SsoStandardReasons.fromJson(data) : null)
+    if (t == _isc.getType<_ilwtmbox.CampusResidence?>()) {
+      return (data != null ? _ilwtmbox.CampusResidence.fromJson(data) : null)
           as T;
     }
-    if (t == _isc.getType<_i2qrs2ax.SsoUserPasswordHistory?>()) {
+    if (t == _isc.getType<_im17xq9s.CampusAuthor?>()) {
+      return (data != null ? _im17xq9s.CampusAuthor.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_ieum417b.CampusBookAuthor?>()) {
+      return (data != null ? _ieum417b.CampusBookAuthor.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_i8iyxmm6.CampusBookCopy?>()) {
+      return (data != null ? _i8iyxmm6.CampusBookCopy.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_idwj8oog.CampusBookEdition?>()) {
+      return (data != null ? _idwj8oog.CampusBookEdition.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_i91fxs7d.CampusBook?>()) {
+      return (data != null ? _i91fxs7d.CampusBook.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_imao42n2.CampusFine?>()) {
+      return (data != null ? _imao42n2.CampusFine.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i7d3ow2m.CampusLibraryBranch?>()) {
       return (data != null
-              ? _i2qrs2ax.SsoUserPasswordHistory.fromJson(data)
+              ? _i7d3ow2m.CampusLibraryBranch.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_izdzo98l.SsoUserPreferences?>()) {
-      return (data != null ? _izdzo98l.SsoUserPreferences.fromJson(data) : null)
+    if (t == _isc.getType<_ife2jm2t.CampusLibraryVisit?>()) {
+      return (data != null ? _ife2jm2t.CampusLibraryVisit.fromJson(data) : null)
           as T;
     }
-    if (t == _isc.getType<_i7stpwby.SsoUserProductSiteMappings?>()) {
+    if (t == _isc.getType<_iz85k6nw.CampusLoanRenewal?>()) {
+      return (data != null ? _iz85k6nw.CampusLoanRenewal.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_ivrsnad5.CampusLoan?>()) {
+      return (data != null ? _ivrsnad5.CampusLoan.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i7uvxqby.CampusPublisher?>()) {
+      return (data != null ? _i7uvxqby.CampusPublisher.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_i8fl0bcz.CampusReadingListEntry?>()) {
       return (data != null
-              ? _i7stpwby.SsoUserProductSiteMappings.fromJson(data)
+              ? _i8fl0bcz.CampusReadingListEntry.fromJson(data)
               : null)
           as T;
     }
-    if (t == _isc.getType<_iew7uxuv.SsoUserRoles?>()) {
-      return (data != null ? _iew7uxuv.SsoUserRoles.fromJson(data) : null) as T;
-    }
-    if (t == _isc.getType<_ir5ofehs.SsoUserSessions?>()) {
-      return (data != null ? _ir5ofehs.SsoUserSessions.fromJson(data) : null)
+    if (t == _isc.getType<_iuf8fw82.CampusReadingList?>()) {
+      return (data != null ? _iuf8fw82.CampusReadingList.fromJson(data) : null)
           as T;
     }
-    if (t == _isc.getType<_i4fj2l14.SsoUsers?>()) {
-      return (data != null ? _i4fj2l14.SsoUsers.fromJson(data) : null) as T;
+    if (t == _isc.getType<_izrbvszp.CampusReservation?>()) {
+      return (data != null ? _izrbvszp.CampusReservation.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_ilkwpsep.CampusEthicsApplication?>()) {
+      return (data != null
+              ? _ilkwpsep.CampusEthicsApplication.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_i23unika.CampusEthicsReview?>()) {
+      return (data != null ? _i23unika.CampusEthicsReview.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_irnr71yk.CampusGrantBudget?>()) {
+      return (data != null ? _irnr71yk.CampusGrantBudget.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_io3zc5dl.CampusGrantExpense?>()) {
+      return (data != null ? _io3zc5dl.CampusGrantExpense.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_irh7kw2j.CampusGrant?>()) {
+      return (data != null ? _irh7kw2j.CampusGrant.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i6qyipky.CampusProjectMilestone?>()) {
+      return (data != null
+              ? _i6qyipky.CampusProjectMilestone.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_i2rtf719.CampusPublicationAuthor?>()) {
+      return (data != null
+              ? _i2rtf719.CampusPublicationAuthor.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_i5u1ue6j.CampusPublication?>()) {
+      return (data != null ? _i5u1ue6j.CampusPublication.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_ik725i35.CampusResearchDataset?>()) {
+      return (data != null
+              ? _ik725i35.CampusResearchDataset.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_i5h5n425.CampusResearchMembership?>()) {
+      return (data != null
+              ? _i5h5n425.CampusResearchMembership.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_it8rg4yy.CampusResearchProject?>()) {
+      return (data != null
+              ? _it8rg4yy.CampusResearchProject.fromJson(data)
+              : null)
+          as T;
     }
     if (t == _isc.getType<_iqdes7hr.SchemaAccessException?>()) {
       return (data != null
@@ -1326,33 +1334,6 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
-    }
-    if (t == List<int>) {
-      return (data as List).map((e) => deserialize<int>(e)).toList() as T;
-    }
-    if (t == _isc.getType<List<int>?>()) {
-      return (data != null
-              ? (data as List).map((e) => deserialize<int>(e)).toList()
-              : null)
-          as T;
-    }
-    if (t == _isc.getType<List<String>?>()) {
-      return (data != null
-              ? (data as List).map((e) => deserialize<String>(e)).toList()
-              : null)
-          as T;
-    }
-    if (t == List<_isc.UuidValue>) {
-      return (data as List).map((e) => deserialize<_isc.UuidValue>(e)).toList()
-          as T;
-    }
-    if (t == _isc.getType<List<_isc.UuidValue>?>()) {
-      return (data != null
-              ? (data as List)
-                    .map((e) => deserialize<_isc.UuidValue>(e))
-                    .toList()
-              : null)
-          as T;
     }
     if (t == List<_iyw9pr81.SchemaModule>) {
       return (data as List)
@@ -1416,135 +1397,131 @@ class Protocol extends _isc.SerializationManager {
 
   static String? getClassNameForType(Type type) {
     return switch (type) {
-      _ishyozd5.ElogActivities => 'ElogActivities',
-      _i6kgjla4.ElogActivityArtifacts => 'ElogActivityArtifacts',
-      _iz387z77.ElogAreaAdjacency => 'ElogAreaAdjacency',
-      _i9o3y69x.ElogAreaCategories => 'ElogAreaCategories',
-      _isgi7gk9.ElogAreaEquipment => 'ElogAreaEquipment',
-      _iv2byy67.ElogAreaUserGroups => 'ElogAreaUserGroups',
-      _ilczj6al.ElogAreas => 'ElogAreas',
-      _ippbjru9.ElogBatches => 'ElogBatches',
-      _ie8nm0xf.ElogBusinessAssociates => 'ElogBusinessAssociates',
-      _iea2komd.ElogCampaigns => 'ElogCampaigns',
-      _i943t8qk.ElogChecklistTemplates => 'ElogChecklistTemplates',
-      _im2l27wp.ElogChecklistUsageInstructions =>
-        'ElogChecklistUsageInstructions',
-      _iyg55fu5.ElogChecklistUsageSets => 'ElogChecklistUsageSets',
-      _i2d67kfy.ElogChecklistUsages => 'ElogChecklistUsages',
-      _iaxzy4al.ElogCleaningTypes => 'ElogCleaningTypes',
-      _ig1scdm6.ElogDashboardConfigs => 'ElogDashboardConfigs',
-      _i465o1vf.ElogEquipmentCategories => 'ElogEquipmentCategories',
-      _iy7mbkyp.ElogEquipmentParts => 'ElogEquipmentParts',
-      _iizl2nep.ElogEquipmentTypes => 'ElogEquipmentTypes',
-      _ihodx11y.ElogEquipmentUserGroups => 'ElogEquipmentUserGroups',
-      _ir29oi5q.ElogEquipments => 'ElogEquipments',
-      _iksvpml2.ElogEventReactorState => 'ElogEventReactorState',
-      _imjwa56c.ElogEvents => 'ElogEvents',
-      _iei4fdsy.ElogExternalIntegrations => 'ElogExternalIntegrations',
-      _iuxjq0du.ElogHolidayCalendars => 'ElogHolidayCalendars',
-      _ip7nvc9p.ElogHolidayEntries => 'ElogHolidayEntries',
-      _i4th50rj.ElogLogReportGenerations => 'ElogLogReportGenerations',
-      _iab28y1e.ElogLogTemplates => 'ElogLogTemplates',
-      _i05usxet.ElogLogUsages => 'ElogLogUsages',
-      _izf4mrur.ElogNotificationGroupStates => 'ElogNotificationGroupStates',
-      _idk983fe.ElogNotifications => 'ElogNotifications',
-      _izmtc39o.ElogNotificationsArchive => 'ElogNotificationsArchive',
-      _i0ssuutp.ElogOnboardingStatus => 'ElogOnboardingStatus',
-      _i7g8bf6c.ElogOperations => 'ElogOperations',
-      _i8i2tmym.ElogPdAllocationCursors => 'ElogPdAllocationCursors',
-      _iwsiolx8.ElogPdAllocationLines => 'ElogPdAllocationLines',
-      _ie75ho22.ElogPdAllocations => 'ElogPdAllocations',
-      _i3lnfsnn.ElogPdAssemblies => 'ElogPdAssemblies',
-      _iccws1xa.ElogPdAssemblyMembers => 'ElogPdAssemblyMembers',
-      _ipr5ee30.ElogPdComponentReservations => 'ElogPdComponentReservations',
-      _i6kwotqx.ElogPdModuleConfig => 'ElogPdModuleConfig',
-      _ip7k2fyr.ElogPdOperations => 'ElogPdOperations',
-      _iwoewitv.ElogPdUsageLedger => 'ElogPdUsageLedger',
-      _idcsbifx.ElogPresetAreaCategories => 'ElogPresetAreaCategories',
-      _ien2z5wb.ElogPresetAreas => 'ElogPresetAreas',
-      _imeic21z.ElogPresetChecklists => 'ElogPresetChecklists',
-      _i1i32x6j.ElogPresetDashboards => 'ElogPresetDashboards',
-      _igzp2y8c.ElogPresetEquipment => 'ElogPresetEquipment',
-      _imoi4ypf.ElogPresetEquipmentCategories =>
-        'ElogPresetEquipmentCategories',
-      _io6t2sgk.ElogPresetIndustries => 'ElogPresetIndustries',
-      _izdzedtk.ElogPresetLogTemplates => 'ElogPresetLogTemplates',
-      _irzfy450.ElogPresetPolicies => 'ElogPresetPolicies',
-      _iimbkgrt.ElogPresetRoleCategories => 'ElogPresetRoleCategories',
-      _i1n67tzi.ElogPresetRoles => 'ElogPresetRoles',
-      _i01c1yxy.ElogPresetSchedules => 'ElogPresetSchedules',
-      _ib0e9qbb.ElogProblemTypes => 'ElogProblemTypes',
-      _i4hmoti8.ElogProblems => 'ElogProblems',
-      _iele6hju.ElogProductCleaningRequirements =>
-        'ElogProductCleaningRequirements',
-      _i0caxd73.ElogProducts => 'ElogProducts',
-      _iq0nwjzy.ElogPunchSets => 'ElogPunchSets',
-      _iryvos7o.ElogReportTemplates => 'ElogReportTemplates',
-      _iqykw8hs.ElogResourceActivityDailyRollups =>
-        'ElogResourceActivityDailyRollups',
-      _ial2wvcr.ElogResourceFlagTypes => 'ElogResourceFlagTypes',
-      _if40xrph.ElogResourceFlags => 'ElogResourceFlags',
-      _il71c5vn.ElogResourcePolicies => 'ElogResourcePolicies',
-      _iw7vxuxk.ElogResourceStates => 'ElogResourceStates',
-      _ijudmfzt.ElogResourceUsages => 'ElogResourceUsages',
-      _ik7tju34.ElogRoleCategories => 'ElogRoleCategories',
-      _is5x0ozk.ElogRoleDashboards => 'ElogRoleDashboards',
-      _i8swalwe.ElogRolePermissions => 'ElogRolePermissions',
-      _i2dkzfxx.ElogRoles => 'ElogRoles',
-      _i91j1h6n.ElogSavedViews => 'ElogSavedViews',
-      _iyvpac9s.ElogToolingProductQualifications =>
-        'ElogToolingProductQualifications',
-      _i2a97saf.ElogToolingTypes => 'ElogToolingTypes',
-      _ici4vys7.ElogUnitOfMeasures => 'ElogUnitOfMeasures',
-      _iu9388z4.ElogUserGroupMembers => 'ElogUserGroupMembers',
-      _id7xfj5e.ElogUserGroups => 'ElogUserGroups',
-      _i2xv5f50.ElogUserRoles => 'ElogUserRoles',
-      _iqfb1ejb.ElogWorkItems => 'ElogWorkItems',
-      _i2qhvyny.ElogWorkflowEvents => 'ElogWorkflowEvents',
-      _ifguuifm.ElogWorkflowInstances => 'ElogWorkflowInstances',
-      _ijr902rd.ElogWorkflows => 'ElogWorkflows',
-      _iw9e7ahv.PublicESignatures => 'PublicESignatures',
-      _iq44tjyb.PublicEntityDraftsAudit => 'PublicEntityDraftsAudit',
-      _iqjzr2vi.PublicEntityDraftsVersions => 'PublicEntityDraftsVersions',
-      _i37bl2c2.PublicEntityLifecycleConfigurations =>
-        'PublicEntityLifecycleConfigurations',
-      _i7ltqb3m.PublicEntityWorkflowInstances =>
-        'PublicEntityWorkflowInstances',
-      _iu718lvo.PublicEntityWorkflowTasks => 'PublicEntityWorkflowTasks',
-      _i6x532bo.PublicPublic => 'PublicPublic',
-      _ixdgb3pg.PublicWorkflowEvents => 'PublicWorkflowEvents',
-      _iku0se9c.PublicWorkflowInstances => 'PublicWorkflowInstances',
-      _ixdjky6f.PublicWorkflowUserTasks => 'PublicWorkflowUserTasks',
-      _icl3enxx.SsoAccountUnlockRequests => 'SsoAccountUnlockRequests',
-      _ikffiba3.SsoAdConnections => 'SsoAdConnections',
-      _ioy9xegh.SsoCompanies => 'SsoCompanies',
-      _ih26k2g9.SsoCompanySiteAssignments => 'SsoCompanySiteAssignments',
-      _i0v3k9y4.SsoDashboardConfigs => 'SsoDashboardConfigs',
-      _iwzh4spq.SsoDepartmentTypes => 'SsoDepartmentTypes',
-      _isoagnd2.SsoDepartments => 'SsoDepartments',
-      _ivpbyrtu.SsoDesignations => 'SsoDesignations',
-      _id58jpdy.SsoLoginChallenges => 'SsoLoginChallenges',
-      _ivkuiv43.SsoLoginEvents => 'SsoLoginEvents',
-      _iv9au2ux.SsoNotifications => 'SsoNotifications',
-      _ism6jhlu.SsoPasswordResetRequests => 'SsoPasswordResetRequests',
-      _iqttiq1b.SsoProductSettings => 'SsoProductSettings',
-      _ir4axp6j.SsoProductSiteMappings => 'SsoProductSiteMappings',
-      _id96jnp7.SsoProducts => 'SsoProducts',
-      _iu1qu58n.SsoReportExports => 'SsoReportExports',
-      _ichwrbiz.SsoReportTemplates => 'SsoReportTemplates',
-      _ib0ko46b.SsoRoleDashboards => 'SsoRoleDashboards',
-      _ifv6xkhy.SsoRolePermissions => 'SsoRolePermissions',
-      _i0gr1peg.SsoRoles => 'SsoRoles',
-      _if33sioe.SsoSavedViews => 'SsoSavedViews',
-      _ilqjh0sx.SsoSecurityPolicies => 'SsoSecurityPolicies',
-      _i4g0kvm8.SsoSites => 'SsoSites',
-      _iugbun52.SsoStandardReasons => 'SsoStandardReasons',
-      _i2qrs2ax.SsoUserPasswordHistory => 'SsoUserPasswordHistory',
-      _izdzo98l.SsoUserPreferences => 'SsoUserPreferences',
-      _i7stpwby.SsoUserProductSiteMappings => 'SsoUserProductSiteMappings',
-      _iew7uxuv.SsoUserRoles => 'SsoUserRoles',
-      _ir5ofehs.SsoUserSessions => 'SsoUserSessions',
-      _i4fj2l14.SsoUsers => 'SsoUsers',
+      _icbi7gwo.CampusCourseCategory => 'CampusCourseCategory',
+      _izhnn43s.CampusCourseEquivalence => 'CampusCourseEquivalence',
+      _i60iovqj.CampusCourseMaterial => 'CampusCourseMaterial',
+      _ifd85uwc.CampusCourseOutcome => 'CampusCourseOutcome',
+      _ihnnsiks.CampusCoursePrerequisite => 'CampusCoursePrerequisite',
+      _iporzlvp.CampusCourseSection => 'CampusCourseSection',
+      _iik9idpd.CampusCourse => 'CampusCourse',
+      _i6p3cs2n.CampusLecturerDepartment => 'CampusLecturerDepartment',
+      _ixrb3pvm.CampusLecturer => 'CampusLecturer',
+      _i90s5rli.CampusOfficeHour => 'CampusOfficeHour',
+      _idvibfro.CampusProgrammeCourse => 'CampusProgrammeCourse',
+      _ikq440cu.CampusProgrammeVersion => 'CampusProgrammeVersion',
+      _i49ncx41.CampusProgramme => 'CampusProgramme',
+      _iuk3rrc1.CampusQualification => 'CampusQualification',
+      _igrg8f15.CampusRoomBooking => 'CampusRoomBooking',
+      _i4dxex9j.CampusSectionCapacityOverride =>
+        'CampusSectionCapacityOverride',
+      _i60vl9yy.CampusSectionInstructor => 'CampusSectionInstructor',
+      _i1ujp85c.CampusSectionMeeting => 'CampusSectionMeeting',
+      _i5vbc563.CampusTimetableEntry => 'CampusTimetableEntry',
+      _iztuz2v2.CampusTimetable => 'CampusTimetable',
+      _ioijgh15.CampusAcceptance => 'CampusAcceptance',
+      _iszjqqz2.CampusApplicationChoice => 'CampusApplicationChoice',
+      _i3p9hmqv.CampusApplicationDocument => 'CampusApplicationDocument',
+      _iwgn7l2z.CampusApplicationReview => 'CampusApplicationReview',
+      _i84qe6g5.CampusApplication => 'CampusApplication',
+      _iz7cqiiz.CampusCohortMembership => 'CampusCohortMembership',
+      _iu4vottr.CampusCohort => 'CampusCohort',
+      _i2lpxeo5.CampusGuardian => 'CampusGuardian',
+      _id663sq3.CampusOfferCondition => 'CampusOfferCondition',
+      _icm8cu4v.CampusOffer => 'CampusOffer',
+      _i4ls3qtz.CampusStudentAddress => 'CampusStudentAddress',
+      _irvnuni5.CampusStudentContact => 'CampusStudentContact',
+      _iwai6mlf.CampusStudentDocument => 'CampusStudentDocument',
+      _i16zyk3v.CampusStudentGuardian => 'CampusStudentGuardian',
+      _iz31h8i4.CampusStudentHold => 'CampusStudentHold',
+      _idvhf8qa.CampusStudentNote => 'CampusStudentNote',
+      _i6c5z7zh.CampusStudentStatusEvent => 'CampusStudentStatusEvent',
+      _ixciykx6.CampusStudent => 'CampusStudent',
+      _izef6fak.CampusAppeal => 'CampusAppeal',
+      _ipsxsf4b.CampusAssessmentComponent => 'CampusAssessmentComponent',
+      _if8a84ek.CampusAssessmentMarker => 'CampusAssessmentMarker',
+      _iuohle5e.CampusAssessmentSubmission => 'CampusAssessmentSubmission',
+      _iy95bowl.CampusAssessment => 'CampusAssessment',
+      _i968i8hm.CampusExamAccommodation => 'CampusExamAccommodation',
+      _iqsus0ia.CampusExamRegistration => 'CampusExamRegistration',
+      _iq0v8pha.CampusExamSeat => 'CampusExamSeat',
+      _igek713o.CampusExamSession => 'CampusExamSession',
+      _iej23kcn.CampusExam => 'CampusExam',
+      _i2oqkkd6.CampusGradeChange => 'CampusGradeChange',
+      _i12uv7b6.CampusGradeScaleBand => 'CampusGradeScaleBand',
+      _ielxdmeu.CampusGradeScale => 'CampusGradeScale',
+      _ips0lupm.CampusGrade => 'CampusGrade',
+      _iv6t9wps.CampusSubmissionFile => 'CampusSubmissionFile',
+      _idxtqeho.CampusAcademicYear => 'CampusAcademicYear',
+      _ijg49dtu.CampusBuilding => 'CampusBuilding',
+      _ii5cv0xg.CampusCampus => 'CampusCampus',
+      _ieaagiip.CampusDepartment => 'CampusDepartment',
+      _iw9evvci.CampusFaculty => 'CampusFaculty',
+      _i5697to7.CampusRoom => 'CampusRoom',
+      _iny6aho6.CampusTerm => 'CampusTerm',
+      _i7ljm6m0.CampusAttendanceRecord => 'CampusAttendanceRecord',
+      _i5rv3lv9.CampusAttendanceSession => 'CampusAttendanceSession',
+      _iftc8tcu.CampusCompletion => 'CampusCompletion',
+      _ixqnp4lw.CampusCreditTransfer => 'CampusCreditTransfer',
+      _iij70sau.CampusEnrolmentRequest => 'CampusEnrolmentRequest',
+      _ikbz98ec.CampusEnrolment => 'CampusEnrolment',
+      _i6lqa8un.CampusStudyPlanCourse => 'CampusStudyPlanCourse',
+      _i5anj6ne.CampusStudyPlan => 'CampusStudyPlan',
+      _imquh55n.CampusWaitlistEntry => 'CampusWaitlistEntry',
+      _i6xgcgm2.CampusWithdrawal => 'CampusWithdrawal',
+      _isewgl0f.CampusFeeScheduleLine => 'CampusFeeScheduleLine',
+      _i6ur2gi2.CampusFeeSchedule => 'CampusFeeSchedule',
+      _ivd0ctvz.CampusFeeType => 'CampusFeeType',
+      _iy3qqd34.CampusFinancialAidApplication =>
+        'CampusFinancialAidApplication',
+      _i6aphuzg.CampusFinancialAidDecision => 'CampusFinancialAidDecision',
+      _i785d3eu.CampusInvoiceLine => 'CampusInvoiceLine',
+      _ih7yrsa3.CampusInvoice => 'CampusInvoice',
+      _ip72wm5q.CampusPaymentAllocation => 'CampusPaymentAllocation',
+      _igjjsnon.CampusPayment => 'CampusPayment',
+      _ih0zxat5.CampusRefund => 'CampusRefund',
+      _i2d8zb54.CampusScholarshipAward => 'CampusScholarshipAward',
+      _i12o4a5n.CampusScholarship => 'CampusScholarship',
+      _imm1bvl9.CampusSponsorContribution => 'CampusSponsorContribution',
+      _iufogsm9.CampusSponsor => 'CampusSponsor',
+      _i5w6z1o1.CampusSponsorship => 'CampusSponsorship',
+      _id1yl7ms.CampusHousingAllocation => 'CampusHousingAllocation',
+      _inj6rnis.CampusHousingApplication => 'CampusHousingApplication',
+      _i9sv4sdm.CampusHousingCharge => 'CampusHousingCharge',
+      _is5welzq.CampusHousingContract => 'CampusHousingContract',
+      _ieupa5nm.CampusHousingGuest => 'CampusHousingGuest',
+      _i33gygjf.CampusHousingInspection => 'CampusHousingInspection',
+      _ip7dqx68.CampusHousingMaintenanceRequest =>
+        'CampusHousingMaintenanceRequest',
+      _i1chn6z5.CampusHousingPreference => 'CampusHousingPreference',
+      _ijjla5z9.CampusResidenceBed => 'CampusResidenceBed',
+      _ioguw2d9.CampusResidenceFloor => 'CampusResidenceFloor',
+      _i4wllryj.CampusResidenceRoom => 'CampusResidenceRoom',
+      _ilwtmbox.CampusResidence => 'CampusResidence',
+      _im17xq9s.CampusAuthor => 'CampusAuthor',
+      _ieum417b.CampusBookAuthor => 'CampusBookAuthor',
+      _i8iyxmm6.CampusBookCopy => 'CampusBookCopy',
+      _idwj8oog.CampusBookEdition => 'CampusBookEdition',
+      _i91fxs7d.CampusBook => 'CampusBook',
+      _imao42n2.CampusFine => 'CampusFine',
+      _i7d3ow2m.CampusLibraryBranch => 'CampusLibraryBranch',
+      _ife2jm2t.CampusLibraryVisit => 'CampusLibraryVisit',
+      _iz85k6nw.CampusLoanRenewal => 'CampusLoanRenewal',
+      _ivrsnad5.CampusLoan => 'CampusLoan',
+      _i7uvxqby.CampusPublisher => 'CampusPublisher',
+      _i8fl0bcz.CampusReadingListEntry => 'CampusReadingListEntry',
+      _iuf8fw82.CampusReadingList => 'CampusReadingList',
+      _izrbvszp.CampusReservation => 'CampusReservation',
+      _ilkwpsep.CampusEthicsApplication => 'CampusEthicsApplication',
+      _i23unika.CampusEthicsReview => 'CampusEthicsReview',
+      _irnr71yk.CampusGrantBudget => 'CampusGrantBudget',
+      _io3zc5dl.CampusGrantExpense => 'CampusGrantExpense',
+      _irh7kw2j.CampusGrant => 'CampusGrant',
+      _i6qyipky.CampusProjectMilestone => 'CampusProjectMilestone',
+      _i2rtf719.CampusPublicationAuthor => 'CampusPublicationAuthor',
+      _i5u1ue6j.CampusPublication => 'CampusPublication',
+      _ik725i35.CampusResearchDataset => 'CampusResearchDataset',
+      _i5h5n425.CampusResearchMembership => 'CampusResearchMembership',
+      _it8rg4yy.CampusResearchProject => 'CampusResearchProject',
       _iqdes7hr.SchemaAccessException => 'SchemaAccessException',
       _ip7yl2xa.SchemaColumn => 'SchemaColumn',
       _irxuw07j.SchemaEnum => 'SchemaEnum',
@@ -1571,250 +1548,250 @@ class Protocol extends _isc.SerializationManager {
     }
 
     switch (data) {
-      case _ishyozd5.ElogActivities():
-        return 'ElogActivities';
-      case _i6kgjla4.ElogActivityArtifacts():
-        return 'ElogActivityArtifacts';
-      case _iz387z77.ElogAreaAdjacency():
-        return 'ElogAreaAdjacency';
-      case _i9o3y69x.ElogAreaCategories():
-        return 'ElogAreaCategories';
-      case _isgi7gk9.ElogAreaEquipment():
-        return 'ElogAreaEquipment';
-      case _iv2byy67.ElogAreaUserGroups():
-        return 'ElogAreaUserGroups';
-      case _ilczj6al.ElogAreas():
-        return 'ElogAreas';
-      case _ippbjru9.ElogBatches():
-        return 'ElogBatches';
-      case _ie8nm0xf.ElogBusinessAssociates():
-        return 'ElogBusinessAssociates';
-      case _iea2komd.ElogCampaigns():
-        return 'ElogCampaigns';
-      case _i943t8qk.ElogChecklistTemplates():
-        return 'ElogChecklistTemplates';
-      case _im2l27wp.ElogChecklistUsageInstructions():
-        return 'ElogChecklistUsageInstructions';
-      case _iyg55fu5.ElogChecklistUsageSets():
-        return 'ElogChecklistUsageSets';
-      case _i2d67kfy.ElogChecklistUsages():
-        return 'ElogChecklistUsages';
-      case _iaxzy4al.ElogCleaningTypes():
-        return 'ElogCleaningTypes';
-      case _ig1scdm6.ElogDashboardConfigs():
-        return 'ElogDashboardConfigs';
-      case _i465o1vf.ElogEquipmentCategories():
-        return 'ElogEquipmentCategories';
-      case _iy7mbkyp.ElogEquipmentParts():
-        return 'ElogEquipmentParts';
-      case _iizl2nep.ElogEquipmentTypes():
-        return 'ElogEquipmentTypes';
-      case _ihodx11y.ElogEquipmentUserGroups():
-        return 'ElogEquipmentUserGroups';
-      case _ir29oi5q.ElogEquipments():
-        return 'ElogEquipments';
-      case _iksvpml2.ElogEventReactorState():
-        return 'ElogEventReactorState';
-      case _imjwa56c.ElogEvents():
-        return 'ElogEvents';
-      case _iei4fdsy.ElogExternalIntegrations():
-        return 'ElogExternalIntegrations';
-      case _iuxjq0du.ElogHolidayCalendars():
-        return 'ElogHolidayCalendars';
-      case _ip7nvc9p.ElogHolidayEntries():
-        return 'ElogHolidayEntries';
-      case _i4th50rj.ElogLogReportGenerations():
-        return 'ElogLogReportGenerations';
-      case _iab28y1e.ElogLogTemplates():
-        return 'ElogLogTemplates';
-      case _i05usxet.ElogLogUsages():
-        return 'ElogLogUsages';
-      case _izf4mrur.ElogNotificationGroupStates():
-        return 'ElogNotificationGroupStates';
-      case _idk983fe.ElogNotifications():
-        return 'ElogNotifications';
-      case _izmtc39o.ElogNotificationsArchive():
-        return 'ElogNotificationsArchive';
-      case _i0ssuutp.ElogOnboardingStatus():
-        return 'ElogOnboardingStatus';
-      case _i7g8bf6c.ElogOperations():
-        return 'ElogOperations';
-      case _i8i2tmym.ElogPdAllocationCursors():
-        return 'ElogPdAllocationCursors';
-      case _iwsiolx8.ElogPdAllocationLines():
-        return 'ElogPdAllocationLines';
-      case _ie75ho22.ElogPdAllocations():
-        return 'ElogPdAllocations';
-      case _i3lnfsnn.ElogPdAssemblies():
-        return 'ElogPdAssemblies';
-      case _iccws1xa.ElogPdAssemblyMembers():
-        return 'ElogPdAssemblyMembers';
-      case _ipr5ee30.ElogPdComponentReservations():
-        return 'ElogPdComponentReservations';
-      case _i6kwotqx.ElogPdModuleConfig():
-        return 'ElogPdModuleConfig';
-      case _ip7k2fyr.ElogPdOperations():
-        return 'ElogPdOperations';
-      case _iwoewitv.ElogPdUsageLedger():
-        return 'ElogPdUsageLedger';
-      case _idcsbifx.ElogPresetAreaCategories():
-        return 'ElogPresetAreaCategories';
-      case _ien2z5wb.ElogPresetAreas():
-        return 'ElogPresetAreas';
-      case _imeic21z.ElogPresetChecklists():
-        return 'ElogPresetChecklists';
-      case _i1i32x6j.ElogPresetDashboards():
-        return 'ElogPresetDashboards';
-      case _igzp2y8c.ElogPresetEquipment():
-        return 'ElogPresetEquipment';
-      case _imoi4ypf.ElogPresetEquipmentCategories():
-        return 'ElogPresetEquipmentCategories';
-      case _io6t2sgk.ElogPresetIndustries():
-        return 'ElogPresetIndustries';
-      case _izdzedtk.ElogPresetLogTemplates():
-        return 'ElogPresetLogTemplates';
-      case _irzfy450.ElogPresetPolicies():
-        return 'ElogPresetPolicies';
-      case _iimbkgrt.ElogPresetRoleCategories():
-        return 'ElogPresetRoleCategories';
-      case _i1n67tzi.ElogPresetRoles():
-        return 'ElogPresetRoles';
-      case _i01c1yxy.ElogPresetSchedules():
-        return 'ElogPresetSchedules';
-      case _ib0e9qbb.ElogProblemTypes():
-        return 'ElogProblemTypes';
-      case _i4hmoti8.ElogProblems():
-        return 'ElogProblems';
-      case _iele6hju.ElogProductCleaningRequirements():
-        return 'ElogProductCleaningRequirements';
-      case _i0caxd73.ElogProducts():
-        return 'ElogProducts';
-      case _iq0nwjzy.ElogPunchSets():
-        return 'ElogPunchSets';
-      case _iryvos7o.ElogReportTemplates():
-        return 'ElogReportTemplates';
-      case _iqykw8hs.ElogResourceActivityDailyRollups():
-        return 'ElogResourceActivityDailyRollups';
-      case _ial2wvcr.ElogResourceFlagTypes():
-        return 'ElogResourceFlagTypes';
-      case _if40xrph.ElogResourceFlags():
-        return 'ElogResourceFlags';
-      case _il71c5vn.ElogResourcePolicies():
-        return 'ElogResourcePolicies';
-      case _iw7vxuxk.ElogResourceStates():
-        return 'ElogResourceStates';
-      case _ijudmfzt.ElogResourceUsages():
-        return 'ElogResourceUsages';
-      case _ik7tju34.ElogRoleCategories():
-        return 'ElogRoleCategories';
-      case _is5x0ozk.ElogRoleDashboards():
-        return 'ElogRoleDashboards';
-      case _i8swalwe.ElogRolePermissions():
-        return 'ElogRolePermissions';
-      case _i2dkzfxx.ElogRoles():
-        return 'ElogRoles';
-      case _i91j1h6n.ElogSavedViews():
-        return 'ElogSavedViews';
-      case _iyvpac9s.ElogToolingProductQualifications():
-        return 'ElogToolingProductQualifications';
-      case _i2a97saf.ElogToolingTypes():
-        return 'ElogToolingTypes';
-      case _ici4vys7.ElogUnitOfMeasures():
-        return 'ElogUnitOfMeasures';
-      case _iu9388z4.ElogUserGroupMembers():
-        return 'ElogUserGroupMembers';
-      case _id7xfj5e.ElogUserGroups():
-        return 'ElogUserGroups';
-      case _i2xv5f50.ElogUserRoles():
-        return 'ElogUserRoles';
-      case _iqfb1ejb.ElogWorkItems():
-        return 'ElogWorkItems';
-      case _i2qhvyny.ElogWorkflowEvents():
-        return 'ElogWorkflowEvents';
-      case _ifguuifm.ElogWorkflowInstances():
-        return 'ElogWorkflowInstances';
-      case _ijr902rd.ElogWorkflows():
-        return 'ElogWorkflows';
-      case _iw9e7ahv.PublicESignatures():
-        return 'PublicESignatures';
-      case _iq44tjyb.PublicEntityDraftsAudit():
-        return 'PublicEntityDraftsAudit';
-      case _iqjzr2vi.PublicEntityDraftsVersions():
-        return 'PublicEntityDraftsVersions';
-      case _i37bl2c2.PublicEntityLifecycleConfigurations():
-        return 'PublicEntityLifecycleConfigurations';
-      case _i7ltqb3m.PublicEntityWorkflowInstances():
-        return 'PublicEntityWorkflowInstances';
-      case _iu718lvo.PublicEntityWorkflowTasks():
-        return 'PublicEntityWorkflowTasks';
-      case _i6x532bo.PublicPublic():
-        return 'PublicPublic';
-      case _ixdgb3pg.PublicWorkflowEvents():
-        return 'PublicWorkflowEvents';
-      case _iku0se9c.PublicWorkflowInstances():
-        return 'PublicWorkflowInstances';
-      case _ixdjky6f.PublicWorkflowUserTasks():
-        return 'PublicWorkflowUserTasks';
-      case _icl3enxx.SsoAccountUnlockRequests():
-        return 'SsoAccountUnlockRequests';
-      case _ikffiba3.SsoAdConnections():
-        return 'SsoAdConnections';
-      case _ioy9xegh.SsoCompanies():
-        return 'SsoCompanies';
-      case _ih26k2g9.SsoCompanySiteAssignments():
-        return 'SsoCompanySiteAssignments';
-      case _i0v3k9y4.SsoDashboardConfigs():
-        return 'SsoDashboardConfigs';
-      case _iwzh4spq.SsoDepartmentTypes():
-        return 'SsoDepartmentTypes';
-      case _isoagnd2.SsoDepartments():
-        return 'SsoDepartments';
-      case _ivpbyrtu.SsoDesignations():
-        return 'SsoDesignations';
-      case _id58jpdy.SsoLoginChallenges():
-        return 'SsoLoginChallenges';
-      case _ivkuiv43.SsoLoginEvents():
-        return 'SsoLoginEvents';
-      case _iv9au2ux.SsoNotifications():
-        return 'SsoNotifications';
-      case _ism6jhlu.SsoPasswordResetRequests():
-        return 'SsoPasswordResetRequests';
-      case _iqttiq1b.SsoProductSettings():
-        return 'SsoProductSettings';
-      case _ir4axp6j.SsoProductSiteMappings():
-        return 'SsoProductSiteMappings';
-      case _id96jnp7.SsoProducts():
-        return 'SsoProducts';
-      case _iu1qu58n.SsoReportExports():
-        return 'SsoReportExports';
-      case _ichwrbiz.SsoReportTemplates():
-        return 'SsoReportTemplates';
-      case _ib0ko46b.SsoRoleDashboards():
-        return 'SsoRoleDashboards';
-      case _ifv6xkhy.SsoRolePermissions():
-        return 'SsoRolePermissions';
-      case _i0gr1peg.SsoRoles():
-        return 'SsoRoles';
-      case _if33sioe.SsoSavedViews():
-        return 'SsoSavedViews';
-      case _ilqjh0sx.SsoSecurityPolicies():
-        return 'SsoSecurityPolicies';
-      case _i4g0kvm8.SsoSites():
-        return 'SsoSites';
-      case _iugbun52.SsoStandardReasons():
-        return 'SsoStandardReasons';
-      case _i2qrs2ax.SsoUserPasswordHistory():
-        return 'SsoUserPasswordHistory';
-      case _izdzo98l.SsoUserPreferences():
-        return 'SsoUserPreferences';
-      case _i7stpwby.SsoUserProductSiteMappings():
-        return 'SsoUserProductSiteMappings';
-      case _iew7uxuv.SsoUserRoles():
-        return 'SsoUserRoles';
-      case _ir5ofehs.SsoUserSessions():
-        return 'SsoUserSessions';
-      case _i4fj2l14.SsoUsers():
-        return 'SsoUsers';
+      case _icbi7gwo.CampusCourseCategory():
+        return 'CampusCourseCategory';
+      case _izhnn43s.CampusCourseEquivalence():
+        return 'CampusCourseEquivalence';
+      case _i60iovqj.CampusCourseMaterial():
+        return 'CampusCourseMaterial';
+      case _ifd85uwc.CampusCourseOutcome():
+        return 'CampusCourseOutcome';
+      case _ihnnsiks.CampusCoursePrerequisite():
+        return 'CampusCoursePrerequisite';
+      case _iporzlvp.CampusCourseSection():
+        return 'CampusCourseSection';
+      case _iik9idpd.CampusCourse():
+        return 'CampusCourse';
+      case _i6p3cs2n.CampusLecturerDepartment():
+        return 'CampusLecturerDepartment';
+      case _ixrb3pvm.CampusLecturer():
+        return 'CampusLecturer';
+      case _i90s5rli.CampusOfficeHour():
+        return 'CampusOfficeHour';
+      case _idvibfro.CampusProgrammeCourse():
+        return 'CampusProgrammeCourse';
+      case _ikq440cu.CampusProgrammeVersion():
+        return 'CampusProgrammeVersion';
+      case _i49ncx41.CampusProgramme():
+        return 'CampusProgramme';
+      case _iuk3rrc1.CampusQualification():
+        return 'CampusQualification';
+      case _igrg8f15.CampusRoomBooking():
+        return 'CampusRoomBooking';
+      case _i4dxex9j.CampusSectionCapacityOverride():
+        return 'CampusSectionCapacityOverride';
+      case _i60vl9yy.CampusSectionInstructor():
+        return 'CampusSectionInstructor';
+      case _i1ujp85c.CampusSectionMeeting():
+        return 'CampusSectionMeeting';
+      case _i5vbc563.CampusTimetableEntry():
+        return 'CampusTimetableEntry';
+      case _iztuz2v2.CampusTimetable():
+        return 'CampusTimetable';
+      case _ioijgh15.CampusAcceptance():
+        return 'CampusAcceptance';
+      case _iszjqqz2.CampusApplicationChoice():
+        return 'CampusApplicationChoice';
+      case _i3p9hmqv.CampusApplicationDocument():
+        return 'CampusApplicationDocument';
+      case _iwgn7l2z.CampusApplicationReview():
+        return 'CampusApplicationReview';
+      case _i84qe6g5.CampusApplication():
+        return 'CampusApplication';
+      case _iz7cqiiz.CampusCohortMembership():
+        return 'CampusCohortMembership';
+      case _iu4vottr.CampusCohort():
+        return 'CampusCohort';
+      case _i2lpxeo5.CampusGuardian():
+        return 'CampusGuardian';
+      case _id663sq3.CampusOfferCondition():
+        return 'CampusOfferCondition';
+      case _icm8cu4v.CampusOffer():
+        return 'CampusOffer';
+      case _i4ls3qtz.CampusStudentAddress():
+        return 'CampusStudentAddress';
+      case _irvnuni5.CampusStudentContact():
+        return 'CampusStudentContact';
+      case _iwai6mlf.CampusStudentDocument():
+        return 'CampusStudentDocument';
+      case _i16zyk3v.CampusStudentGuardian():
+        return 'CampusStudentGuardian';
+      case _iz31h8i4.CampusStudentHold():
+        return 'CampusStudentHold';
+      case _idvhf8qa.CampusStudentNote():
+        return 'CampusStudentNote';
+      case _i6c5z7zh.CampusStudentStatusEvent():
+        return 'CampusStudentStatusEvent';
+      case _ixciykx6.CampusStudent():
+        return 'CampusStudent';
+      case _izef6fak.CampusAppeal():
+        return 'CampusAppeal';
+      case _ipsxsf4b.CampusAssessmentComponent():
+        return 'CampusAssessmentComponent';
+      case _if8a84ek.CampusAssessmentMarker():
+        return 'CampusAssessmentMarker';
+      case _iuohle5e.CampusAssessmentSubmission():
+        return 'CampusAssessmentSubmission';
+      case _iy95bowl.CampusAssessment():
+        return 'CampusAssessment';
+      case _i968i8hm.CampusExamAccommodation():
+        return 'CampusExamAccommodation';
+      case _iqsus0ia.CampusExamRegistration():
+        return 'CampusExamRegistration';
+      case _iq0v8pha.CampusExamSeat():
+        return 'CampusExamSeat';
+      case _igek713o.CampusExamSession():
+        return 'CampusExamSession';
+      case _iej23kcn.CampusExam():
+        return 'CampusExam';
+      case _i2oqkkd6.CampusGradeChange():
+        return 'CampusGradeChange';
+      case _i12uv7b6.CampusGradeScaleBand():
+        return 'CampusGradeScaleBand';
+      case _ielxdmeu.CampusGradeScale():
+        return 'CampusGradeScale';
+      case _ips0lupm.CampusGrade():
+        return 'CampusGrade';
+      case _iv6t9wps.CampusSubmissionFile():
+        return 'CampusSubmissionFile';
+      case _idxtqeho.CampusAcademicYear():
+        return 'CampusAcademicYear';
+      case _ijg49dtu.CampusBuilding():
+        return 'CampusBuilding';
+      case _ii5cv0xg.CampusCampus():
+        return 'CampusCampus';
+      case _ieaagiip.CampusDepartment():
+        return 'CampusDepartment';
+      case _iw9evvci.CampusFaculty():
+        return 'CampusFaculty';
+      case _i5697to7.CampusRoom():
+        return 'CampusRoom';
+      case _iny6aho6.CampusTerm():
+        return 'CampusTerm';
+      case _i7ljm6m0.CampusAttendanceRecord():
+        return 'CampusAttendanceRecord';
+      case _i5rv3lv9.CampusAttendanceSession():
+        return 'CampusAttendanceSession';
+      case _iftc8tcu.CampusCompletion():
+        return 'CampusCompletion';
+      case _ixqnp4lw.CampusCreditTransfer():
+        return 'CampusCreditTransfer';
+      case _iij70sau.CampusEnrolmentRequest():
+        return 'CampusEnrolmentRequest';
+      case _ikbz98ec.CampusEnrolment():
+        return 'CampusEnrolment';
+      case _i6lqa8un.CampusStudyPlanCourse():
+        return 'CampusStudyPlanCourse';
+      case _i5anj6ne.CampusStudyPlan():
+        return 'CampusStudyPlan';
+      case _imquh55n.CampusWaitlistEntry():
+        return 'CampusWaitlistEntry';
+      case _i6xgcgm2.CampusWithdrawal():
+        return 'CampusWithdrawal';
+      case _isewgl0f.CampusFeeScheduleLine():
+        return 'CampusFeeScheduleLine';
+      case _i6ur2gi2.CampusFeeSchedule():
+        return 'CampusFeeSchedule';
+      case _ivd0ctvz.CampusFeeType():
+        return 'CampusFeeType';
+      case _iy3qqd34.CampusFinancialAidApplication():
+        return 'CampusFinancialAidApplication';
+      case _i6aphuzg.CampusFinancialAidDecision():
+        return 'CampusFinancialAidDecision';
+      case _i785d3eu.CampusInvoiceLine():
+        return 'CampusInvoiceLine';
+      case _ih7yrsa3.CampusInvoice():
+        return 'CampusInvoice';
+      case _ip72wm5q.CampusPaymentAllocation():
+        return 'CampusPaymentAllocation';
+      case _igjjsnon.CampusPayment():
+        return 'CampusPayment';
+      case _ih0zxat5.CampusRefund():
+        return 'CampusRefund';
+      case _i2d8zb54.CampusScholarshipAward():
+        return 'CampusScholarshipAward';
+      case _i12o4a5n.CampusScholarship():
+        return 'CampusScholarship';
+      case _imm1bvl9.CampusSponsorContribution():
+        return 'CampusSponsorContribution';
+      case _iufogsm9.CampusSponsor():
+        return 'CampusSponsor';
+      case _i5w6z1o1.CampusSponsorship():
+        return 'CampusSponsorship';
+      case _id1yl7ms.CampusHousingAllocation():
+        return 'CampusHousingAllocation';
+      case _inj6rnis.CampusHousingApplication():
+        return 'CampusHousingApplication';
+      case _i9sv4sdm.CampusHousingCharge():
+        return 'CampusHousingCharge';
+      case _is5welzq.CampusHousingContract():
+        return 'CampusHousingContract';
+      case _ieupa5nm.CampusHousingGuest():
+        return 'CampusHousingGuest';
+      case _i33gygjf.CampusHousingInspection():
+        return 'CampusHousingInspection';
+      case _ip7dqx68.CampusHousingMaintenanceRequest():
+        return 'CampusHousingMaintenanceRequest';
+      case _i1chn6z5.CampusHousingPreference():
+        return 'CampusHousingPreference';
+      case _ijjla5z9.CampusResidenceBed():
+        return 'CampusResidenceBed';
+      case _ioguw2d9.CampusResidenceFloor():
+        return 'CampusResidenceFloor';
+      case _i4wllryj.CampusResidenceRoom():
+        return 'CampusResidenceRoom';
+      case _ilwtmbox.CampusResidence():
+        return 'CampusResidence';
+      case _im17xq9s.CampusAuthor():
+        return 'CampusAuthor';
+      case _ieum417b.CampusBookAuthor():
+        return 'CampusBookAuthor';
+      case _i8iyxmm6.CampusBookCopy():
+        return 'CampusBookCopy';
+      case _idwj8oog.CampusBookEdition():
+        return 'CampusBookEdition';
+      case _i91fxs7d.CampusBook():
+        return 'CampusBook';
+      case _imao42n2.CampusFine():
+        return 'CampusFine';
+      case _i7d3ow2m.CampusLibraryBranch():
+        return 'CampusLibraryBranch';
+      case _ife2jm2t.CampusLibraryVisit():
+        return 'CampusLibraryVisit';
+      case _iz85k6nw.CampusLoanRenewal():
+        return 'CampusLoanRenewal';
+      case _ivrsnad5.CampusLoan():
+        return 'CampusLoan';
+      case _i7uvxqby.CampusPublisher():
+        return 'CampusPublisher';
+      case _i8fl0bcz.CampusReadingListEntry():
+        return 'CampusReadingListEntry';
+      case _iuf8fw82.CampusReadingList():
+        return 'CampusReadingList';
+      case _izrbvszp.CampusReservation():
+        return 'CampusReservation';
+      case _ilkwpsep.CampusEthicsApplication():
+        return 'CampusEthicsApplication';
+      case _i23unika.CampusEthicsReview():
+        return 'CampusEthicsReview';
+      case _irnr71yk.CampusGrantBudget():
+        return 'CampusGrantBudget';
+      case _io3zc5dl.CampusGrantExpense():
+        return 'CampusGrantExpense';
+      case _irh7kw2j.CampusGrant():
+        return 'CampusGrant';
+      case _i6qyipky.CampusProjectMilestone():
+        return 'CampusProjectMilestone';
+      case _i2rtf719.CampusPublicationAuthor():
+        return 'CampusPublicationAuthor';
+      case _i5u1ue6j.CampusPublication():
+        return 'CampusPublication';
+      case _ik725i35.CampusResearchDataset():
+        return 'CampusResearchDataset';
+      case _i5h5n425.CampusResearchMembership():
+        return 'CampusResearchMembership';
+      case _it8rg4yy.CampusResearchProject():
+        return 'CampusResearchProject';
       case _iqdes7hr.SchemaAccessException():
         return 'SchemaAccessException';
       case _ip7yl2xa.SchemaColumn():
@@ -1855,381 +1832,373 @@ class Protocol extends _isc.SerializationManager {
     if (dataClassName is! String) {
       return super.deserializeByClassName(data);
     }
-    if (dataClassName == 'ElogActivities') {
-      return deserialize<_ishyozd5.ElogActivities>(data['data']);
+    if (dataClassName == 'CampusCourseCategory') {
+      return deserialize<_icbi7gwo.CampusCourseCategory>(data['data']);
     }
-    if (dataClassName == 'ElogActivityArtifacts') {
-      return deserialize<_i6kgjla4.ElogActivityArtifacts>(data['data']);
+    if (dataClassName == 'CampusCourseEquivalence') {
+      return deserialize<_izhnn43s.CampusCourseEquivalence>(data['data']);
     }
-    if (dataClassName == 'ElogAreaAdjacency') {
-      return deserialize<_iz387z77.ElogAreaAdjacency>(data['data']);
+    if (dataClassName == 'CampusCourseMaterial') {
+      return deserialize<_i60iovqj.CampusCourseMaterial>(data['data']);
     }
-    if (dataClassName == 'ElogAreaCategories') {
-      return deserialize<_i9o3y69x.ElogAreaCategories>(data['data']);
+    if (dataClassName == 'CampusCourseOutcome') {
+      return deserialize<_ifd85uwc.CampusCourseOutcome>(data['data']);
     }
-    if (dataClassName == 'ElogAreaEquipment') {
-      return deserialize<_isgi7gk9.ElogAreaEquipment>(data['data']);
+    if (dataClassName == 'CampusCoursePrerequisite') {
+      return deserialize<_ihnnsiks.CampusCoursePrerequisite>(data['data']);
     }
-    if (dataClassName == 'ElogAreaUserGroups') {
-      return deserialize<_iv2byy67.ElogAreaUserGroups>(data['data']);
+    if (dataClassName == 'CampusCourseSection') {
+      return deserialize<_iporzlvp.CampusCourseSection>(data['data']);
     }
-    if (dataClassName == 'ElogAreas') {
-      return deserialize<_ilczj6al.ElogAreas>(data['data']);
+    if (dataClassName == 'CampusCourse') {
+      return deserialize<_iik9idpd.CampusCourse>(data['data']);
     }
-    if (dataClassName == 'ElogBatches') {
-      return deserialize<_ippbjru9.ElogBatches>(data['data']);
+    if (dataClassName == 'CampusLecturerDepartment') {
+      return deserialize<_i6p3cs2n.CampusLecturerDepartment>(data['data']);
     }
-    if (dataClassName == 'ElogBusinessAssociates') {
-      return deserialize<_ie8nm0xf.ElogBusinessAssociates>(data['data']);
+    if (dataClassName == 'CampusLecturer') {
+      return deserialize<_ixrb3pvm.CampusLecturer>(data['data']);
     }
-    if (dataClassName == 'ElogCampaigns') {
-      return deserialize<_iea2komd.ElogCampaigns>(data['data']);
+    if (dataClassName == 'CampusOfficeHour') {
+      return deserialize<_i90s5rli.CampusOfficeHour>(data['data']);
     }
-    if (dataClassName == 'ElogChecklistTemplates') {
-      return deserialize<_i943t8qk.ElogChecklistTemplates>(data['data']);
+    if (dataClassName == 'CampusProgrammeCourse') {
+      return deserialize<_idvibfro.CampusProgrammeCourse>(data['data']);
     }
-    if (dataClassName == 'ElogChecklistUsageInstructions') {
-      return deserialize<_im2l27wp.ElogChecklistUsageInstructions>(
+    if (dataClassName == 'CampusProgrammeVersion') {
+      return deserialize<_ikq440cu.CampusProgrammeVersion>(data['data']);
+    }
+    if (dataClassName == 'CampusProgramme') {
+      return deserialize<_i49ncx41.CampusProgramme>(data['data']);
+    }
+    if (dataClassName == 'CampusQualification') {
+      return deserialize<_iuk3rrc1.CampusQualification>(data['data']);
+    }
+    if (dataClassName == 'CampusRoomBooking') {
+      return deserialize<_igrg8f15.CampusRoomBooking>(data['data']);
+    }
+    if (dataClassName == 'CampusSectionCapacityOverride') {
+      return deserialize<_i4dxex9j.CampusSectionCapacityOverride>(data['data']);
+    }
+    if (dataClassName == 'CampusSectionInstructor') {
+      return deserialize<_i60vl9yy.CampusSectionInstructor>(data['data']);
+    }
+    if (dataClassName == 'CampusSectionMeeting') {
+      return deserialize<_i1ujp85c.CampusSectionMeeting>(data['data']);
+    }
+    if (dataClassName == 'CampusTimetableEntry') {
+      return deserialize<_i5vbc563.CampusTimetableEntry>(data['data']);
+    }
+    if (dataClassName == 'CampusTimetable') {
+      return deserialize<_iztuz2v2.CampusTimetable>(data['data']);
+    }
+    if (dataClassName == 'CampusAcceptance') {
+      return deserialize<_ioijgh15.CampusAcceptance>(data['data']);
+    }
+    if (dataClassName == 'CampusApplicationChoice') {
+      return deserialize<_iszjqqz2.CampusApplicationChoice>(data['data']);
+    }
+    if (dataClassName == 'CampusApplicationDocument') {
+      return deserialize<_i3p9hmqv.CampusApplicationDocument>(data['data']);
+    }
+    if (dataClassName == 'CampusApplicationReview') {
+      return deserialize<_iwgn7l2z.CampusApplicationReview>(data['data']);
+    }
+    if (dataClassName == 'CampusApplication') {
+      return deserialize<_i84qe6g5.CampusApplication>(data['data']);
+    }
+    if (dataClassName == 'CampusCohortMembership') {
+      return deserialize<_iz7cqiiz.CampusCohortMembership>(data['data']);
+    }
+    if (dataClassName == 'CampusCohort') {
+      return deserialize<_iu4vottr.CampusCohort>(data['data']);
+    }
+    if (dataClassName == 'CampusGuardian') {
+      return deserialize<_i2lpxeo5.CampusGuardian>(data['data']);
+    }
+    if (dataClassName == 'CampusOfferCondition') {
+      return deserialize<_id663sq3.CampusOfferCondition>(data['data']);
+    }
+    if (dataClassName == 'CampusOffer') {
+      return deserialize<_icm8cu4v.CampusOffer>(data['data']);
+    }
+    if (dataClassName == 'CampusStudentAddress') {
+      return deserialize<_i4ls3qtz.CampusStudentAddress>(data['data']);
+    }
+    if (dataClassName == 'CampusStudentContact') {
+      return deserialize<_irvnuni5.CampusStudentContact>(data['data']);
+    }
+    if (dataClassName == 'CampusStudentDocument') {
+      return deserialize<_iwai6mlf.CampusStudentDocument>(data['data']);
+    }
+    if (dataClassName == 'CampusStudentGuardian') {
+      return deserialize<_i16zyk3v.CampusStudentGuardian>(data['data']);
+    }
+    if (dataClassName == 'CampusStudentHold') {
+      return deserialize<_iz31h8i4.CampusStudentHold>(data['data']);
+    }
+    if (dataClassName == 'CampusStudentNote') {
+      return deserialize<_idvhf8qa.CampusStudentNote>(data['data']);
+    }
+    if (dataClassName == 'CampusStudentStatusEvent') {
+      return deserialize<_i6c5z7zh.CampusStudentStatusEvent>(data['data']);
+    }
+    if (dataClassName == 'CampusStudent') {
+      return deserialize<_ixciykx6.CampusStudent>(data['data']);
+    }
+    if (dataClassName == 'CampusAppeal') {
+      return deserialize<_izef6fak.CampusAppeal>(data['data']);
+    }
+    if (dataClassName == 'CampusAssessmentComponent') {
+      return deserialize<_ipsxsf4b.CampusAssessmentComponent>(data['data']);
+    }
+    if (dataClassName == 'CampusAssessmentMarker') {
+      return deserialize<_if8a84ek.CampusAssessmentMarker>(data['data']);
+    }
+    if (dataClassName == 'CampusAssessmentSubmission') {
+      return deserialize<_iuohle5e.CampusAssessmentSubmission>(data['data']);
+    }
+    if (dataClassName == 'CampusAssessment') {
+      return deserialize<_iy95bowl.CampusAssessment>(data['data']);
+    }
+    if (dataClassName == 'CampusExamAccommodation') {
+      return deserialize<_i968i8hm.CampusExamAccommodation>(data['data']);
+    }
+    if (dataClassName == 'CampusExamRegistration') {
+      return deserialize<_iqsus0ia.CampusExamRegistration>(data['data']);
+    }
+    if (dataClassName == 'CampusExamSeat') {
+      return deserialize<_iq0v8pha.CampusExamSeat>(data['data']);
+    }
+    if (dataClassName == 'CampusExamSession') {
+      return deserialize<_igek713o.CampusExamSession>(data['data']);
+    }
+    if (dataClassName == 'CampusExam') {
+      return deserialize<_iej23kcn.CampusExam>(data['data']);
+    }
+    if (dataClassName == 'CampusGradeChange') {
+      return deserialize<_i2oqkkd6.CampusGradeChange>(data['data']);
+    }
+    if (dataClassName == 'CampusGradeScaleBand') {
+      return deserialize<_i12uv7b6.CampusGradeScaleBand>(data['data']);
+    }
+    if (dataClassName == 'CampusGradeScale') {
+      return deserialize<_ielxdmeu.CampusGradeScale>(data['data']);
+    }
+    if (dataClassName == 'CampusGrade') {
+      return deserialize<_ips0lupm.CampusGrade>(data['data']);
+    }
+    if (dataClassName == 'CampusSubmissionFile') {
+      return deserialize<_iv6t9wps.CampusSubmissionFile>(data['data']);
+    }
+    if (dataClassName == 'CampusAcademicYear') {
+      return deserialize<_idxtqeho.CampusAcademicYear>(data['data']);
+    }
+    if (dataClassName == 'CampusBuilding') {
+      return deserialize<_ijg49dtu.CampusBuilding>(data['data']);
+    }
+    if (dataClassName == 'CampusCampus') {
+      return deserialize<_ii5cv0xg.CampusCampus>(data['data']);
+    }
+    if (dataClassName == 'CampusDepartment') {
+      return deserialize<_ieaagiip.CampusDepartment>(data['data']);
+    }
+    if (dataClassName == 'CampusFaculty') {
+      return deserialize<_iw9evvci.CampusFaculty>(data['data']);
+    }
+    if (dataClassName == 'CampusRoom') {
+      return deserialize<_i5697to7.CampusRoom>(data['data']);
+    }
+    if (dataClassName == 'CampusTerm') {
+      return deserialize<_iny6aho6.CampusTerm>(data['data']);
+    }
+    if (dataClassName == 'CampusAttendanceRecord') {
+      return deserialize<_i7ljm6m0.CampusAttendanceRecord>(data['data']);
+    }
+    if (dataClassName == 'CampusAttendanceSession') {
+      return deserialize<_i5rv3lv9.CampusAttendanceSession>(data['data']);
+    }
+    if (dataClassName == 'CampusCompletion') {
+      return deserialize<_iftc8tcu.CampusCompletion>(data['data']);
+    }
+    if (dataClassName == 'CampusCreditTransfer') {
+      return deserialize<_ixqnp4lw.CampusCreditTransfer>(data['data']);
+    }
+    if (dataClassName == 'CampusEnrolmentRequest') {
+      return deserialize<_iij70sau.CampusEnrolmentRequest>(data['data']);
+    }
+    if (dataClassName == 'CampusEnrolment') {
+      return deserialize<_ikbz98ec.CampusEnrolment>(data['data']);
+    }
+    if (dataClassName == 'CampusStudyPlanCourse') {
+      return deserialize<_i6lqa8un.CampusStudyPlanCourse>(data['data']);
+    }
+    if (dataClassName == 'CampusStudyPlan') {
+      return deserialize<_i5anj6ne.CampusStudyPlan>(data['data']);
+    }
+    if (dataClassName == 'CampusWaitlistEntry') {
+      return deserialize<_imquh55n.CampusWaitlistEntry>(data['data']);
+    }
+    if (dataClassName == 'CampusWithdrawal') {
+      return deserialize<_i6xgcgm2.CampusWithdrawal>(data['data']);
+    }
+    if (dataClassName == 'CampusFeeScheduleLine') {
+      return deserialize<_isewgl0f.CampusFeeScheduleLine>(data['data']);
+    }
+    if (dataClassName == 'CampusFeeSchedule') {
+      return deserialize<_i6ur2gi2.CampusFeeSchedule>(data['data']);
+    }
+    if (dataClassName == 'CampusFeeType') {
+      return deserialize<_ivd0ctvz.CampusFeeType>(data['data']);
+    }
+    if (dataClassName == 'CampusFinancialAidApplication') {
+      return deserialize<_iy3qqd34.CampusFinancialAidApplication>(data['data']);
+    }
+    if (dataClassName == 'CampusFinancialAidDecision') {
+      return deserialize<_i6aphuzg.CampusFinancialAidDecision>(data['data']);
+    }
+    if (dataClassName == 'CampusInvoiceLine') {
+      return deserialize<_i785d3eu.CampusInvoiceLine>(data['data']);
+    }
+    if (dataClassName == 'CampusInvoice') {
+      return deserialize<_ih7yrsa3.CampusInvoice>(data['data']);
+    }
+    if (dataClassName == 'CampusPaymentAllocation') {
+      return deserialize<_ip72wm5q.CampusPaymentAllocation>(data['data']);
+    }
+    if (dataClassName == 'CampusPayment') {
+      return deserialize<_igjjsnon.CampusPayment>(data['data']);
+    }
+    if (dataClassName == 'CampusRefund') {
+      return deserialize<_ih0zxat5.CampusRefund>(data['data']);
+    }
+    if (dataClassName == 'CampusScholarshipAward') {
+      return deserialize<_i2d8zb54.CampusScholarshipAward>(data['data']);
+    }
+    if (dataClassName == 'CampusScholarship') {
+      return deserialize<_i12o4a5n.CampusScholarship>(data['data']);
+    }
+    if (dataClassName == 'CampusSponsorContribution') {
+      return deserialize<_imm1bvl9.CampusSponsorContribution>(data['data']);
+    }
+    if (dataClassName == 'CampusSponsor') {
+      return deserialize<_iufogsm9.CampusSponsor>(data['data']);
+    }
+    if (dataClassName == 'CampusSponsorship') {
+      return deserialize<_i5w6z1o1.CampusSponsorship>(data['data']);
+    }
+    if (dataClassName == 'CampusHousingAllocation') {
+      return deserialize<_id1yl7ms.CampusHousingAllocation>(data['data']);
+    }
+    if (dataClassName == 'CampusHousingApplication') {
+      return deserialize<_inj6rnis.CampusHousingApplication>(data['data']);
+    }
+    if (dataClassName == 'CampusHousingCharge') {
+      return deserialize<_i9sv4sdm.CampusHousingCharge>(data['data']);
+    }
+    if (dataClassName == 'CampusHousingContract') {
+      return deserialize<_is5welzq.CampusHousingContract>(data['data']);
+    }
+    if (dataClassName == 'CampusHousingGuest') {
+      return deserialize<_ieupa5nm.CampusHousingGuest>(data['data']);
+    }
+    if (dataClassName == 'CampusHousingInspection') {
+      return deserialize<_i33gygjf.CampusHousingInspection>(data['data']);
+    }
+    if (dataClassName == 'CampusHousingMaintenanceRequest') {
+      return deserialize<_ip7dqx68.CampusHousingMaintenanceRequest>(
         data['data'],
       );
     }
-    if (dataClassName == 'ElogChecklistUsageSets') {
-      return deserialize<_iyg55fu5.ElogChecklistUsageSets>(data['data']);
+    if (dataClassName == 'CampusHousingPreference') {
+      return deserialize<_i1chn6z5.CampusHousingPreference>(data['data']);
     }
-    if (dataClassName == 'ElogChecklistUsages') {
-      return deserialize<_i2d67kfy.ElogChecklistUsages>(data['data']);
+    if (dataClassName == 'CampusResidenceBed') {
+      return deserialize<_ijjla5z9.CampusResidenceBed>(data['data']);
     }
-    if (dataClassName == 'ElogCleaningTypes') {
-      return deserialize<_iaxzy4al.ElogCleaningTypes>(data['data']);
+    if (dataClassName == 'CampusResidenceFloor') {
+      return deserialize<_ioguw2d9.CampusResidenceFloor>(data['data']);
     }
-    if (dataClassName == 'ElogDashboardConfigs') {
-      return deserialize<_ig1scdm6.ElogDashboardConfigs>(data['data']);
+    if (dataClassName == 'CampusResidenceRoom') {
+      return deserialize<_i4wllryj.CampusResidenceRoom>(data['data']);
     }
-    if (dataClassName == 'ElogEquipmentCategories') {
-      return deserialize<_i465o1vf.ElogEquipmentCategories>(data['data']);
+    if (dataClassName == 'CampusResidence') {
+      return deserialize<_ilwtmbox.CampusResidence>(data['data']);
     }
-    if (dataClassName == 'ElogEquipmentParts') {
-      return deserialize<_iy7mbkyp.ElogEquipmentParts>(data['data']);
+    if (dataClassName == 'CampusAuthor') {
+      return deserialize<_im17xq9s.CampusAuthor>(data['data']);
     }
-    if (dataClassName == 'ElogEquipmentTypes') {
-      return deserialize<_iizl2nep.ElogEquipmentTypes>(data['data']);
+    if (dataClassName == 'CampusBookAuthor') {
+      return deserialize<_ieum417b.CampusBookAuthor>(data['data']);
     }
-    if (dataClassName == 'ElogEquipmentUserGroups') {
-      return deserialize<_ihodx11y.ElogEquipmentUserGroups>(data['data']);
+    if (dataClassName == 'CampusBookCopy') {
+      return deserialize<_i8iyxmm6.CampusBookCopy>(data['data']);
     }
-    if (dataClassName == 'ElogEquipments') {
-      return deserialize<_ir29oi5q.ElogEquipments>(data['data']);
+    if (dataClassName == 'CampusBookEdition') {
+      return deserialize<_idwj8oog.CampusBookEdition>(data['data']);
     }
-    if (dataClassName == 'ElogEventReactorState') {
-      return deserialize<_iksvpml2.ElogEventReactorState>(data['data']);
+    if (dataClassName == 'CampusBook') {
+      return deserialize<_i91fxs7d.CampusBook>(data['data']);
     }
-    if (dataClassName == 'ElogEvents') {
-      return deserialize<_imjwa56c.ElogEvents>(data['data']);
+    if (dataClassName == 'CampusFine') {
+      return deserialize<_imao42n2.CampusFine>(data['data']);
     }
-    if (dataClassName == 'ElogExternalIntegrations') {
-      return deserialize<_iei4fdsy.ElogExternalIntegrations>(data['data']);
+    if (dataClassName == 'CampusLibraryBranch') {
+      return deserialize<_i7d3ow2m.CampusLibraryBranch>(data['data']);
     }
-    if (dataClassName == 'ElogHolidayCalendars') {
-      return deserialize<_iuxjq0du.ElogHolidayCalendars>(data['data']);
+    if (dataClassName == 'CampusLibraryVisit') {
+      return deserialize<_ife2jm2t.CampusLibraryVisit>(data['data']);
     }
-    if (dataClassName == 'ElogHolidayEntries') {
-      return deserialize<_ip7nvc9p.ElogHolidayEntries>(data['data']);
+    if (dataClassName == 'CampusLoanRenewal') {
+      return deserialize<_iz85k6nw.CampusLoanRenewal>(data['data']);
     }
-    if (dataClassName == 'ElogLogReportGenerations') {
-      return deserialize<_i4th50rj.ElogLogReportGenerations>(data['data']);
+    if (dataClassName == 'CampusLoan') {
+      return deserialize<_ivrsnad5.CampusLoan>(data['data']);
     }
-    if (dataClassName == 'ElogLogTemplates') {
-      return deserialize<_iab28y1e.ElogLogTemplates>(data['data']);
+    if (dataClassName == 'CampusPublisher') {
+      return deserialize<_i7uvxqby.CampusPublisher>(data['data']);
     }
-    if (dataClassName == 'ElogLogUsages') {
-      return deserialize<_i05usxet.ElogLogUsages>(data['data']);
+    if (dataClassName == 'CampusReadingListEntry') {
+      return deserialize<_i8fl0bcz.CampusReadingListEntry>(data['data']);
     }
-    if (dataClassName == 'ElogNotificationGroupStates') {
-      return deserialize<_izf4mrur.ElogNotificationGroupStates>(data['data']);
+    if (dataClassName == 'CampusReadingList') {
+      return deserialize<_iuf8fw82.CampusReadingList>(data['data']);
     }
-    if (dataClassName == 'ElogNotifications') {
-      return deserialize<_idk983fe.ElogNotifications>(data['data']);
+    if (dataClassName == 'CampusReservation') {
+      return deserialize<_izrbvszp.CampusReservation>(data['data']);
     }
-    if (dataClassName == 'ElogNotificationsArchive') {
-      return deserialize<_izmtc39o.ElogNotificationsArchive>(data['data']);
+    if (dataClassName == 'CampusEthicsApplication') {
+      return deserialize<_ilkwpsep.CampusEthicsApplication>(data['data']);
     }
-    if (dataClassName == 'ElogOnboardingStatus') {
-      return deserialize<_i0ssuutp.ElogOnboardingStatus>(data['data']);
+    if (dataClassName == 'CampusEthicsReview') {
+      return deserialize<_i23unika.CampusEthicsReview>(data['data']);
     }
-    if (dataClassName == 'ElogOperations') {
-      return deserialize<_i7g8bf6c.ElogOperations>(data['data']);
+    if (dataClassName == 'CampusGrantBudget') {
+      return deserialize<_irnr71yk.CampusGrantBudget>(data['data']);
     }
-    if (dataClassName == 'ElogPdAllocationCursors') {
-      return deserialize<_i8i2tmym.ElogPdAllocationCursors>(data['data']);
+    if (dataClassName == 'CampusGrantExpense') {
+      return deserialize<_io3zc5dl.CampusGrantExpense>(data['data']);
     }
-    if (dataClassName == 'ElogPdAllocationLines') {
-      return deserialize<_iwsiolx8.ElogPdAllocationLines>(data['data']);
+    if (dataClassName == 'CampusGrant') {
+      return deserialize<_irh7kw2j.CampusGrant>(data['data']);
     }
-    if (dataClassName == 'ElogPdAllocations') {
-      return deserialize<_ie75ho22.ElogPdAllocations>(data['data']);
+    if (dataClassName == 'CampusProjectMilestone') {
+      return deserialize<_i6qyipky.CampusProjectMilestone>(data['data']);
     }
-    if (dataClassName == 'ElogPdAssemblies') {
-      return deserialize<_i3lnfsnn.ElogPdAssemblies>(data['data']);
+    if (dataClassName == 'CampusPublicationAuthor') {
+      return deserialize<_i2rtf719.CampusPublicationAuthor>(data['data']);
     }
-    if (dataClassName == 'ElogPdAssemblyMembers') {
-      return deserialize<_iccws1xa.ElogPdAssemblyMembers>(data['data']);
+    if (dataClassName == 'CampusPublication') {
+      return deserialize<_i5u1ue6j.CampusPublication>(data['data']);
     }
-    if (dataClassName == 'ElogPdComponentReservations') {
-      return deserialize<_ipr5ee30.ElogPdComponentReservations>(data['data']);
+    if (dataClassName == 'CampusResearchDataset') {
+      return deserialize<_ik725i35.CampusResearchDataset>(data['data']);
     }
-    if (dataClassName == 'ElogPdModuleConfig') {
-      return deserialize<_i6kwotqx.ElogPdModuleConfig>(data['data']);
+    if (dataClassName == 'CampusResearchMembership') {
+      return deserialize<_i5h5n425.CampusResearchMembership>(data['data']);
     }
-    if (dataClassName == 'ElogPdOperations') {
-      return deserialize<_ip7k2fyr.ElogPdOperations>(data['data']);
-    }
-    if (dataClassName == 'ElogPdUsageLedger') {
-      return deserialize<_iwoewitv.ElogPdUsageLedger>(data['data']);
-    }
-    if (dataClassName == 'ElogPresetAreaCategories') {
-      return deserialize<_idcsbifx.ElogPresetAreaCategories>(data['data']);
-    }
-    if (dataClassName == 'ElogPresetAreas') {
-      return deserialize<_ien2z5wb.ElogPresetAreas>(data['data']);
-    }
-    if (dataClassName == 'ElogPresetChecklists') {
-      return deserialize<_imeic21z.ElogPresetChecklists>(data['data']);
-    }
-    if (dataClassName == 'ElogPresetDashboards') {
-      return deserialize<_i1i32x6j.ElogPresetDashboards>(data['data']);
-    }
-    if (dataClassName == 'ElogPresetEquipment') {
-      return deserialize<_igzp2y8c.ElogPresetEquipment>(data['data']);
-    }
-    if (dataClassName == 'ElogPresetEquipmentCategories') {
-      return deserialize<_imoi4ypf.ElogPresetEquipmentCategories>(data['data']);
-    }
-    if (dataClassName == 'ElogPresetIndustries') {
-      return deserialize<_io6t2sgk.ElogPresetIndustries>(data['data']);
-    }
-    if (dataClassName == 'ElogPresetLogTemplates') {
-      return deserialize<_izdzedtk.ElogPresetLogTemplates>(data['data']);
-    }
-    if (dataClassName == 'ElogPresetPolicies') {
-      return deserialize<_irzfy450.ElogPresetPolicies>(data['data']);
-    }
-    if (dataClassName == 'ElogPresetRoleCategories') {
-      return deserialize<_iimbkgrt.ElogPresetRoleCategories>(data['data']);
-    }
-    if (dataClassName == 'ElogPresetRoles') {
-      return deserialize<_i1n67tzi.ElogPresetRoles>(data['data']);
-    }
-    if (dataClassName == 'ElogPresetSchedules') {
-      return deserialize<_i01c1yxy.ElogPresetSchedules>(data['data']);
-    }
-    if (dataClassName == 'ElogProblemTypes') {
-      return deserialize<_ib0e9qbb.ElogProblemTypes>(data['data']);
-    }
-    if (dataClassName == 'ElogProblems') {
-      return deserialize<_i4hmoti8.ElogProblems>(data['data']);
-    }
-    if (dataClassName == 'ElogProductCleaningRequirements') {
-      return deserialize<_iele6hju.ElogProductCleaningRequirements>(
-        data['data'],
-      );
-    }
-    if (dataClassName == 'ElogProducts') {
-      return deserialize<_i0caxd73.ElogProducts>(data['data']);
-    }
-    if (dataClassName == 'ElogPunchSets') {
-      return deserialize<_iq0nwjzy.ElogPunchSets>(data['data']);
-    }
-    if (dataClassName == 'ElogReportTemplates') {
-      return deserialize<_iryvos7o.ElogReportTemplates>(data['data']);
-    }
-    if (dataClassName == 'ElogResourceActivityDailyRollups') {
-      return deserialize<_iqykw8hs.ElogResourceActivityDailyRollups>(
-        data['data'],
-      );
-    }
-    if (dataClassName == 'ElogResourceFlagTypes') {
-      return deserialize<_ial2wvcr.ElogResourceFlagTypes>(data['data']);
-    }
-    if (dataClassName == 'ElogResourceFlags') {
-      return deserialize<_if40xrph.ElogResourceFlags>(data['data']);
-    }
-    if (dataClassName == 'ElogResourcePolicies') {
-      return deserialize<_il71c5vn.ElogResourcePolicies>(data['data']);
-    }
-    if (dataClassName == 'ElogResourceStates') {
-      return deserialize<_iw7vxuxk.ElogResourceStates>(data['data']);
-    }
-    if (dataClassName == 'ElogResourceUsages') {
-      return deserialize<_ijudmfzt.ElogResourceUsages>(data['data']);
-    }
-    if (dataClassName == 'ElogRoleCategories') {
-      return deserialize<_ik7tju34.ElogRoleCategories>(data['data']);
-    }
-    if (dataClassName == 'ElogRoleDashboards') {
-      return deserialize<_is5x0ozk.ElogRoleDashboards>(data['data']);
-    }
-    if (dataClassName == 'ElogRolePermissions') {
-      return deserialize<_i8swalwe.ElogRolePermissions>(data['data']);
-    }
-    if (dataClassName == 'ElogRoles') {
-      return deserialize<_i2dkzfxx.ElogRoles>(data['data']);
-    }
-    if (dataClassName == 'ElogSavedViews') {
-      return deserialize<_i91j1h6n.ElogSavedViews>(data['data']);
-    }
-    if (dataClassName == 'ElogToolingProductQualifications') {
-      return deserialize<_iyvpac9s.ElogToolingProductQualifications>(
-        data['data'],
-      );
-    }
-    if (dataClassName == 'ElogToolingTypes') {
-      return deserialize<_i2a97saf.ElogToolingTypes>(data['data']);
-    }
-    if (dataClassName == 'ElogUnitOfMeasures') {
-      return deserialize<_ici4vys7.ElogUnitOfMeasures>(data['data']);
-    }
-    if (dataClassName == 'ElogUserGroupMembers') {
-      return deserialize<_iu9388z4.ElogUserGroupMembers>(data['data']);
-    }
-    if (dataClassName == 'ElogUserGroups') {
-      return deserialize<_id7xfj5e.ElogUserGroups>(data['data']);
-    }
-    if (dataClassName == 'ElogUserRoles') {
-      return deserialize<_i2xv5f50.ElogUserRoles>(data['data']);
-    }
-    if (dataClassName == 'ElogWorkItems') {
-      return deserialize<_iqfb1ejb.ElogWorkItems>(data['data']);
-    }
-    if (dataClassName == 'ElogWorkflowEvents') {
-      return deserialize<_i2qhvyny.ElogWorkflowEvents>(data['data']);
-    }
-    if (dataClassName == 'ElogWorkflowInstances') {
-      return deserialize<_ifguuifm.ElogWorkflowInstances>(data['data']);
-    }
-    if (dataClassName == 'ElogWorkflows') {
-      return deserialize<_ijr902rd.ElogWorkflows>(data['data']);
-    }
-    if (dataClassName == 'PublicESignatures') {
-      return deserialize<_iw9e7ahv.PublicESignatures>(data['data']);
-    }
-    if (dataClassName == 'PublicEntityDraftsAudit') {
-      return deserialize<_iq44tjyb.PublicEntityDraftsAudit>(data['data']);
-    }
-    if (dataClassName == 'PublicEntityDraftsVersions') {
-      return deserialize<_iqjzr2vi.PublicEntityDraftsVersions>(data['data']);
-    }
-    if (dataClassName == 'PublicEntityLifecycleConfigurations') {
-      return deserialize<_i37bl2c2.PublicEntityLifecycleConfigurations>(
-        data['data'],
-      );
-    }
-    if (dataClassName == 'PublicEntityWorkflowInstances') {
-      return deserialize<_i7ltqb3m.PublicEntityWorkflowInstances>(data['data']);
-    }
-    if (dataClassName == 'PublicEntityWorkflowTasks') {
-      return deserialize<_iu718lvo.PublicEntityWorkflowTasks>(data['data']);
-    }
-    if (dataClassName == 'PublicPublic') {
-      return deserialize<_i6x532bo.PublicPublic>(data['data']);
-    }
-    if (dataClassName == 'PublicWorkflowEvents') {
-      return deserialize<_ixdgb3pg.PublicWorkflowEvents>(data['data']);
-    }
-    if (dataClassName == 'PublicWorkflowInstances') {
-      return deserialize<_iku0se9c.PublicWorkflowInstances>(data['data']);
-    }
-    if (dataClassName == 'PublicWorkflowUserTasks') {
-      return deserialize<_ixdjky6f.PublicWorkflowUserTasks>(data['data']);
-    }
-    if (dataClassName == 'SsoAccountUnlockRequests') {
-      return deserialize<_icl3enxx.SsoAccountUnlockRequests>(data['data']);
-    }
-    if (dataClassName == 'SsoAdConnections') {
-      return deserialize<_ikffiba3.SsoAdConnections>(data['data']);
-    }
-    if (dataClassName == 'SsoCompanies') {
-      return deserialize<_ioy9xegh.SsoCompanies>(data['data']);
-    }
-    if (dataClassName == 'SsoCompanySiteAssignments') {
-      return deserialize<_ih26k2g9.SsoCompanySiteAssignments>(data['data']);
-    }
-    if (dataClassName == 'SsoDashboardConfigs') {
-      return deserialize<_i0v3k9y4.SsoDashboardConfigs>(data['data']);
-    }
-    if (dataClassName == 'SsoDepartmentTypes') {
-      return deserialize<_iwzh4spq.SsoDepartmentTypes>(data['data']);
-    }
-    if (dataClassName == 'SsoDepartments') {
-      return deserialize<_isoagnd2.SsoDepartments>(data['data']);
-    }
-    if (dataClassName == 'SsoDesignations') {
-      return deserialize<_ivpbyrtu.SsoDesignations>(data['data']);
-    }
-    if (dataClassName == 'SsoLoginChallenges') {
-      return deserialize<_id58jpdy.SsoLoginChallenges>(data['data']);
-    }
-    if (dataClassName == 'SsoLoginEvents') {
-      return deserialize<_ivkuiv43.SsoLoginEvents>(data['data']);
-    }
-    if (dataClassName == 'SsoNotifications') {
-      return deserialize<_iv9au2ux.SsoNotifications>(data['data']);
-    }
-    if (dataClassName == 'SsoPasswordResetRequests') {
-      return deserialize<_ism6jhlu.SsoPasswordResetRequests>(data['data']);
-    }
-    if (dataClassName == 'SsoProductSettings') {
-      return deserialize<_iqttiq1b.SsoProductSettings>(data['data']);
-    }
-    if (dataClassName == 'SsoProductSiteMappings') {
-      return deserialize<_ir4axp6j.SsoProductSiteMappings>(data['data']);
-    }
-    if (dataClassName == 'SsoProducts') {
-      return deserialize<_id96jnp7.SsoProducts>(data['data']);
-    }
-    if (dataClassName == 'SsoReportExports') {
-      return deserialize<_iu1qu58n.SsoReportExports>(data['data']);
-    }
-    if (dataClassName == 'SsoReportTemplates') {
-      return deserialize<_ichwrbiz.SsoReportTemplates>(data['data']);
-    }
-    if (dataClassName == 'SsoRoleDashboards') {
-      return deserialize<_ib0ko46b.SsoRoleDashboards>(data['data']);
-    }
-    if (dataClassName == 'SsoRolePermissions') {
-      return deserialize<_ifv6xkhy.SsoRolePermissions>(data['data']);
-    }
-    if (dataClassName == 'SsoRoles') {
-      return deserialize<_i0gr1peg.SsoRoles>(data['data']);
-    }
-    if (dataClassName == 'SsoSavedViews') {
-      return deserialize<_if33sioe.SsoSavedViews>(data['data']);
-    }
-    if (dataClassName == 'SsoSecurityPolicies') {
-      return deserialize<_ilqjh0sx.SsoSecurityPolicies>(data['data']);
-    }
-    if (dataClassName == 'SsoSites') {
-      return deserialize<_i4g0kvm8.SsoSites>(data['data']);
-    }
-    if (dataClassName == 'SsoStandardReasons') {
-      return deserialize<_iugbun52.SsoStandardReasons>(data['data']);
-    }
-    if (dataClassName == 'SsoUserPasswordHistory') {
-      return deserialize<_i2qrs2ax.SsoUserPasswordHistory>(data['data']);
-    }
-    if (dataClassName == 'SsoUserPreferences') {
-      return deserialize<_izdzo98l.SsoUserPreferences>(data['data']);
-    }
-    if (dataClassName == 'SsoUserProductSiteMappings') {
-      return deserialize<_i7stpwby.SsoUserProductSiteMappings>(data['data']);
-    }
-    if (dataClassName == 'SsoUserRoles') {
-      return deserialize<_iew7uxuv.SsoUserRoles>(data['data']);
-    }
-    if (dataClassName == 'SsoUserSessions') {
-      return deserialize<_ir5ofehs.SsoUserSessions>(data['data']);
-    }
-    if (dataClassName == 'SsoUsers') {
-      return deserialize<_i4fj2l14.SsoUsers>(data['data']);
+    if (dataClassName == 'CampusResearchProject') {
+      return deserialize<_it8rg4yy.CampusResearchProject>(data['data']);
     }
     if (dataClassName == 'SchemaAccessException') {
       return deserialize<_iqdes7hr.SchemaAccessException>(data['data']);

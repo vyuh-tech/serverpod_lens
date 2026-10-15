@@ -1,0 +1,14 @@
+### Fictional university fixture: enrolment.
+class: CampusWithdrawal
+table: campus_withdrawals
+fields:
+  id: UuidValue?, defaultPersist=random
+  enrolmentId: UuidValue, relation(parent=campus_enrolments)
+  requestedAt: DateTime
+  reason: String
+  approvedById: UuidValue?, relation(parent=campus_lecturers)
+  createdAt: DateTime, default=now
+indexes:
+  campus_withdrawals_u0:
+    fields: enrolmentId
+    unique: true

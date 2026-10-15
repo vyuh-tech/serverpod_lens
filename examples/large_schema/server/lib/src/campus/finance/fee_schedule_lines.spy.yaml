@@ -1,0 +1,13 @@
+### Fictional university fixture: finance.
+class: CampusFeeScheduleLine
+table: campus_fee_schedule_lines
+fields:
+  id: UuidValue?, defaultPersist=random
+  scheduleId: UuidValue, relation(parent=campus_fee_schedules)
+  feeTypeId: UuidValue, relation(parent=campus_fee_types)
+  amountMinor: int
+  createdAt: DateTime, default=now
+indexes:
+  campus_fee_schedule_lines_u0:
+    fields: scheduleId,feeTypeId
+    unique: true

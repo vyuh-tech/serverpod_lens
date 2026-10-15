@@ -1,0 +1,12 @@
+### Fictional university fixture: assessment.
+class: CampusGradeScale
+table: campus_grade_scales
+fields:
+  id: UuidValue?, defaultPersist=random
+  name: String
+  passScore: double
+  createdAt: DateTime, default=now
+indexes:
+  campus_grade_scales_u0:
+    fields: name
+    unique: true

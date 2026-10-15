@@ -1,0 +1,14 @@
+### Fictional university fixture: library.
+class: CampusReadingListEntry
+table: campus_reading_list_entries
+fields:
+  id: UuidValue?, defaultPersist=random
+  readingListId: UuidValue, relation(parent=campus_reading_lists)
+  bookId: UuidValue, relation(parent=campus_books)
+  required: bool
+  notes: String?
+  createdAt: DateTime, default=now
+indexes:
+  campus_reading_list_entries_u0:
+    fields: readingListId,bookId
+    unique: true

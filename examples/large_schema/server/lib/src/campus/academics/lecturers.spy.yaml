@@ -1,0 +1,18 @@
+### Fictional university fixture: academics.
+class: CampusLecturer
+table: campus_lecturers
+fields:
+  id: UuidValue?, defaultPersist=random
+  departmentId: UuidValue, relation(parent=campus_departments)
+  staffNumber: String
+  name: String
+  email: String
+  supervisorId: UuidValue?, relation(parent=campus_lecturers)
+  createdAt: DateTime, default=now
+indexes:
+  campus_lecturers_u0:
+    fields: staffNumber
+    unique: true
+  campus_lecturers_u1:
+    fields: email
+    unique: true

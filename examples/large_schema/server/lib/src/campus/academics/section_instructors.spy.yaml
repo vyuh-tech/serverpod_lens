@@ -1,0 +1,13 @@
+### Fictional university fixture: academics.
+class: CampusSectionInstructor
+table: campus_section_instructors
+fields:
+  id: UuidValue?, defaultPersist=random
+  sectionId: UuidValue, relation(parent=campus_course_sections)
+  lecturerId: UuidValue, relation(parent=campus_lecturers)
+  lead: bool
+  createdAt: DateTime, default=now
+indexes:
+  campus_section_instructors_u0:
+    fields: sectionId,lecturerId
+    unique: true

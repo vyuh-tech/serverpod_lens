@@ -1,0 +1,10 @@
+### Fictional university fixture: assessment.
+class: CampusAssessmentComponent
+table: campus_assessment_components
+fields:
+  id: UuidValue?, defaultPersist=random
+  assessmentId: UuidValue, relation(parent=campus_assessments)
+  title: String
+  maximumScore: double
+  sequence: int
+  createdAt: DateTime, default=now

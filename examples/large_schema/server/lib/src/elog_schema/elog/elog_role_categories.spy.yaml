@@ -1,8 +1,0 @@
-class: ElogRoleCategories
-table: elog_role_categories
-fields:
-  id: UuidValue?, defaultPersist=random
-  code: String
-  name: String
-  description: String?
-  isActive: bool

@@ -1,0 +1,10 @@
+### Fictional university fixture: library.
+class: CampusBook
+table: campus_books
+fields:
+  id: UuidValue?, defaultPersist=random
+  title: String
+  subject: String
+  language: String
+  tags: List<String>
+  createdAt: DateTime, default=now

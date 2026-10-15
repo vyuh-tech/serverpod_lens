@@ -1,0 +1,16 @@
+### Fictional university fixture: research.
+class: CampusGrant
+table: campus_grants
+fields:
+  id: UuidValue?, defaultPersist=random
+  projectId: UuidValue, relation(parent=campus_research_projects)
+  sponsorId: UuidValue, relation(parent=campus_sponsors)
+  reference: String
+  awardedMinor: int
+  currency: String
+  awardedAt: DateTime
+  createdAt: DateTime, default=now
+indexes:
+  campus_grants_u0:
+    fields: reference
+    unique: true

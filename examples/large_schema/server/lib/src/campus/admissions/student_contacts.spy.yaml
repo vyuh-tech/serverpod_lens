@@ -1,0 +1,10 @@
+### Fictional university fixture: admissions.
+class: CampusStudentContact
+table: campus_student_contacts
+fields:
+  id: UuidValue?, defaultPersist=random
+  studentId: UuidValue, relation(parent=campus_students)
+  kind: String
+  value: String
+  preferred: bool
+  createdAt: DateTime, default=now

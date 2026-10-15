@@ -1,0 +1,9 @@
+### Fictional university fixture: finance.
+class: CampusSponsorContribution
+table: campus_sponsor_contributions
+fields:
+  id: UuidValue?, defaultPersist=random
+  sponsorshipId: UuidValue, relation(parent=campus_sponsorships)
+  paymentId: UuidValue, relation(parent=campus_payments)
+  amountMinor: int
+  createdAt: DateTime, default=now

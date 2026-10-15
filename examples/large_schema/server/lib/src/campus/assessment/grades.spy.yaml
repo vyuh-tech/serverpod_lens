@@ -1,0 +1,15 @@
+### Fictional university fixture: assessment.
+class: CampusGrade
+table: campus_grades
+fields:
+  id: UuidValue?, defaultPersist=random
+  submissionId: UuidValue, relation(parent=campus_assessment_submissions)
+  markerId: UuidValue, relation(parent=campus_lecturers)
+  gradeScaleId: UuidValue?, relation(parent=campus_grade_scales)
+  score: double
+  feedback: String?
+  createdAt: DateTime, default=now
+indexes:
+  campus_grades_u0:
+    fields: submissionId
+    unique: true

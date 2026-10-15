@@ -1,0 +1,10 @@
+### Fictional university fixture: research.
+class: CampusPublicationAuthor
+table: campus_publication_authors
+fields:
+  id: UuidValue?, defaultPersist=random
+  publicationId: UuidValue, relation(parent=campus_publications)
+  lecturerId: UuidValue?, relation(parent=campus_lecturers)
+  studentId: UuidValue?, relation(parent=campus_students)
+  sequence: int
+  createdAt: DateTime, default=now

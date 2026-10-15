@@ -1,0 +1,13 @@
+### Fictional university fixture: admissions.
+class: CampusAcceptance
+table: campus_acceptances
+fields:
+  id: UuidValue?, defaultPersist=random
+  offerId: UuidValue, relation(parent=campus_offers)
+  acceptedAt: DateTime
+  depositPaymentId: UuidValue?, relation(parent=campus_payments)
+  createdAt: DateTime, default=now
+indexes:
+  campus_acceptances_u0:
+    fields: offerId
+    unique: true

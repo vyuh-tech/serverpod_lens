@@ -1,0 +1,10 @@
+### Fictional university fixture: housing.
+class: CampusHousingInspection
+table: campus_housing_inspections
+fields:
+  id: UuidValue?, defaultPersist=random
+  contractId: UuidValue, relation(parent=campus_housing_contracts)
+  inspectedAt: DateTime
+  condition: String
+  notes: String?
+  createdAt: DateTime, default=now

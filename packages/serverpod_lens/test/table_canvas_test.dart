@@ -26,7 +26,7 @@ void main() {
       );
       final graph = imported.copyWith(
         tables: imported.tables
-            .where((table) => table.schema == 'sso')
+            .where((table) => table.schema == 'library')
             .toList(),
       );
       final controller = DiagramController(

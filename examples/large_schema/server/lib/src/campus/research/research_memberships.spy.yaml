@@ -1,0 +1,11 @@
+### Fictional university fixture: research.
+class: CampusResearchMembership
+table: campus_research_memberships
+fields:
+  id: UuidValue?, defaultPersist=random
+  projectId: UuidValue, relation(parent=campus_research_projects)
+  studentId: UuidValue?, relation(parent=campus_students)
+  lecturerId: UuidValue?, relation(parent=campus_lecturers)
+  role: String
+  joinedAt: DateTime
+  createdAt: DateTime, default=now
