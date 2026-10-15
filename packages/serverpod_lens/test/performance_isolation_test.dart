@@ -1,3 +1,5 @@
+import 'dart:ui' show PointerDeviceKind;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -7,11 +9,35 @@ import 'package:serverpod_lens/serverpod_lens.dart';
 import 'package:serverpod_lens/diagram.dart';
 import 'package:serverpod_lens/src/screens/schema_browser.dart';
 import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
+import 'package:vyuh_diagram_flutter/adapter.dart' show RenderingOptions;
+import 'package:serverpod_lens/src/schema/schema_canvas.dart';
 
 import 'explorer_workflow_test.dart' show settle, wide;
 import 'support/navigation_fixture.dart';
 
 void main() {
+  test(
+    'web canvas uses native caching and adaptive paint without dropping tables',
+    () async {
+      final graph = fixture(neighbors: 120);
+      final controller = await buildSchemaCanvas(
+        graph,
+        SchemaViewPreferences(),
+        web: true,
+      );
+      try {
+        final options = controller.options<RenderingOptions>();
+        expect(options.render.rasterContent, isTrue);
+        expect(options.lod.adaptive, isTrue);
+        expect(
+          controller.document.elements.whereType<ShapeElement>(),
+          hasLength(graph.tables.length),
+        );
+      } finally {
+        controller.dispose();
+      }
+    },
+  );
   setUp(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
@@ -56,6 +82,37 @@ void main() {
     // ignore: avoid_print
     print('PERF built schema rows: $count / 201');
     expect(count, lessThan(25));
+  });
+
+  testWidgets('hover changes the row surface without rebuilding its contents', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SchemaBrowser(
+            catalog: SchemaCatalog(fixture()),
+            selectedSchema: null,
+            selectedTable: null,
+            onSelectSchema: (_) {},
+            onSelectTable: (_) {},
+          ),
+        ),
+      ),
+    );
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: const Offset(600, 590));
+    var rows = 0;
+    debugOnRebuildDirtyWidget = (element, _) {
+      if (element.widget is SchemaTreeRow) rows++;
+    };
+    await mouse.moveTo(
+      tester.getCenter(find.byKey(const ValueKey('schema:public'))),
+    );
+    await tester.pump();
+    debugOnRebuildDirtyWidget = null;
+    await mouse.removePointer();
+    expect(rows, 0);
   });
 
   Future<DiagramController> mountViewer(WidgetTester tester) async {

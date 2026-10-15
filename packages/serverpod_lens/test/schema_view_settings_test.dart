@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:serverpod_lens/diagram.dart';
 import 'package:serverpod_lens/src/screens/schema_view_settings.dart';
+import 'package:serverpod_lens/src/screens/lens_theme.dart';
 import 'package:vyuh_diagram_extension_connectors/vyuh_diagram_extension_connectors.dart';
 import 'package:vyuh_diagram_extension_minimap/vyuh_diagram_extension_minimap.dart';
 import 'package:vyuh_diagram_extension_snap_guides/vyuh_diagram_extension_snap_guides.dart';
@@ -19,6 +20,7 @@ Future<DiagramController> openSettings(
   double textScale = 1,
   bool dark = false,
   bool rtl = false,
+  LensThemeController? themeController,
 }) async {
   final fixture = connectionFixture();
   final controller = DiagramController(
@@ -36,34 +38,37 @@ Future<DiagramController> openSettings(
   );
   fixture.dispose();
   applySchemaConnections(controller, preferences);
-  await tester.pumpWidget(
-    MaterialApp(
-      theme: ThemeData(brightness: dark ? Brightness.dark : Brightness.light),
-      home: Builder(
-        builder: (context) => Scaffold(
-          body: TextButton(
-            onPressed: () => showDialog<void>(
-              context: context,
-              builder: (context) => MediaQuery(
-                data: MediaQuery.of(context)
-                    .copyWith(textScaler: TextScaler.linear(textScale)),
-                child: Directionality(
-                  textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
-                  child: RepaintBoundary(
-                    key: const ValueKey('settings-preview'),
-                    child: SchemaViewSettings(
-                      controller: controller,
-                      preferences: preferences,
-                    ),
+  final app = MaterialApp(
+    theme: ThemeData(brightness: dark ? Brightness.dark : Brightness.light),
+    home: Builder(
+      builder: (context) => Scaffold(
+        body: TextButton(
+          onPressed: () => showDialog<void>(
+            context: context,
+            builder: (context) => MediaQuery(
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: TextScaler.linear(textScale)),
+              child: Directionality(
+                textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+                child: RepaintBoundary(
+                  key: const ValueKey('settings-preview'),
+                  child: SchemaViewSettings(
+                    controller: controller,
+                    preferences: preferences,
                   ),
                 ),
               ),
             ),
-            child: const Text('Open settings'),
           ),
+          child: const Text('Open settings'),
         ),
       ),
     ),
+  );
+  await tester.pumpWidget(
+    themeController == null
+        ? app
+        : LensThemeScope(controller: themeController, child: app),
   );
   await tester.tap(find.text('Open settings'));
   await tester.pumpAndSettle();

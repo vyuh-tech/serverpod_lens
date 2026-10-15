@@ -220,6 +220,11 @@ class _SchemaViewerState extends State<SchemaViewer> {
       next,
       preferences: _preferences,
       disableAnimations: MediaQuery.disableAnimationsOf(context),
+      // Per-element fades invalidate native cached batches across a dense web
+      // overview. Keep selection outlines and incident connection animations.
+      dimUnrelated:
+          !kIsWeb ||
+          next.document.elements.whereType<ShapeElement>().length < 100,
     );
     _positionWatcher = reaction(
       (_) => (next.document.revision, next.camera.center, next.camera.zoom),

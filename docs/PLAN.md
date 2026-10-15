@@ -36,6 +36,13 @@ The viewer blocks schema edits. Saved preferences contain view geometry rather
 than credentials or model source. Large web scopes disable the native layered
 layout at 100 tables; force layout uses a bounded iteration count.
 
+The browser caches filtered rows and keeps list painting separate from the
+canvas. Settings sliders preview locally and commit diagram changes on release.
+Web canvases use Vyuh's bounded raster cache. At 100 tables, native adaptive
+detail omits unreadable text at overview zoom; selecting a table restores its
+full detail. Large web scopes emphasize connections without fading every
+unrelated table, which would invalidate cached content during selection.
+
 ## Local host
 
 `tool/lens/` contains the launcher and browser host. `serverpod run lens` invokes

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:serverpod_lens/diagram.dart';
+import 'package:serverpod_lens/src/screens/lens_theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:serverpod_lens/src/screens/schema_view_settings.dart';
 import 'package:vyuh_diagram_extension_snap_guides/vyuh_diagram_extension_snap_guides.dart';
 import 'package:vyuh_diagram_extension_minimap/vyuh_diagram_extension_minimap.dart';
@@ -21,6 +23,35 @@ void main() {
     control.onChangeEnd!(value);
     await tester.pump();
   }
+
+  testWidgets(
+    'Appearance supports System Light and Dark without diagram edits',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final theme = LensThemeController();
+      addTearDown(theme.dispose);
+      final controller = await openSettings(
+        tester,
+        SchemaViewPreferences(),
+        themeController: theme,
+      );
+      addTearDown(controller.dispose);
+      final document = controller.document;
+      await tester.tap(find.text('Appearance').last);
+      await tester.pumpAndSettle();
+      for (final mode in ThemeMode.values) {
+        tester
+            .widget<DropdownButtonFormField<ThemeMode>>(
+              find.byType(DropdownButtonFormField<ThemeMode>),
+            )
+            .onChanged!(mode);
+        await tester.pumpAndSettle();
+        expect(theme.value, mode);
+        expect(identical(controller.document, document), isTrue);
+      }
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets(
     'all connection styles and repeated slider drags preserve bindings',

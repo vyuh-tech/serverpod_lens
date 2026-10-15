@@ -1,4 +1,5 @@
-// Run as a release web target. Uses synthetic data and no backend.
+// Synthetic release-web fixture. Browser automation drives the real list
+// controllers and samples requestAnimationFrame without a backend.
 import 'dart:async';
 import 'dart:convert';
 import 'dart:js_interop';
@@ -11,15 +12,18 @@ import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
 
 import 'benchmark.dart' show syntheticGraph;
 
-@JS('lensInteractionResults')
-external set results(JSString value);
+@JS('lensInteractionReady')
+external set _ready(JSBoolean value);
+@JS('lensBrowserScroll')
+external set _scroll(JSFunction value);
+@JS('lensBrowserSearch')
+external set _search(JSFunction value);
+@JS('lensSelectTable')
+external set _select(JSFunction value);
+@JS('lensInteractionState')
+external set _state(JSFunction value);
 
-@JS('requestAnimationFrame')
-external void _requestFrame(JSFunction callback);
-
-void main() {
-  runApp(const MaterialApp(home: _Benchmark()));
-}
+void main() => runApp(const MaterialApp(home: _Benchmark()));
 
 class _Benchmark extends StatefulWidget {
   const _Benchmark();
@@ -31,6 +35,7 @@ class _BenchmarkState extends State<_Benchmark> {
   final _viewer = GlobalKey();
   final _graph = syntheticGraph(200);
   final _store = MemorySchemaViewStore();
+  Timer? _timer;
 
   T? _find<T extends Widget>(bool Function(T) matches) {
     T? found;
@@ -46,63 +51,45 @@ class _BenchmarkState extends State<_Benchmark> {
   @override
   void initState() {
     super.initState();
-    unawaited(_measure());
-  }
-
-  Future<void> _frame() async {
-    WidgetsBinding.instance.scheduleFrame();
-    final frame = Completer<void>();
-    _requestFrame(((JSNumber timestamp) => frame.complete()).toJS);
-    await frame.future;
-  }
-
-  Future<void> _measure() async {
-    try {
-      while (_find<DiagramCanvas>((_) => true) == null) {
-        await Future<void>.delayed(const Duration(milliseconds: 16));
-      }
-      await _frame();
+    _timer = Timer.periodic(const Duration(milliseconds: 16), (_) {
+      final canvas = _find<DiagramCanvas>((_) => true);
+      if (canvas == null || !canvas.controller.isAttached) return;
+      _timer!.cancel();
       _find<SchemaTreeRow>((row) => row.key == const ValueKey('schema:public'))!
           .onToggle!();
-      await _frame();
       final scroll = _find<CustomScrollView>(
         (view) => view.key == const PageStorageKey('schema-tree'),
       )!.controller!;
-      final intervals = <double>[];
-      final clock = Stopwatch()..start();
-      var last = clock.elapsedMicroseconds;
-      for (var i = 1; i <= 60; i++) {
-        scroll.jumpTo((i * 48.0).clamp(0, scroll.position.maxScrollExtent));
-        await _frame();
-        final now = clock.elapsedMicroseconds;
-        intervals.add((now - last) / 1000);
-        last = now;
-      }
       final search = _find<TextField>(
         (field) => field.decoration?.hintText == 'Find a table or column',
       )!;
-      final searchClock = Stopwatch()..start();
-      for (final term in ['table_4', 'table_49', 'field_10', 'missing', '']) {
-        search.controller!.text = term;
-        search.onChanged!(term);
-        await Future<void>.delayed(const Duration(milliseconds: 140));
-        await _frame();
-      }
-      intervals.sort();
-      results = jsonEncode({
-        'tables': _graph.tables.length,
-        'scrollFrames': intervals.length,
-        'scrollMedianMs': intervals[intervals.length ~/ 2],
-        'scrollP95Ms': intervals[(intervals.length * .95).floor()],
-        'scrollMaxMs': intervals.last,
-        'fiveSearchesMs': searchClock.elapsedMilliseconds,
+      _scroll = ((JSNumber offset) => scroll.jumpTo(
+        offset.toDartDouble.clamp(0, scroll.position.maxScrollExtent),
+      )).toJS;
+      _search = ((JSString query) {
+        search.controller!.text = query.toDart;
+        search.onChanged!(query.toDart);
       }).toJS;
-    } catch (error) {
-      results = jsonEncode({'error': error.toString()}).toJS;
-    }
+      _ready = true.toJS;
+      _select = ((JSString name) => canvas.controller.select([
+        name.toDart,
+      ])).toJS;
+      _state = (() => jsonEncode({
+        'effects': canvas.controller.effects.playing.length,
+        'fades': canvas.controller.effects.playing
+            .where((handle) => handle.effect?.kind == EffectKind.fade)
+            .length,
+      }).toJS).toJS;
+    });
   }
 
   @override
   Widget build(BuildContext context) =>
       SchemaViewer(key: _viewer, graph: _graph, viewStore: _store);
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 }

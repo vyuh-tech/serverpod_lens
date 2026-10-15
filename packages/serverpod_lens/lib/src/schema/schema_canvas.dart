@@ -1,6 +1,7 @@
 import 'dart:math' show sqrt;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:serverpod_lens_schema/serverpod_lens_schema.dart';
 import 'package:vyuh_diagram_extension_connectors/vyuh_diagram_extension_connectors.dart';
 import 'package:vyuh_diagram_extension_layout/vyuh_diagram_extension_layout.dart';
@@ -8,6 +9,8 @@ import 'package:vyuh_diagram_extension_minimap/vyuh_diagram_extension_minimap.da
 import 'package:vyuh_diagram_extension_snap_guides/vyuh_diagram_extension_snap_guides.dart';
 import 'package:vyuh_diagram_extension_table_flutter/vyuh_diagram_extension_table_flutter.dart';
 import 'package:vyuh_diagram_flutter/vyuh_diagram_flutter.dart';
+import 'package:vyuh_diagram_flutter/adapter.dart'
+    show RenderingExtension, DiagramLodPolicy, DiagramRenderPolicy;
 import 'package:vyuh_diagram_core/extension_api.dart'
     show DiagramCamera, DiagramCameraGeometry;
 
@@ -66,11 +69,23 @@ enum SchemaLayout {
 
 Future<DiagramController> buildSchemaCanvas(
   SchemaGraph graph,
-  SchemaViewPreferences preferences,
-) async {
+  SchemaViewPreferences preferences, {
+  bool web = kIsWeb,
+}) async {
   final controller = DiagramController(
     configuration: DiagramConfiguration(
       extensions: [
+        if (web)
+          RenderingExtension(
+            // Dense table text is unreadable before a card reaches this size.
+            // Native selection always restores full detail for the active card.
+            lod: DiagramLodPolicy(
+              adaptive: graph.tables.length >= 100,
+              compactBelowPixels: 64,
+              thumbnailBelowPixels: 16,
+            ),
+            render: const DiagramRenderPolicy(rasterContent: true),
+          ),
         schemaViewInteractions,
         ConnectorsExtension(),
         SnapGuidesExtension(
