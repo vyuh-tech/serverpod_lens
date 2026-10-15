@@ -47,19 +47,27 @@ unchanged.
 
 ## Serverpod support
 
-Lens supports every native database field type in **Serverpod 4.0.4**, including
-vectors, geography and JSON. It reads tables, schemas, module identities, keys,
-defaults, indexes and foreign-key relationships from Serverpod's generated schema.
-Composite relationships connect each pair of fields.
+Tested with **Serverpod 4.0.4**. See the [full support matrix and test evidence](docs/SERVERPOD_SUPPORT.md).
 
-Your `.spy.yaml` files provide the model details: Dart field names, inheritance,
-enum values and properties, nested collections, records and objects. Recursive
-models can be explored without expanding forever. Models without a database
-table appear as field details when referenced by a persisted field.
+| Area | What Lens covers |
+| --- | --- |
+| Fields | Every native type, including vectors, geography and JSON; nullability and defaults |
+| IDs and inheritance | Integer/UUID IDs, UUID v7 defaults and inherited persisted fields |
+| Relations | ID/object, optional, reverse, self and junction relations; hidden foreign-key IDs |
+| Composite foreign keys | A field connection for every column pair |
+| Cardinality | Optional/required and one/many relationships; SIMPLE/FULL matching |
+| Indexes and constraints | Unique, compound and partial indexes; foreign-key actions and native metadata |
+| Field aliases | Scalar, inherited and explicitly named foreign-key fields |
+| Enums | Name/index storage, values, defaults and enum properties |
+| Nested types | Lists, sets, maps, records, objects, sealed variants and recursive references |
+| Persistence | Server-only fields included; `!persist` fields and client-only tables omitted |
+| Schemas and modules | Qualified table identities and connections across schemas; separate module identities |
+| Hosts | Local CLI, manual refresh, snapshots and packaged model sources |
+| Navigation | Desktop/mobile, light/dark mode, search, layouts, zoom, minimap and read-only interaction |
 
-We verify this against generated Serverpod projects and all native database
-column types. See the [support matrix](docs/SERVERPOD_SUPPORT.md) for the tests
-and the scope of support.
+Serverpod's generated definition supplies the database structure. Model details
+need the corresponding `.spy.yaml` sources. The full matrix explains source
+availability and scope, including client SQLite and offline-sync boundaries.
 
 ## Packages and examples
 
