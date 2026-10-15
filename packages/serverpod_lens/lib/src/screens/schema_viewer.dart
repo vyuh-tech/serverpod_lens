@@ -49,6 +49,7 @@ class _SchemaViewerState extends State<SchemaViewer> {
   final _inspected = ValueNotifier<String?>(null);
   final _savedViews = <String, Map<String, dynamic>>{};
   DiagramController? _controller;
+  Widget? _canvasSurface;
   ReactionDisposer? _selectionWatcher;
   ReactionDisposer? _effectWatcher;
   ReactionDisposer? _positionWatcher;
@@ -208,6 +209,9 @@ class _SchemaViewerState extends State<SchemaViewer> {
     _positionWatcher?.call();
     final old = _controller;
     _controller = next;
+    _canvasSurface = next == null
+        ? null
+        : _SchemaCanvas(key: _canvasKey, controller: next);
     if (old != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => old.dispose());
     }
@@ -279,7 +283,7 @@ class _SchemaViewerState extends State<SchemaViewer> {
       _browserWidth,
       _inspectorWidth,
     );
-    setState(update);
+    update();
     if (before ==
         (
           _browserVisible,
@@ -290,6 +294,7 @@ class _SchemaViewerState extends State<SchemaViewer> {
         )) {
       return;
     }
+    setState(() {});
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted ||
           controller == null ||
@@ -586,19 +591,23 @@ class _SchemaViewerState extends State<SchemaViewer> {
     if (mounted) _clearSelection();
   }
 
-  Widget _browser({bool closeOnSelect = false}) => SchemaBrowser(
-    key: ValueKey('browser:$_storageKey'),
-    catalog: _catalog,
-    selectedSchema: _schema,
-    selectedTable: _inspected.value,
-    enabled: !_loading,
-    onSelectSchema: (schema) {
-      unawaited(_openSchema(schema));
-      if (closeOnSelect) _scaffoldKey.currentState?.closeDrawer();
-    },
-    onSelectTable: (id) =>
-        unawaited(_selectTable(id, closeBrowser: closeOnSelect)),
-  );
+  Widget _browser({bool closeOnSelect = false}) =>
+      ValueListenableBuilder<String?>(
+        valueListenable: _inspected,
+        builder: (_, selected, _) => SchemaBrowser(
+          key: ValueKey('browser:$_storageKey'),
+          catalog: _catalog,
+          selectedSchema: _schema,
+          selectedTable: selected,
+          enabled: !_loading,
+          onSelectSchema: (schema) {
+            unawaited(_openSchema(schema));
+            if (closeOnSelect) _scaffoldKey.currentState?.closeDrawer();
+          },
+          onSelectTable: (id) =>
+              unawaited(_selectTable(id, closeBrowser: closeOnSelect)),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -625,27 +634,13 @@ class _SchemaViewerState extends State<SchemaViewer> {
         ? -1.0
         : 1.0;
     final controller = _controller;
-    final material = Theme.of(context);
-    final diagram = material.brightness == Brightness.dark
-        ? DiagramTheme.dark
-        : DiagramTheme.light;
-    final content = controller == null
-        ? Center(
-            child: _loading
-                ? const CircularProgressIndicator()
-                : const Text('No schema loaded'),
-          )
-        : ClipRect(
-            child: DiagramCanvas(
-              key: _canvasKey,
-              controller: controller,
-              theme: diagram.copyWith(
-                canvas: diagram.canvas.copyWith(
-                  background: material.colorScheme.surface,
-                ),
-              ),
-            ),
-          );
+    final content =
+        _canvasSurface ??
+        Center(
+          child: _loading
+              ? const CircularProgressIndicator()
+              : const Text('No schema loaded'),
+        );
     return CallbackShortcuts(
       bindings: {
         const SingleActivator(LogicalKeyboardKey.escape): _clearSelection,
@@ -772,7 +767,11 @@ class _SchemaViewerState extends State<SchemaViewer> {
                         offstage: !_inspectorVisible,
                         child: SizedBox(
                           width: inspectorWidth,
-                          child: _inspector(_inspected.value, _clearSelection),
+                          child: ValueListenableBuilder<String?>(
+                            valueListenable: _inspected,
+                            builder: (_, id, _) =>
+                                _inspector(id, _clearSelection),
+                          ),
                         ),
                       ),
                   ],
@@ -799,5 +798,32 @@ class _SchemaViewerState extends State<SchemaViewer> {
       WidgetsBinding.instance.addPostFrameCallback((_) => controller.dispose());
     }
     super.dispose();
+  }
+}
+
+/// Retains the native surface across panel/selection updates. Theme changes
+/// still rebuild through the inherited Theme dependency.
+class _SchemaCanvas extends StatelessWidget {
+  const _SchemaCanvas({super.key, required this.controller});
+  final DiagramController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final material = Theme.of(context);
+    final diagram = material.brightness == Brightness.dark
+        ? DiagramTheme.dark
+        : DiagramTheme.light;
+    return RepaintBoundary(
+      child: ClipRect(
+        child: DiagramCanvas(
+          controller: controller,
+          theme: diagram.copyWith(
+            canvas: diagram.canvas.copyWith(
+              background: material.colorScheme.surface,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

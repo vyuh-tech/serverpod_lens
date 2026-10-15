@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' show max;
 
 import 'package:flutter/material.dart';
 import 'package:serverpod_lens_schema/serverpod_lens_schema.dart';
@@ -38,27 +39,43 @@ class _SchemaBrowserState extends State<SchemaBrowser> {
   Set<String>? _beforeSearch;
   bool _allBeforeSearch = true;
   double _scrollBeforeSearch = 0;
+  final _tableRows = <String, Widget>{};
+  Map<String, List<SchemaTable>> _bySchema = {};
+  List<String> _schemas = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _indexMatches();
+  }
+
+  void _indexMatches() {
+    _bySchema = {};
+    for (final table in widget.catalog.tables(query: _query)) {
+      _bySchema.putIfAbsent(table.schema, () => []).add(table);
+    }
+    _schemas = _bySchema.keys.toList()..sort();
+    _tableRows.clear();
+  }
 
   @override
   void didUpdateWidget(covariant SchemaBrowser oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _expanded.retainAll(widget.catalog.schemaCounts.keys);
-    if (_query.trim().isNotEmpty) {
-      final previous = oldWidget.catalog
-          .tables(query: _query)
-          .map((table) => table.schema)
-          .toSet();
-      _expanded.addAll(
-        widget.catalog
-            .tables(query: _query)
-            .map((table) => table.schema)
-            .where((schema) => !previous.contains(schema)),
-      );
+    if (!identical(oldWidget.catalog, widget.catalog)) {
+      final previousSchemas = _bySchema.keys.toSet();
+      _indexMatches();
+      _expanded.retainAll(widget.catalog.schemaCounts.keys);
+      if (_query.isNotEmpty) {
+        _expanded.addAll(
+          _bySchema.keys.where((schema) => !previousSchemas.contains(schema)),
+        );
+      }
     }
+    if (oldWidget.enabled != widget.enabled) _tableRows.clear();
     if (oldWidget.selectedTable != widget.selectedTable) {
-      final selected = widget.catalog.graph.tables
-          .where((table) => table.name == widget.selectedTable)
-          .firstOrNull;
+      _tableRows.remove(oldWidget.selectedTable);
+      _tableRows.remove(widget.selectedTable);
+      final selected = widget.catalog.tableNamed(widget.selectedTable);
       if (selected != null) {
         _allExpanded = true;
         _expanded.add(selected.schema);
@@ -70,19 +87,20 @@ class _SchemaBrowserState extends State<SchemaBrowser> {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 120), () {
       if (!mounted) return;
-      final searching = value.trim().isNotEmpty;
+      final query = value.trim().toLowerCase();
+      if (query == _query) return;
+      final searching = query.isNotEmpty;
       setState(() {
         if (searching && _beforeSearch == null) {
           _beforeSearch = Set.of(_expanded);
           _allBeforeSearch = _allExpanded;
           _scrollBeforeSearch = _scroll.hasClients ? _scroll.offset : 0;
         }
-        _query = value;
+        _query = query;
+        _indexMatches();
         if (searching) {
           _allExpanded = true;
-          _expanded.addAll(
-            widget.catalog.tables(query: value).map((table) => table.schema),
-          );
+          _expanded.addAll(_bySchema.keys);
         } else if (_beforeSearch != null) {
           _expanded
             ..clear()
@@ -104,13 +122,14 @@ class _SchemaBrowserState extends State<SchemaBrowser> {
 
   @override
   Widget build(BuildContext context) {
-    final matches = widget.catalog.tables(query: _query);
     final counts = widget.catalog.schemaCounts;
-    final bySchema = <String, List<SchemaTable>>{};
-    for (final table in matches) {
-      bySchema.putIfAbsent(table.schema, () => []).add(table);
-    }
-    final schemas = bySchema.keys.toList()..sort();
+    final style = Theme.of(context).textTheme.bodyMedium!;
+    final rowExtent = max(
+      48.0,
+      MediaQuery.textScalerOf(context).scale(style.fontSize!) *
+              (style.height ?? 1.5) +
+          20,
+    ).ceilToDouble();
     final noTableSelected = widget.selectedTable == null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -167,13 +186,13 @@ class _SchemaBrowserState extends State<SchemaBrowser> {
                       : null,
                 ),
               ),
-              if (_allExpanded && matches.isEmpty)
+              if (_allExpanded && _bySchema.isEmpty)
                 const SliverFillRemaining(
                   hasScrollBody: false,
                   child: Center(child: Text('No matching tables')),
                 ),
               if (_allExpanded)
-                for (final schema in schemas) ...[
+                for (final schema in _schemas) ...[
                   SliverToBoxAdapter(
                     child: SchemaTreeRow(
                       key: ValueKey('schema:$schema'),
@@ -197,24 +216,27 @@ class _SchemaBrowserState extends State<SchemaBrowser> {
                     ),
                   ),
                   if (_expanded.contains(schema))
-                    SliverList.builder(
-                      itemCount: bySchema[schema]!.length,
+                    SliverFixedExtentList.builder(
+                      itemExtent: rowExtent,
+                      itemCount: _bySchema[schema]!.length,
                       itemBuilder: (_, index) {
-                        final table = bySchema[schema]![index];
-                        final name = table.name.startsWith('$schema.')
-                            ? table.name.substring(schema.length + 1)
-                            : table.name;
-                        return SchemaTreeRow(
-                          key: ValueKey('table:${table.name}'),
-                          depth: 2,
-                          label: name,
-                          tooltip: table.name,
-                          icon: Icons.table_chart_outlined,
-                          selected: table.name == widget.selectedTable,
-                          onSelect: widget.enabled
-                              ? () => widget.onSelectTable(table.name)
-                              : null,
-                        );
+                        final table = _bySchema[schema]![index];
+                        return _tableRows.putIfAbsent(table.name, () {
+                          final name = table.name.startsWith('$schema.')
+                              ? table.name.substring(schema.length + 1)
+                              : table.name;
+                          return SchemaTreeRow(
+                            key: ValueKey('table:${table.name}'),
+                            depth: 2,
+                            label: name,
+                            tooltip: table.name,
+                            icon: Icons.table_chart_outlined,
+                            selected: table.name == widget.selectedTable,
+                            onSelect: widget.enabled
+                                ? () => widget.onSelectTable(table.name)
+                                : null,
+                          );
+                        });
                       },
                     ),
                 ],

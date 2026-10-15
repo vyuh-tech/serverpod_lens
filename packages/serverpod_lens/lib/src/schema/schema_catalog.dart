@@ -16,13 +16,17 @@ final class SchemaCatalog {
               .toLowerCase();
       _counts.update(table.schema, (n) => n + 1, ifAbsent: () => 1);
     }
+    schemaCounts = Map.unmodifiable(_counts);
+    _byName = {for (final table in _sorted) table.name: table};
   }
   late final List<SchemaTable> _sorted;
   final _search = <String, String>{};
   final _counts = <String, int>{};
   final SchemaGraph graph;
 
-  Map<String, int> get schemaCounts => Map.unmodifiable(_counts);
+  late final Map<String, int> schemaCounts;
+  late final Map<String, SchemaTable> _byName;
+  SchemaTable? tableNamed(String? name) => _byName[name];
 
   List<SchemaTable> tables({String? schema, String query = ''}) {
     final term = query.trim().toLowerCase();
