@@ -9,7 +9,6 @@ and indexes, follow foreign keys, and view the model source.
 Sign in with username `test` and password `test123!`.
 
 The large example contains 156 tables and uses Serverpod authentication.
-[Watch the two-minute walkthrough](https://youtu.be/KS58H6Fy5Hw).
 
 ![Serverpod Lens schema explorer](docs/schema-map.png)
 
