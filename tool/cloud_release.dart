@@ -4,12 +4,12 @@ import 'dart:io';
 import 'package:yaml/yaml.dart';
 
 const lensRegistry = 'https://pub.vyuh.tech';
-const lensRelease = '0.1.1';
+const lensRelease = '0.2.0';
 const lensArchives = {
   'serverpod_lens':
-      '8052cb9849ebce68327e057c6a1398fdcdf58d3bec7287d7fbbfcee588183394',
+      '1c3df9ab691bfc74b088f617db4e3bcb636365e66b44f6c0391f53c98dd55b01',
   'serverpod_lens_schema':
-      '2c4504d1b5653fd096279ae87d55fbcdb0983019387e15c2ae708a9434423f96',
+      '9be19e5acce624accc261c82410ec6e09cbce9ccb43d745aa4710da3fca137be',
 };
 
 /// A new workspace API must not accidentally deploy with an older archive.

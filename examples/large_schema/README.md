@@ -53,10 +53,9 @@ codes appear in server logs.
 [Open the hosted application](https://serverpod-lens.serverpod.space/).
 Username: `test`. Password: `test123!`.
 
-The Cloud release is currently pinned to **0.1.1**. This checkout prepares
-**0.2.0**. Before deploying it, publish the approved packages and update the
-version and archive hashes in `tool/cloud_release.dart`. The build checks that
-these match the workspace versions.
+Cloud builds pin both packages to **0.2.0**, with their published archive hashes
+in `tool/cloud_release.dart`. The build checks that these match the workspace
+versions.
 
 From the repository root, with registry access configured:
 

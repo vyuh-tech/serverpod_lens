@@ -6,9 +6,8 @@
 database-definition contract.** This means 18 concrete storage variants plus the
 `unknown` sentinel. Lens provides a read-only view of the generated server target.
 
-The support work is prepared as **0.2.0**. Publication and Cloud deployment require
-a separate manual release. The live demo currently uses the previously published
-release.
+This support is available in **0.2.0**. Package publication and Cloud deployment
+use separate manual workflows.
 
 | Area | Covered behavior | Evidence |
 | --- | --- | --- |
@@ -63,8 +62,9 @@ contract**, rather than every Serverpod feature or every possible model combinat
 
 ## Verification and release
 
-Verified locally on 2026-10-15: **245 Dart/Flutter tests** and **5 PostgreSQL
-parser tests** pass. The 100-table selection regression also passes in Chromium.
+Verified on 2026-10-15: **250 Dart/Flutter tests** and **5 PostgreSQL
+parser tests** pass in CI. Chromium also covers large-schema selection,
+relationship exploration and saved layouts with self references.
 Both examples regenerate with Serverpod 4.0.4 without
 changing checked-in generated code. Both 0.2.0 package publication dry runs pass
 with only the expected custom-registry tier warning. The public dependency
@@ -76,15 +76,15 @@ CI additionally regenerates the examples with Serverpod 4.0.4 and rejects stale
 checked-in generated code, verifies selection in Chrome, runs the SQL parser
 tests, and checks public dependency advisories.
 
-Before deploying this support release:
+For future releases:
 
 1. Approve the tested support changes in `main` for release.
-2. Manually publish both 0.2.0 packages, schema first.
+2. Manually publish both packages, schema first.
 3. Update `tool/cloud_release.dart` to the published version and actual archive
    hashes. Its build guard rejects mismatched workspace/release versions.
 4. Build and verify the isolated Cloud release, then deploy when approved.
 
-These support changes do not publish packages or change the live demo.
+Publishing and Cloud deployment remain manual.
 
 ## Reference
 

@@ -82,11 +82,10 @@ The schema package reads the structure; the viewer makes it explorable. Your
 host supplies the graph, so you can use a local file or a connected Serverpod app.
 See [how the pieces fit together](docs/PLAN.md).
 
-Both packages are published as **0.1.1** on
+Both packages are published as **0.2.0** on
 [pub.vyuh.tech](https://pub.vyuh.tech) in the **internal** tier. Installing them
-requires registry access. This checkout prepares **0.2.0** for manual publication;
-its new support is available locally. See each package's README for installation
-and API examples.
+requires registry access. See each package's README for installation and API
+examples.
 
 ## Examples
 
