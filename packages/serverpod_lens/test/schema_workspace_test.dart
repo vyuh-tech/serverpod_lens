@@ -129,7 +129,7 @@ void main() {
   );
 
   testWidgets(
-    'connections cannot replace table inspection or expose editing handles',
+    'connections keep native path selection without replacing table inspection',
     (tester) async {
       expect(SchemaViewPreferences().snapGuides, isFalse);
       expect(SchemaViewPreferences().snap, isFalse);
@@ -137,20 +137,21 @@ void main() {
       final edge = controller.document.elements
           .whereType<ConnectorElement>()
           .first;
+      final document = controller.document;
       expect(edge.isLocked, isTrue);
       controller.select(['public.orders']);
       await ready(tester);
       controller.select([edge.id]);
       await ready(tester);
-      expect((controller.selection as ElementSelection).elementIds, {
-        'public.orders',
-      });
+      expect((controller.selection as ElementSelection).elementIds, {edge.id});
       expect(find.widgetWithText(Tab, 'Fields'), findsOneWidget);
       controller.clearSelection();
       await ready(tester);
       controller.select([edge.id]);
       await ready(tester);
-      expect(controller.selection, isA<EmptySelection>());
+      expect((controller.selection as ElementSelection).elementIds, {edge.id});
+      expect(find.byType(TabBar), findsNothing);
+      expect(identical(controller.document, document), isTrue);
       await close(tester);
     },
   );

@@ -241,17 +241,9 @@ class _SchemaViewerState extends State<SchemaViewer> {
             next.selection != selection) {
           return;
         }
-        // Lines are context, not inspector targets. Preserve the table when a
-        // native hit test selects a connection or its label.
-        if (connectionSelected) {
-          final tables = ids.where(_context.tables.containsKey).toList();
-          final previous = _inspected.value;
-          if (tables.isEmpty && previous != null) {
-            tables.add(previous);
-          }
-          next.select(tables);
-          return;
-        }
+        // Keep Vyuh's native path/label outline. Connections remain locked,
+        // and selecting one does not replace the last table inspector.
+        if (connectionSelected && id == null) return;
         _updatePanels(() {
           if (_inspected.value != id) _inspectorVisible = id != null;
           _inspected.value = id;

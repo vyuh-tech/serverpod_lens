@@ -50,8 +50,9 @@ void main() {
           );
         }
         if (style.hasCorners) await slider(tester, 'Port lead length', 42);
-        if (style == SchemaConnectionStyle.rounded)
+        if (style == SchemaConnectionStyle.rounded) {
           await slider(tester, 'Corner radius', 24);
+        }
         final dashed = tester.widget<SwitchListTile>(
           find.widgetWithText(SwitchListTile, 'Dashed lines'),
         );

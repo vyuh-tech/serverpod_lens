@@ -975,6 +975,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.19.5"
+  navigator_resizable:
+    dependency: transitive
+    description:
+      name: navigator_resizable
+      sha256: "689f591b70218e152c6496b41142d9058e6c9ba5581a4126a7db978a8239d2eb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
   nested:
     dependency: transitive
     description:
@@ -1580,6 +1588,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  smooth_sheets:
+    dependency: transitive
+    description:
+      name: smooth_sheets
+      sha256: ba259b865b583713aa45b9adb44619a3c128786929bd2e7713faea48e110e17c
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.0"
   source_map_stack_trace:
     dependency: transitive
     description:
@@ -1904,10 +1920,10 @@ packages:
     dependency: transitive
     description:
       name: vyuh_cdx_ui
-      sha256: "81fa7604c91091e6ffde1ae923032c797a41a2c593061a0a65c1de4f54556607"
+      sha256: "84985a51433d15eabf9859035dc8846cd91d260fcbd682c4bd2b974e07644c53"
       url: "https://pub.vyuh.tech"
     source: hosted
-    version: "7.4.0"
+    version: "9.4.1"
   vyuh_core:
     dependency: transitive
     description:
@@ -1920,90 +1936,90 @@ packages:
     dependency: transitive
     description:
       name: vyuh_diagram_codec_json
-      sha256: "51ab3506c0380cb209d26e521dd3165e7aca126a6b0a7b812d43d10eaa120676"
+      sha256: a4d36e6b6eba250d5ebf0bac864d85cd6f4bd801edb2bf2af23a5230fa2318b0
       url: "https://pub.dev"
     source: hosted
-    version: "3.5.1"
+    version: "3.7.2"
   vyuh_diagram_codec_svg:
     dependency: transitive
     description:
       name: vyuh_diagram_codec_svg
-      sha256: d1a182b7e22bc59ba5c99377f329fc50eac92f4a84921c282a0bd69bea8fd1f2
+      sha256: dd7560716ca1e8ef0c819a9015fe1362f733b16b89b94ab2a1697f5d6c4ce340
       url: "https://pub.dev"
     source: hosted
-    version: "3.5.1"
+    version: "3.7.2"
   vyuh_diagram_core:
     dependency: transitive
     description:
       name: vyuh_diagram_core
-      sha256: "59e6841fa8364c41f43b68da99e18bccbca77ed6b8fa60135201d510d2716972"
+      sha256: "878d482a4f1f9a6c1ede612d5155ffe5dc8a645a06a6db083a3faaf82f03b201"
       url: "https://pub.dev"
     source: hosted
-    version: "3.5.1"
+    version: "3.7.2"
   vyuh_diagram_extension_connectors:
     dependency: transitive
     description:
       name: vyuh_diagram_extension_connectors
-      sha256: ac87f56dc1ec37f7d29e8527c07fc3397d43df621474f71d9a7806b4726f738e
+      sha256: "5395499fe9e633d96423a6c7f2d293a67d38f2a248151d29a96bf31244cfe4ef"
       url: "https://pub.vyuh.tech"
     source: hosted
-    version: "3.5.1"
+    version: "3.7.2"
   vyuh_diagram_extension_layout:
     dependency: transitive
     description:
       name: vyuh_diagram_extension_layout
-      sha256: bbb0cf00d9a3a4753174e96f8eaa61f4e771cf14484ce914c0c2b1414b10601c
+      sha256: "365fa4b6e9f0b09dcdf902f0b1b9307f1bec9dfa9abc5fdf9ff70ea358e5f132"
       url: "https://pub.vyuh.tech"
     source: hosted
-    version: "3.5.1"
+    version: "3.7.2"
   vyuh_diagram_extension_minimap:
     dependency: transitive
     description:
       name: vyuh_diagram_extension_minimap
-      sha256: e394f11766f91244180550d609a9e01392a655ae4259983194a43d33f16c381b
+      sha256: "009154e825e390f4536f2ccb9bab9c1160644a6cc79900ea95d4616c0a2d3128"
       url: "https://pub.vyuh.tech"
     source: hosted
-    version: "3.5.1"
+    version: "3.7.2"
   vyuh_diagram_extension_snap_guides:
     dependency: transitive
     description:
       name: vyuh_diagram_extension_snap_guides
-      sha256: "067162ee2a2473b3addaa01d637f542340b6c1139287ae97057ae79294e5ff92"
+      sha256: da7c05e2340e93287c24b6ccbceb597bfa2f6e682641e05e6b52780156a00164
       url: "https://pub.vyuh.tech"
     source: hosted
-    version: "3.5.1"
+    version: "3.7.2"
   vyuh_diagram_extension_table:
     dependency: transitive
     description:
       name: vyuh_diagram_extension_table
-      sha256: "172b15681ea96477c5725951a92cd8b74c17565842a3754b4403ff4fb0e13257"
+      sha256: "88cc55acbbda6edea878f9d967cda21b9dd1cbd3eb219b0d3128c9da429af713"
       url: "https://pub.vyuh.tech"
     source: hosted
-    version: "3.5.1"
+    version: "3.7.2"
   vyuh_diagram_extension_table_flutter:
     dependency: transitive
     description:
       name: vyuh_diagram_extension_table_flutter
-      sha256: c4f96c9e6a73466249acbd7241a4ad234295cba953ebd71a4d406cd19af262a6
+      sha256: eb0e2a6d59012a95e47ea2a8b530f94f20deec59715937c2fa4e575d092187f3
       url: "https://pub.vyuh.tech"
     source: hosted
-    version: "3.5.1"
+    version: "3.7.2"
   vyuh_diagram_flutter:
     dependency: transitive
     description:
       name: vyuh_diagram_flutter
-      sha256: feba94c3d238626bbfb50ebbf1bca92b3e03d56ddc8ecc58b6b1b8bc96cbced5
+      sha256: a0cbb52e8b8a329c6b35f032683ed386ce9eb02e11786819f2062f3b70db29c9
       url: "https://pub.dev"
     source: hosted
-    version: "3.5.1"
+    version: "3.7.2"
   vyuh_diagram_types:
     dependency: transitive
     description:
       name: vyuh_diagram_types
-      sha256: "6ee5bab3f7ed973ff6b0867118662dac4d56950a07b79c4b60c7bf03862f2a48"
+      sha256: a43c437b8a1d7f9c7020942066a723b5aa612b138ef05e15d9fe47fadcb91a50
       url: "https://pub.dev"
     source: hosted
-    version: "3.5.1"
+    version: "3.7.2"
   vyuh_errors:
     dependency: transitive
     description:
