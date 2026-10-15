@@ -1,3 +1,7 @@
+## 0.1.1
+
+- Clarify registry installation and model-source integration in the package README.
+
 ## 0.1.0
 
 - Plain Dart graph and reader for resolved Serverpod database definitions.

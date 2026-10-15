@@ -18,7 +18,7 @@ Add the published package to your application's `pubspec.yaml`:
 dependencies:
   serverpod_lens:
     hosted: https://pub.vyuh.tech
-    version: ^0.1.0
+    version: ^0.1.1
 
 dependency_overrides:
   base_menu: 0.2.0

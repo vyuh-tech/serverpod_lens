@@ -16,7 +16,7 @@ dart pub token add https://pub.vyuh.tech
 dependencies:
   serverpod_lens_schema:
     hosted: https://pub.vyuh.tech
-    version: ^0.1.0
+    version: ^0.1.1
 ```
 
 Run `dart pub get`. The package is published with the `internal` tier.

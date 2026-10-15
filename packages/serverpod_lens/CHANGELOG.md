@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.1
 
 - Upgrade Vyuh Diagram to 3.7.2 with native shape and connector selection outlines.
 - Isolate browser scrolling, searching, selection, and hover from canvas rebuilds.
