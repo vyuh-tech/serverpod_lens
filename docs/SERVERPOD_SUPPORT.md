@@ -24,7 +24,7 @@ release.
 | Persistence scope | Server-only persisted fields remain visible; `!persist` fields stay outside table columns; client-only tables stay outside the server target | [Generated matrix](../examples/shop/server/test/feature_matrix_test.dart) |
 | Schemas/modules | Qualified identities and references; database schema and module remain separate | [Reader tests](../packages/serverpod_lens_schema/test/schema_definition_reader_test.dart), [native contract](../examples/large_schema/server/test/native_schema_contract_test.dart) |
 | Hosts | Local CLI subprocess, unchanged snapshots, source access policy, packaged model metadata for compiled hosts | [CLI tests](../tool/lens/test/project_snapshot_test.dart), [compiled assets](../examples/large_schema/server/test/host_model_sources_test.dart) |
-| Usability | Desktop/mobile navigation, light/dark inspection, search, native layouts/zoom/minimap and read-only gestures | [Viewer tests](../packages/serverpod_lens/test/) |
+| Usability | Desktop/mobile navigation, light/dark inspection, search, native layouts/zoom/minimap and read-only gestures | [Viewer tests](../packages/serverpod_lens/test/), [large web selection](../packages/serverpod_lens/test/dense_selection_test.dart) |
 
 ## How to interpret support
 
@@ -63,8 +63,9 @@ contract**, rather than every Serverpod feature or every possible model combinat
 
 ## Verification and release
 
-Verified locally on 2026-10-15: **244 Dart/Flutter tests** and **5 PostgreSQL
-parser tests** pass. Both examples regenerate with Serverpod 4.0.4 without
+Verified locally on 2026-10-15: **245 Dart/Flutter tests** and **5 PostgreSQL
+parser tests** pass. The 100-table selection regression also passes in Chromium.
+Both examples regenerate with Serverpod 4.0.4 without
 changing checked-in generated code. Both 0.2.0 package publication dry runs pass
 with only the expected custom-registry tier warning. The public dependency
 advisory scan reports no known advisories across 282 locked packages.
@@ -72,8 +73,8 @@ advisory scan reports no known advisories across 282 locked packages.
 Run `tool/verify.sh` after resolving the workspace. Server tests use managed
 PostgreSQL and need a local test credential or `SERVERPOD_PASSWORD_database`.
 CI additionally regenerates the examples with Serverpod 4.0.4 and rejects stale
-checked-in generated code, runs the SQL parser tests, and checks public dependency
-advisories.
+checked-in generated code, verifies selection in Chrome, runs the SQL parser
+tests, and checks public dependency advisories.
 
 Before deploying this support release:
 
