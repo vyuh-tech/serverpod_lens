@@ -69,7 +69,16 @@ Serverpod's generated definition supplies the database structure. Model details
 need the corresponding `.spy.yaml` sources. The full matrix explains source
 availability and scope, including client SQLite and offline-sync boundaries.
 
-## Packages and examples
+## Packages
+
+| Package | Role | How to use it |
+| --- | --- | --- |
+| [serverpod_lens_schema](packages/serverpod_lens_schema/) | Reads Serverpod definitions into a plain Dart schema graph, with optional model source details. No Flutter dependency. | Use `SchemaExtractor` to read a generated definition, or `LensSchemaSource` to create a snapshot for a host. |
+| [serverpod_lens](packages/serverpod_lens/) | Embeddable Flutter viewer with search, layouts and a table inspector, powered by Vyuh Diagram. | Pass a `SchemaGraph` to `SchemaViewer` in your Flutter app. |
+
+The schema package reads the structure; the viewer makes it explorable. Your
+host supplies the graph, so you can use a local file or a connected Serverpod app.
+See [how the pieces fit together](docs/PLAN.md).
 
 Both packages are published as **0.1.1** on
 [pub.vyuh.tech](https://pub.vyuh.tech) in the **internal** tier. Installing them
@@ -77,18 +86,15 @@ requires registry access. This checkout prepares **0.2.0** for manual publicatio
 its new support is available locally. See each package's README for installation
 and API examples.
 
-| Path | Contents |
-| --- | --- |
-| [serverpod_lens](packages/serverpod_lens/) | Flutter viewer and host integration |
-| [serverpod_lens_schema](packages/serverpod_lens_schema/) | Plain Dart schema graph, reader, and snapshots |
-| [Shop example](examples/shop/) | Small shop and generated Serverpod feature compatibility tests |
-| [Large-schema example](examples/large_schema/) | 156-table university campus project and connected Cloud host |
-| [Local launcher](tool/lens/) | CLI and browser host |
-| [Optional imports](tool/lens/imports/) | ZIP, YAML, and PostgreSQL SQL adapters |
+## Examples
 
-Serverpod supplies the database definition. Lens reads it and adds model details;
-Vyuh Diagram handles the canvas, connections, movement and layouts.
-See [how the pieces fit together](docs/PLAN.md).
+| Project | What it shows |
+| --- | --- |
+| [Shop](examples/shop/) | Small Serverpod project with local Lens setup and model compatibility tests. |
+| [University campus](examples/large_schema/) | 156-table project with a connected Flutter host, Serverpod authentication and the Cloud demo. |
+
+The [local launcher](tool/lens/) runs `serverpod run lens` from either example.
+[Optional import adapters](tool/lens/imports/) handle ZIP, YAML and PostgreSQL SQL.
 
 ## Development
 
