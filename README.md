@@ -12,6 +12,10 @@ Sign in with username `test` and password `test123!`.
 The Cloud demo explores a fictional university campus with 156 tables and uses
 Serverpod authentication.
 
+Try searching for `campus_students`, select the table, then inspect its fields,
+relationships and model source. Choose **2 hops → Bring together** to explore
+the connected tables.
+
 ![Serverpod Lens in dark mode, exploring the campus schema](docs/schema-map.png)
 
 ## Run locally
@@ -35,6 +39,9 @@ After Serverpod regenerates your models, click Refresh to load the changes.
 The launcher runs from this checkout. See [local tool setup](tool/lens/README.md).
 
 ## Explore a schema
+
+Built for large schemas, with native Vyuh rendering, zoom-dependent detail and
+focused relationship navigation. The hosted demo runs the full 156-table schema.
 
 - Search for a table or column, or browse **All schemas → schema → tables**.
 - Select a table to highlight its relationships and inspect its fields, keys,
@@ -98,6 +105,9 @@ The [local launcher](tool/lens/) runs `serverpod run lens` from either example.
 [Optional import adapters](tool/lens/imports/) handle ZIP, YAML and PostgreSQL SQL.
 
 ## Development
+
+Built with Flutter, Dart, Serverpod and Vyuh Diagram. OpenAI Codex assisted with
+implementation, tests and documentation.
 
 After installing workspace dependencies, run:
 

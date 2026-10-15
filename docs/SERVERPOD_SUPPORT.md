@@ -24,6 +24,7 @@ use separate manual workflows.
 | Schemas/modules | Qualified identities and references; database schema and module remain separate | [Reader tests](../packages/serverpod_lens_schema/test/schema_definition_reader_test.dart), [native contract](../examples/large_schema/server/test/native_schema_contract_test.dart) |
 | Hosts | Local CLI subprocess, unchanged snapshots, source access policy, packaged model metadata for compiled hosts | [CLI tests](../tool/lens/test/project_snapshot_test.dart), [compiled assets](../examples/large_schema/server/test/host_model_sources_test.dart) |
 | Usability | Desktop/mobile navigation, light/dark inspection, search, native layouts/zoom/minimap and read-only gestures | [Viewer tests](../packages/serverpod_lens/test/), [large web selection](../packages/serverpod_lens/test/dense_selection_test.dart) |
+| Large schemas | Native vector rendering, adaptive detail, isolated browser updates and focused one/two-hop exploration; 156-table hosted demo | [Rendering and rebuild checks](../packages/serverpod_lens/test/performance_isolation_test.dart), [relationship exploration](../packages/serverpod_lens/test/relationship_exploration_test.dart) |
 
 ## How to interpret support
 
@@ -61,6 +62,13 @@ revalidation. The broad claim is **all native field/storage variants in the pinn
 contract**, rather than every Serverpod feature or every possible model combination.
 
 ## Verification and release
+
+Large-schema navigation is verified in the 156-table Cloud example. Regression
+tests check that table selection does not rebuild the canvas, browser search and
+scroll do not repaint it, and native vector rendering stays enabled after camera
+movement. Animation frame rates depend on the device, graph and visible effects;
+these checks establish behavior and rendering isolation, not a universal frame-rate
+guarantee.
 
 Verified on 2026-10-15: **250 Dart/Flutter tests** and **5 PostgreSQL
 parser tests** pass in CI. Chromium also covers large-schema selection,
